@@ -12,7 +12,7 @@ namespace LLamaStack.Core
     public class ModelSession<T> where T : IEquatable<T>
     {
         private readonly T _sessionId;
-        private readonly LLamaStackModelContext _context;
+        private readonly LLamaStackContext _context;
         private readonly ILLamaExecutor _executor;
         private readonly ISessionConfig _sessionParams;
         private readonly IPromptConfig _promptParams;
@@ -31,7 +31,7 @@ namespace LLamaStack.Core
         /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
         /// <param name="sessionHistory">The session history.</param>
-        public ModelSession(LLamaStackModelContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, IEnumerable<SessionHistoryModel> sessionHistory = null)
+        public ModelSession(LLamaStackContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, IEnumerable<SessionHistoryModel> sessionHistory = null)
         {
             _context = context;
             _sessionId = sessionId;
@@ -68,7 +68,7 @@ namespace LLamaStack.Core
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="sessionState">State of the session.</param>
-        public ModelSession(LLamaStackModelContext context, ModelSessionState<T> sessionState)
+        public ModelSession(LLamaStackContext context, ModelSessionState<T> sessionState)
              : this(context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig, sessionState.SessionHistory)
         {
             // Load Executor state
@@ -97,7 +97,7 @@ namespace LLamaStack.Core
         /// <summary>
         /// Gets the context.
         /// </summary>
-        public LLamaStackModelContext Context => _context;
+        public LLamaStackContext Context => _context;
 
         /// <summary>
         /// Gets the session configuration.

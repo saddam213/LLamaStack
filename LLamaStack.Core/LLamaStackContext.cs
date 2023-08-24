@@ -2,11 +2,11 @@
 
 namespace LLamaStack.Core
 {
-    public class LLamaStackModelContext : IDisposable
+    public class LLamaStackContext : IDisposable
     {
         private readonly LLamaContext _context;
 
-        public LLamaStackModelContext(LLamaContext context)
+        public LLamaStackContext(LLamaContext context)
         {
             _context = context;
         }

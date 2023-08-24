@@ -130,7 +130,7 @@ namespace LLamaStack.Core.Services
         /// <param name="key">The key.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model not found</exception>
-        public async Task<LLamaStackModelContext> GetContext(string modelName, string key)
+        public async Task<LLamaStackContext> GetContext(string modelName, string key)
         {
             if (!_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
                 throw new Exception("Model not found");
@@ -146,7 +146,7 @@ namespace LLamaStack.Core.Services
         /// <param name="key">The key.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model not found</exception>
-        public async Task<LLamaStackModelContext> CreateContext(string modelName, string key)
+        public async Task<LLamaStackContext> CreateContext(string modelName, string key)
         {
             if (!_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
                 throw new Exception("Model not found");
@@ -184,7 +184,7 @@ namespace LLamaStack.Core.Services
         /// <param name="key">The key.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model option '{modelName}' not found</exception>
-        public async Task<LLamaStackModelContext> GetOrCreateModelAndContext(string modelName, string key)
+        public async Task<LLamaStackContext> GetOrCreateModelAndContext(string modelName, string key)
         {
             if (_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
             {

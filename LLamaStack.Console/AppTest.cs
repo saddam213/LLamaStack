@@ -28,7 +28,7 @@ namespace LLamaStack.Console
             LLamaStackModel model = new LLamaStackModel(_configuration.Models.FirstOrDefault());
 
             // Create Context
-            LLamaStackModelContext context1 = await model.CreateContext("context1");
+            LLamaStackContext context1 = await model.CreateContext("context1");
 
             // Create executor
             InteractiveExecutor executor1 = new InteractiveExecutor(context1.LLamaContext);

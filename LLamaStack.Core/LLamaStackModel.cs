@@ -10,13 +10,13 @@ namespace LLamaStack.Core
     {
         private readonly ModelConfig _config;
         private readonly LLamaWeights _weights;
-        private readonly ConcurrentDictionary<string, LLamaStackModelContext> _contexts;
+        private readonly ConcurrentDictionary<string, LLamaStackContext> _contexts;
 
         public LLamaStackModel(ModelConfig modelParams)
         {
             _config = modelParams;
             _weights = LLamaWeights.LoadFromFile(modelParams);
-            _contexts = new ConcurrentDictionary<string, LLamaStackModelContext>();
+            _contexts = new ConcurrentDictionary<string, LLamaStackContext>();
         }
 
         public int ContextCount => _contexts.Count;
@@ -27,7 +27,7 @@ namespace LLamaStack.Core
         /// <param name="contextId">The unique context identifier</param>
         /// <returns>LLamaModelContext for this LLamaModel</returns>
         /// <exception cref="Exception">Context exists</exception>
-        public Task<LLamaStackModelContext> CreateContext(string contextId)
+        public Task<LLamaStackContext> CreateContext(string contextId)
         {
             if (_contexts.TryGetValue(contextId, out var context))
                 throw new Exception($"Context with id {contextId} already exists.");
@@ -35,11 +35,11 @@ namespace LLamaStack.Core
             if (_config.MaxInstances > -1 && ContextCount >= _config.MaxInstances)
                 throw new Exception($"Maximum model instances reached");
 
-            context = new LLamaStackModelContext(_weights.CreateContext(_config));
+            context = new LLamaStackContext(_weights.CreateContext(_config));
             if (_contexts.TryAdd(contextId, context))
                 return Task.FromResult(context);
 
-            return Task.FromResult<LLamaStackModelContext>(null);
+            return Task.FromResult<LLamaStackContext>(null);
         }
 
         /// <summary>
@@ -47,12 +47,12 @@ namespace LLamaStack.Core
         /// </summary>
         /// <param name="contextId">The unique context identifier</param>
         /// <returns>LLamaModelContext for this LLamaModel with the specified contextId</returns>
-        public Task<LLamaStackModelContext> GetContext(string contextId)
+        public Task<LLamaStackContext> GetContext(string contextId)
         {
             if (_contexts.TryGetValue(contextId, out var context))
                 return Task.FromResult(context);
 
-            return Task.FromResult<LLamaStackModelContext>(null);
+            return Task.FromResult<LLamaStackContext>(null);
         }
 
         /// <summary>

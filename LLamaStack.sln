@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaStack.Core", "LLamaSta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaStack.Console", "LLamaStack.Console\LLamaStack.Console.csproj", "{31EB243D-9805-4F52-99ED-E7AF6CCF0D20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaStack.WPF", "LLamaStack.WPF\LLamaStack.WPF.csproj", "{1290B8C7-43D7-4089-B800-DAFC9BD74D36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{31EB243D-9805-4F52-99ED-E7AF6CCF0D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31EB243D-9805-4F52-99ED-E7AF6CCF0D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31EB243D-9805-4F52-99ED-E7AF6CCF0D20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1290B8C7-43D7-4089-B800-DAFC9BD74D36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1290B8C7-43D7-4089-B800-DAFC9BD74D36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1290B8C7-43D7-4089-B800-DAFC9BD74D36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1290B8C7-43D7-4089-B800-DAFC9BD74D36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

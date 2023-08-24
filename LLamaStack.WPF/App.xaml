@@ -1,0 +1,26 @@
+﻿<Application x:Class="LLamaStack.WPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:LLamaStack.WPF"
+             xmlns:converters="clr-namespace:LLamaStack.WPF.Converters"
+             xmlns:core="clr-namespace:LLamaStack.Core.Common;assembly=LLamaStack.Core"
+             xmlns:llamaSharpCommon="clr-namespace:LLama.Common;assembly=LLamaSharp">
+    <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+
+        <ObjectDataProvider x:Key="LLamaExecutorTypeValues" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="core:LLamaExecutorType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="LLamaMirostatType" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="llamaSharpCommon:MirostatType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+    </Application.Resources>
+</Application>

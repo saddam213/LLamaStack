@@ -1,0 +1,141 @@
+﻿<UserControl x:Class="LLamaStack.WPF.Views.Parameters"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LLamaStack.WPF.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Name="UI">
+    <DockPanel DataContext="{Binding ElementName=UI}">
+
+        <StackPanel DockPanel.Dock="Top" Margin="5">
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel>
+                        <Label>MaxTokens</Label>
+                        <TextBlock Text="{Binding ElementName=SliderMaxTokens, Path=Value, StringFormat={}{0}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderMaxTokens" Value="{Binding Configuration.MaxTokens}" Minimum="-1" Maximum="2048" TickFrequency="1" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+                    <DockPanel>
+                        <Label>TokensKeep</Label>
+                        <TextBlock Text="{Binding ElementName=SliderTokensKeep, Path=Value, StringFormat={}{0}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderTokensKeep" Value="{Binding Configuration.TokensKeep}" Minimum="0" Maximum="2048" TickFrequency="1" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel>
+                        <Label>TopK</Label>
+                        <TextBlock Text="{Binding ElementName=SliderTopK, Path=Value, StringFormat={}{0}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderTopK" Value="{Binding Configuration.TopK}" Minimum="-1" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+                    <DockPanel>
+                        <Label>TopP</Label>
+                        <TextBlock Text="{Binding ElementName=SliderTopP, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderTopP" Value="{Binding Configuration.TopP}" Minimum="0" Maximum="1" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel>
+                        <Label>TypicalP</Label>
+                        <TextBlock Text="{Binding ElementName=SliderTypicalP, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderTypicalP" Value="{Binding Configuration.TypicalP}" Minimum="0" Maximum="1.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+                    <DockPanel>
+                        <Label>Temperature</Label>
+                        <TextBlock Text="{Binding ElementName=SliderTemperature, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderTemperature" Value="{Binding Configuration.Temperature}" Minimum="0" Maximum="1.5" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel>
+                        <Label>RepeatPenalty</Label>
+                        <TextBlock Text="{Binding ElementName=SliderRepeatPenalty, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderRepeatPenalty" Value="{Binding Configuration.RepeatPenalty}" Minimum="0" Maximum="2.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+                    <DockPanel>
+                        <Label>RepeatLastTokens</Label>
+                        <TextBlock Text="{Binding ElementName=SliderRepeatLastTokensCount, Path=Value, StringFormat={}{0}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderRepeatLastTokensCount" Value="{Binding Configuration.RepeatLastTokensCount}" Minimum="0" Maximum="2048" TickFrequency="1" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel>
+                        <Label>FrequencyPenalty</Label>
+                        <TextBlock Text="{Binding ElementName=SliderFrequencyPenalty, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderFrequencyPenalty" Value="{Binding Configuration.FrequencyPenalty}" Minimum="0" Maximum="1.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+                    <DockPanel>
+                        <Label>PresencePenalty</Label>
+                        <TextBlock Text="{Binding ElementName=SliderPresencePenalty, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderPresencePenalty" Value="{Binding Configuration.PresencePenalty}" Minimum="0" Maximum="1.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel>
+                        <Label>TfsZ</Label>
+                        <TextBlock Text="{Binding ElementName=SliderTfsZy, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderTfsZ" Value="{Binding Configuration.TfsZ}" Minimum="0" Maximum="1.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+
+                </StackPanel>
+            </UniformGrid>
+
+            <StackPanel>
+                <Label>Mirostat</Label>
+                <ComboBox ItemsSource="{Binding Source={StaticResource LLamaMirostatType}}" SelectedItem="{Binding Configuration.Mirostat}"/>
+            </StackPanel>
+
+            <UniformGrid Columns="2">
+                <StackPanel Margin="0,0,5,0">
+                    <DockPanel >
+                        <Label>MirostatTau</Label>
+                        <TextBlock Text="{Binding ElementName=SliderMirostatTau, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderMirostatTau" Value="{Binding Configuration.MirostatTau}" Minimum="0" Maximum="10.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0">
+                    <DockPanel>
+                        <Label>MirostatEta</Label>
+                        <TextBlock Text="{Binding ElementName=SliderMirostatEta, Path=Value, StringFormat={}{0:N2}}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+                    <Slider Name="SliderMirostatEta" Value="{Binding Configuration.MirostatEta}" Minimum="0" Maximum="1.0" TickFrequency="0.01" IsSnapToTickEnabled="true"/>
+                </StackPanel>
+            </UniformGrid>
+           
+        </StackPanel>
+
+        <UniformGrid DockPanel.Dock="Bottom" Margin="5">
+            <Button  Content="Reset" Command="{Binding ResetParametersCommand}" Width="60" HorizontalAlignment="Right" />
+        </UniformGrid>
+
+        <UniformGrid>
+        </UniformGrid>
+    </DockPanel>
+</UserControl>

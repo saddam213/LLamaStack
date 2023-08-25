@@ -10,6 +10,22 @@ namespace LLamaStack.Core.Models
         private bool _isResponse;
         private DateTime _timestamp;
 
+        public SessionHistoryModel() { }
+
+        public SessionHistoryModel(string content)
+        {
+            Content = content;
+            Timestamp = DateTime.UtcNow;
+        }
+
+        public SessionHistoryModel(string content, string signature)
+        {
+            Content = content;
+            IsResponse = true;
+            Signature = signature;
+            Timestamp = DateTime.UtcNow;
+        }
+
         public string Content
         {
             get { return _content; }

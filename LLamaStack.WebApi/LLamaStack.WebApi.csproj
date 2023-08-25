@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LLamaStack.Core\LLamaStack.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LLamaSharp">
+      <HintPath>..\..\LLamaSharp\LLama\bin\Debug\net7.0\LLamaSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

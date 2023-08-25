@@ -5,6 +5,7 @@ using LLamaStack.Core.Models;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace LLamaStack.Core.Services
 {
@@ -110,12 +111,15 @@ namespace LLamaStack.Core.Services
 
 
                 // Send begin of response
+                var response = new StringBuilder();
                 var stopwatch = Stopwatch.GetTimestamp();
+                var promptHistory = new SessionHistoryModel(prompt);
                 yield return new InferTokenModel(default, default, default, InferTokenType.Begin, GetElapsed(stopwatch));
 
                 // Send content of response
                 await foreach (var token in modelSession.InferAsync(prompt, inferenceParams, cancellationToken))
                 {
+                    response.Append(token);
                     yield return new InferTokenModel(default, default, token, InferTokenType.Content, GetElapsed(stopwatch));
 
                     // TODO:Revisit: Help ensure that the IAsyncEnumerable is properly scheduled for asynchronous execution as nothing in the upstream loop is awaited
@@ -129,6 +133,9 @@ namespace LLamaStack.Core.Services
                       ? $"Inference cancelled after {elapsedTime / 1000:F0} seconds"
                       : $"Inference completed in {elapsedTime / 1000:F0} seconds";
                 yield return new InferTokenModel(default, default, signature, endTokenType, elapsedTime);
+
+                // Add History
+                await modelSession.AddHistory(promptHistory, new SessionHistoryModel(response.ToString(), signature));
             }
             finally
             {

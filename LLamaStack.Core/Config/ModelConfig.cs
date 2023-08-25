@@ -35,6 +35,6 @@ namespace LLamaStack.Core.Config
         public bool MulMatQ { get; set; }
 
         [JsonConverter(typeof(JsonEncodingConverter))]
-        public Encoding Encoding { get; set; } = Encoding.ASCII;
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
     }
 }

@@ -430,7 +430,6 @@ namespace LLamaStack.WPF
                 IsResponse = true
             };
 
-            _modelSession.AddHistory(human, inference);
             SessionConfiguration.HistoryResponses.Add(human);
             SessionConfiguration.HistoryResponses.Add(inference);
             return inference;

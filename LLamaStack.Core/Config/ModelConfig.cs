@@ -1,4 +1,7 @@
 ﻿using LLama.Abstractions;
+using LLamaStack.Core.Helpers;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace LLamaStack.Core.Config
 {
@@ -30,6 +33,8 @@ namespace LLamaStack.Core.Config
         public float RopeFrequencyScale { get; set; } = 1.0f;
         public string ModelAlias { get; set; }
         public bool MulMatQ { get; set; }
-        public string Encoding { get; set; } = "UTF-8";
-        }
+
+        [JsonConverter(typeof(JsonEncodingConverter))]
+        public Encoding Encoding { get; set; } = Encoding.ASCII;
+    }
 }

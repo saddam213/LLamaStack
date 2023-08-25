@@ -13,6 +13,7 @@ namespace LLamaStack.Core
     public class ModelSession<T> where T : IEquatable<T>
     {
         private readonly T _sessionId;
+        private readonly LLamaStackModel _model;
         private readonly LLamaStackContext _context;
         private readonly ILLamaExecutor _executor;
         private readonly ISessionConfig _sessionParams;
@@ -32,13 +33,14 @@ namespace LLamaStack.Core
         /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
         /// <param name="sessionHistory">The session history.</param>
-        public ModelSession(LLamaStackModel model, LLamaStackContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, IEnumerable<SessionHistoryModel> sessionHistory = null)
+        public ModelSession(LLamaStackModel model, LLamaStackContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null)
         {
+            _model = model;
             _context = context;
             _sessionId = sessionId;
             _sessionParams = sessionConfig;
             _inferenceParams = inferenceParams;
-            _sessionHistory = new List<SessionHistoryModel>(sessionHistory ?? Enumerable.Empty<SessionHistoryModel>());
+            _sessionHistory = new List<SessionHistoryModel>();
 
             // Executor
             _executor = sessionConfig.ExecutorType switch
@@ -70,13 +72,14 @@ namespace LLamaStack.Core
         /// <param name="context">The context.</param>
         /// <param name="sessionState">State of the session.</param>
         public ModelSession(LLamaStackModel model, LLamaStackContext context, ModelSessionState<T> sessionState)
-             : this(model, context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig, sessionState.SessionHistory)
+             : this(model, context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig)
         {
             // Load Executor state
             if (_executor is StatefulExecutorBase statefulExecutorBase)
                 statefulExecutorBase.LoadState(sessionState.ExecutorConfig);
 
             StateName = sessionState.Name;
+            _sessionHistory = new List<SessionHistoryModel>(sessionState.SessionHistory ?? Enumerable.Empty<SessionHistoryModel>());
         }
 
 
@@ -150,9 +153,9 @@ namespace LLamaStack.Core
             ConfigureInferenceParams(inferenceParams);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             if (_outputTransform is not null)
-                return _outputTransform.TransformAsync(_executor.InferAsync(message, inferenceParams, _cancellationTokenSource.Token));
+                return _outputTransform.TransformAsync(_executor.InferAsync(message, _inferenceParams, _cancellationTokenSource.Token));
 
-            return _executor.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+            return _executor.InferAsync(message, _inferenceParams, _cancellationTokenSource.Token);
         }
 
 

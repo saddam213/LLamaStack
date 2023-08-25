@@ -97,7 +97,7 @@ namespace LLamaStack.Core.Services
         /// <param name="prompt">The prompt.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>Streaming async result of <see cref="LLamaStack.Core.Models.InferTokenModel" /></returns>
         /// <exception cref="System.Exception">Inference is already running for this session</exception>
         public async IAsyncEnumerable<InferTokenModel> InferAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -141,6 +141,26 @@ namespace LLamaStack.Core.Services
             {
                 _sessionGuard.Release(sessionId);
             }
+        }
+
+
+
+        /// <summary>
+        /// Runs inference on the current ModelSession
+        /// </summary>
+        /// <param name="sessionId">The session identifier.</param>
+        /// <param name="prompt">The prompt.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Completed text result as string</returns>
+        public async Task<string> InferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        {
+            var inferResult = await InferAsync(sessionId, prompt, inferenceParams, cancellationToken)
+                .Where(x => x.Type == InferTokenType.Content)
+                .Select(x => x.Content)
+                .ToListAsync(cancellationToken: cancellationToken);
+
+            return string.Concat(inferResult);
         }
 
 

@@ -76,10 +76,10 @@ namespace LLamaStack.Core.Services
                 throw new Exception($"Session with id {sessionId} already exists");
 
             // Create context
-            var context = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId.ToString());
+            var (model, context) = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId.ToString());
 
             // Create session
-            var modelSession = new ModelSession<T>(context, sessionId, sessionConfig, inferenceParams);
+            var modelSession = new ModelSession<T>(model, context, sessionId, sessionConfig, inferenceParams);
             if (!_modelSessions.TryAdd(sessionId, modelSession))
                 throw new Exception($"Failed to create model session");
 
@@ -221,13 +221,13 @@ namespace LLamaStack.Core.Services
                     throw new Exception($"Failed to load model session state");
 
                 // Create context state
-                var context = await _modelService.GetOrCreateModelAndContext(modelSessionState.SessionConfig.Model, sessionId.ToString());
+                var (model, context) = await _modelService.GetOrCreateModelAndContext(modelSessionState.SessionConfig.Model, sessionId.ToString());
 
                 // Load context state
                 await context.LoadStateAsync(modelSessionState.ContextFile);
 
                 // Create session
-                var modelSession = new ModelSession<T>(context, modelSessionState);
+                var modelSession = new ModelSession<T>(model, context, modelSessionState);
 
                 if (!_modelSessions.TryAdd(sessionId, modelSession))
                     throw new Exception($"Failed to add model session state");

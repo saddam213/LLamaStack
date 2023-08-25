@@ -1,6 +1,7 @@
 ﻿using LLama;
 using LLama.Abstractions;
 using LLama.Common;
+using LLama.OldVersion;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
@@ -31,7 +32,7 @@ namespace LLamaStack.Core
         /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
         /// <param name="sessionHistory">The session history.</param>
-        public ModelSession(LLamaStackContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, IEnumerable<SessionHistoryModel> sessionHistory = null)
+        public ModelSession(LLamaStackModel model, LLamaStackContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, IEnumerable<SessionHistoryModel> sessionHistory = null)
         {
             _context = context;
             _sessionId = sessionId;
@@ -44,7 +45,7 @@ namespace LLamaStack.Core
             {
                 LLamaExecutorType.Interactive => new InteractiveExecutor(_context.LLamaContext),
                 LLamaExecutorType.Instruct => new InstructExecutor(_context.LLamaContext),
-                LLamaExecutorType.Stateless => new StatelessExecutor(_context.LLamaContext),
+                LLamaExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelConfig),
                 _ => default
             };
 
@@ -68,8 +69,8 @@ namespace LLamaStack.Core
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="sessionState">State of the session.</param>
-        public ModelSession(LLamaStackContext context, ModelSessionState<T> sessionState)
-             : this(context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig, sessionState.SessionHistory)
+        public ModelSession(LLamaStackModel model, LLamaStackContext context, ModelSessionState<T> sessionState)
+             : this(model, context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig, sessionState.SessionHistory)
         {
             // Load Executor state
             if (_executor is StatefulExecutorBase statefulExecutorBase)

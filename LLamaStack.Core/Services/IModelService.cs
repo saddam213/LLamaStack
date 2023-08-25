@@ -12,6 +12,6 @@ namespace LLamaStack.Core.Services
         Task UnloadModel(string modelName);
         Task UnloadModels();
         Task<bool> RemoveContext(string modelName, string key);
-        Task<LLamaStackContext> GetOrCreateModelAndContext(string modelName, string key);
+        Task<(LLamaStackModel, LLamaStackContext)> GetOrCreateModelAndContext(string modelName, string key);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 namespace LLamaStack.Core.Services
@@ -16,7 +15,6 @@ namespace LLamaStack.Core.Services
         private readonly AsyncLock _modelLock;
         private readonly AsyncLock _contextLock;
         private readonly LLamaStackConfig _configuration;
-        private readonly ILogger<ModelService> _logger;
         private readonly ConcurrentDictionary<string, LLamaStackModel> _modelInstances;
 
 
@@ -25,7 +23,7 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
-        public ModelService(ILogger<ModelService> logger, LLamaStackConfig configuration)
+        public ModelService(LLamaStackConfig configuration)
         {
             _modelLock = new AsyncLock();
             _contextLock = new AsyncLock();
@@ -184,14 +182,11 @@ namespace LLamaStack.Core.Services
         /// <param name="key">The key.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model option '{modelName}' not found</exception>
-        public async Task<LLamaStackContext> GetOrCreateModelAndContext(string modelName, string key)
+        public async Task<(LLamaStackModel, LLamaStackContext)> GetOrCreateModelAndContext(string modelName, string key)
         {
             if (_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
-            {
-                // Get or Create Context
-                return await model.GetContext(key)
-                    ?? await model.CreateContext(key);
-            }
+                return (model, await model.GetContext(key) ?? await model.CreateContext(key));
+
 
             // Get model configuration
             var modelConfig = _configuration.Models.FirstOrDefault(x => x.Name == modelName);
@@ -202,8 +197,7 @@ namespace LLamaStack.Core.Services
             model = await LoadModel(modelConfig);
 
             // Get or Create Context
-            return await model.GetContext(key)
-                ?? await model.CreateContext(key);
+            return (model, await model.GetContext(key) ?? await model.CreateContext(key));
         }
 
     }

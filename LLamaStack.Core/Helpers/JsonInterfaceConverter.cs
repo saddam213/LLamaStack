@@ -10,7 +10,7 @@ namespace LLamaStack.Core.Helpers
             return typeToConvert == typeof(TInterface);
         }
 
-        public override TInterface? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TInterface Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             return JsonSerializer.Deserialize<TImplementation>(ref reader, options);
         }

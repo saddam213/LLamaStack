@@ -1,8 +1,6 @@
 ﻿using LLama;
-using LLama.Abstractions;
 using LLamaStack.Core.Config;
 using System.Collections.Concurrent;
-using System.Text;
 
 namespace LLamaStack.Core
 {
@@ -19,7 +17,22 @@ namespace LLamaStack.Core
             _contexts = new ConcurrentDictionary<string, LLamaStackContext>();
         }
 
+        /// <summary>
+        /// Gets the model configuration.
+        /// </summary>
+        public ModelConfig ModelConfig => _config;
+
+        /// <summary>
+        /// Gets the LLamaWeights
+        /// </summary>
+        public LLamaWeights LLamaWeights => _weights;
+
+
+        /// <summary>
+        /// Gets the context count.
+        /// </summary>
         public int ContextCount => _contexts.Count;
+
 
         /// <summary>
         /// Creates a new context session on this model
@@ -70,8 +83,10 @@ namespace LLamaStack.Core
         }
 
 
-        /// <inheritdoc />
-        public virtual void Dispose()
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
         {
             foreach (var context in _contexts.Values)
             {

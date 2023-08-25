@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace LLamaStack.Core.Common
+namespace LLamaStack.Core.Async
 {
     public class AsyncQueue<T, U> : IDisposable
     {

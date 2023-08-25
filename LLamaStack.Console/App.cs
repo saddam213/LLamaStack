@@ -25,7 +25,7 @@ namespace LLamaStack.Console
             {
                 Model = "WizardLM-7B",
                 Prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
-                ExecutorType = LLamaExecutorType.Instruct
+                ExecutorType = ExecutorType.Instruct
             };
 
             var inferenceConfig = new InferenceConfig

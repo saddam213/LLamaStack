@@ -45,9 +45,9 @@ namespace LLamaStack.Core
             // Executor
             _executor = sessionConfig.ExecutorType switch
             {
-                LLamaExecutorType.Interactive => new InteractiveExecutor(_context.LLamaContext),
-                LLamaExecutorType.Instruct => new InstructExecutor(_context.LLamaContext),
-                LLamaExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelConfig),
+                ExecutorType.Interactive => new InteractiveExecutor(_context.LLamaContext),
+                ExecutorType.Instruct => new InstructExecutor(_context.LLamaContext),
+                ExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelConfig),
                 _ => default
             };
 

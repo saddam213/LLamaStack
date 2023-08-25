@@ -17,8 +17,8 @@ namespace LLamaStack.WebApi.Models
         public override string Prompt { get; set; }
 
         [Required]
-        [DefaultValue(LLamaExecutorType.Instruct)]
-        public LLamaExecutorType ExecutorType { get; set; }
+        [DefaultValue(ExecutorType.Instruct)]
+        public ExecutorType ExecutorType { get; set; }
 
         [DefaultValue("")]
         public string AntiPrompt { get; set; }

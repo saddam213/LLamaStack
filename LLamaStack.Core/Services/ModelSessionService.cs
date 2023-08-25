@@ -1,7 +1,6 @@
 ﻿using LLama.Abstractions;
-using LLamaStack.Core.Common;
+using LLamaStack.Core.Async;
 using LLamaStack.Core.Config;
-using LLamaStack.Core.Helpers;
 using LLamaStack.Core.Models;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -20,7 +19,7 @@ namespace LLamaStack.Core.Services
     {
         private readonly AsyncGuard<T> _sessionGuard;
         private readonly IModelService _modelService;
-        private readonly AsyncQueue<InferQueueItem, string> _inferQueue;
+        private readonly AsyncQueue<InferQueueItem, string> _inferTextQueue;
         private readonly IModelSessionStateService<T> _modelSessionStateService;
         private readonly ConcurrentDictionary<T, ModelSession<T>> _modelSessions;
 
@@ -36,7 +35,7 @@ namespace LLamaStack.Core.Services
             _modelSessionStateService = modelSessionStateService;
             _sessionGuard = new AsyncGuard<T>();
             _modelSessions = new ConcurrentDictionary<T, ModelSession<T>>();
-            _inferQueue = new AsyncQueue<InferQueueItem, string>(ProcessInferQueueAsync);
+            _inferTextQueue = new AsyncQueue<InferQueueItem, string>(ProcessInferQueueAsync);
         }
 
 
@@ -181,8 +180,7 @@ namespace LLamaStack.Core.Services
         /// <returns></returns>
         public async Task<string> QueueInferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
         {
-            var queueItem = new InferQueueItem(sessionId, prompt, inferenceParams);
-            return await _inferQueue.QueueItem(queueItem).WaitAsync(cancellationToken);
+            return await _inferTextQueue.QueueItem(new InferQueueItem(sessionId, prompt, inferenceParams, cancellationToken));
         }
 
         /// <summary>
@@ -340,13 +338,13 @@ namespace LLamaStack.Core.Services
         /// <returns></returns>
         private Task<string> ProcessInferQueueAsync(InferQueueItem inferQueueItem)
         {
-            return InferTextAsync(inferQueueItem.SessionId, inferQueueItem.Prompt, inferQueueItem.InferenceParams);
+            return InferTextAsync(inferQueueItem.SessionId, inferQueueItem.Prompt, inferQueueItem.InferenceParams, inferQueueItem.CancellationToken);
         }
 
 
         /// <summary>
         /// Record for the Infer queue
         /// </summary>
-        private record InferQueueItem(T SessionId, string Prompt, IInferenceParams InferenceParams);
+        private record InferQueueItem(T SessionId, string Prompt, IInferenceParams InferenceParams, CancellationToken CancellationToken = default);
     }
 }

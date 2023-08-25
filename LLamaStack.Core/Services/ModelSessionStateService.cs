@@ -1,7 +1,8 @@
 ﻿using LLama.Abstractions;
+using LLamaStack.Core.Async;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
-using LLamaStack.Core.Helpers;
+using LLamaStack.Core.Converters;
 using LLamaStack.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -179,9 +180,9 @@ namespace LLamaStack.Core.Services
 
             // Executor state file
             using var executorStateStream = File.OpenRead(executorStateFile);
-            if (modelSessionState.SessionConfig.ExecutorType == LLamaExecutorType.Instruct)
+            if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Instruct)
                 modelSessionState.ExecutorConfig = await JsonSerializer.DeserializeAsync<InstructExecutorState>(executorStateStream, _jsonDeserializerOptions);
-            else if (modelSessionState.SessionConfig.ExecutorType == LLamaExecutorType.Interactive)
+            else if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Interactive)
                 modelSessionState.ExecutorConfig = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(executorStateStream, _jsonDeserializerOptions);
 
             // Get model config for this session
@@ -217,9 +218,9 @@ namespace LLamaStack.Core.Services
 
             // Save Executor state
             using var executorStateStream = File.Open(executorStateFile, FileMode.Create);
-            if (modelSessionState.SessionConfig.ExecutorType == LLamaExecutorType.Instruct)
+            if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Instruct)
                 await JsonSerializer.SerializeAsync(executorStateStream, modelSessionState.ExecutorConfig as InstructExecutorState, _jsonSerializerOptions);
-            else if (modelSessionState.SessionConfig.ExecutorType == LLamaExecutorType.Interactive)
+            else if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Interactive)
                 await JsonSerializer.SerializeAsync(executorStateStream, modelSessionState.ExecutorConfig as InteractiveExecutorState, _jsonSerializerOptions);
 
             modelSessionState.ContextFile = contextStateFile;

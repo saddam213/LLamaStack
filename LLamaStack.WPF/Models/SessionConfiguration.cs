@@ -23,7 +23,7 @@ namespace LLamaStack.WPF
         private string _name = string.Empty;
         private string _antiPrompt = string.Empty;
         private string _outputFilter = string.Empty;
-        private LLamaExecutorType _executorType;
+        private ExecutorType _executorType;
         private string _inputPrefix = string.Empty;
         private string _inputSuffix = string.Empty;
 
@@ -49,7 +49,7 @@ namespace LLamaStack.WPF
             get { return _prompt; }
             set { _prompt = value; NotifyPropertyChanged(); }
         }
-        public LLamaExecutorType ExecutorType
+        public ExecutorType ExecutorType
         {
             get { return _executorType; }
             set { _executorType = value; NotifyPropertyChanged(); SetDefaultPromptConfig(); }

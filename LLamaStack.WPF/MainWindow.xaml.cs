@@ -333,7 +333,7 @@ namespace LLamaStack.WPF
             SessionConfiguration = new SessionConfiguration
             {
                 SelectedModel = _configuration.Models.FirstOrDefault(),
-                ExecutorType = LLamaExecutorType.Instruct
+                ExecutorType = ExecutorType.Instruct
             };
             InferenceConfiguration = new InferenceConfiguration();
         }

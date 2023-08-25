@@ -1,7 +1,6 @@
 ﻿using LLama.Abstractions;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
-using System.Runtime.CompilerServices;
 
 namespace LLamaStack.Core.Services
 {
@@ -15,13 +14,11 @@ namespace LLamaStack.Core.Services
         Task<ModelSession<T>> CreateAsync(T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
         Task<string> InferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
         IAsyncEnumerable<InferTokenModel> InferAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
+        Task<string> QueueInferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(T sessionId);
         Task<ModelSession<T>> LoadAsync(T sessionId, CancellationToken cancellationToken = default);
         Task<ModelSessionState<T>> SaveAsync(T sessionId, CancellationToken cancellationToken = default);
-
-
-        Task<string> QueueInferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
     }
 
 }

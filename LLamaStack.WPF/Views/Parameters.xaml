@@ -109,7 +109,7 @@
 
             <StackPanel>
                 <Label>Mirostat</Label>
-                <ComboBox ItemsSource="{Binding Source={StaticResource LLamaMirostatType}}" SelectedItem="{Binding Configuration.Mirostat}"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource MirostatType}}" SelectedItem="{Binding Configuration.Mirostat}"/>
             </StackPanel>
 
             <UniformGrid Columns="2">

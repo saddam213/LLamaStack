@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace LLamaStack.Core.Helpers
+namespace LLamaStack.Core.Converters
 {
     public class JsonEncodingConverter : JsonConverter<Encoding>
     {

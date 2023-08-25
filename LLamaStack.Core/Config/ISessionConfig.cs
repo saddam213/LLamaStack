@@ -7,7 +7,7 @@ namespace LLamaStack.Core.Config
     public interface ISessionConfig
     {
         string AntiPrompt { get; set; }
-        LLamaExecutorType ExecutorType { get; set; }
+        ExecutorType ExecutorType { get; set; }
         string Model { get; set; }
         string OutputFilter { get; set; }
         string Prompt { get; set; }

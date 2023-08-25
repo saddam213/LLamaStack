@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace LLamaStack.Core.Helpers
+namespace LLamaStack.Core.Converters
 {
     public class JsonInterfaceConverter<TImplementation, TInterface> : JsonConverter<TInterface> where TImplementation : TInterface
     {

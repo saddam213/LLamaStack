@@ -1,4 +1,4 @@
-﻿namespace LLamaStack.Core.Helpers
+﻿namespace LLamaStack.Core.Async
 {
     /// <summary>
     /// Create an Async locking using statment
@@ -36,7 +36,7 @@
         /// <summary>
         /// IDisposable wrapper class to release the lock on dispose
         /// </summary>
-        /// <seealso cref="System.IDisposable" />
+        /// <seealso cref="IDisposable" />
         private sealed class Releaser : IDisposable
         {
             private readonly AsyncLock _lockToRelease;

@@ -27,7 +27,7 @@
                     </div>
                     <div class="d-flex flex-column mb-2">
                         <small>Executor</small>
-                        @Html.DropDownListFor(m => m.SessionOptions.ExecutorType, Html.GetEnumSelectList<LLamaExecutorType>(), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
+                        @Html.DropDownListFor(m => m.SessionOptions.ExecutorType, Html.GetEnumSelectList<ExecutorType>(), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
                     </div>
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">

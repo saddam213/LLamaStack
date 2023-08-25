@@ -1,6 +1,6 @@
 ﻿namespace LLamaStack.Core.Common
 {
-    public enum LLamaExecutorType
+    public enum ExecutorType
     {
         Interactive = 0,
         Instruct = 1,

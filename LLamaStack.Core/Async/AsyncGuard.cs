@@ -1,12 +1,12 @@
 ﻿using System.Collections.Concurrent;
 
-namespace LLamaStack.Core.Helpers
+namespace LLamaStack.Core.Async
 {
 
     /// <summary>
     /// Creates a async/thread-safe guard helper
     /// </summary>
-    /// <seealso cref="LLamaStack.Core.Helpers.AsyncGuard&lt;System.Byte&gt;" />
+    /// <seealso cref="AsyncGuard&lt;byte&gt;" />
     public class AsyncGuard : AsyncGuard<byte>
     {
         private readonly byte _key;

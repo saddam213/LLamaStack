@@ -24,7 +24,8 @@ namespace LLamaStack.Core
         /// </summary>
         /// <typeparam name="T">The type used for session identification</typeparam>
         /// <param name="serviceCollection">The service collection.</param>
-        public static void AddLLamaStack<T>(this IServiceCollection serviceCollection) where T : IEquatable<T>
+        public static void AddLLamaStack<T>(this IServiceCollection serviceCollection) 
+            where T : IEquatable<T>, IComparable<T>
         {
             serviceCollection.AddSingleton(ReadAppSettings());
             serviceCollection.AddHostedService<ModelLoaderService>();

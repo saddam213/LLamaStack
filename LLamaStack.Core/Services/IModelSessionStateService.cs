@@ -2,7 +2,7 @@
 
 namespace LLamaStack.Core.Services
 {
-    public interface IModelSessionStateService<T> where T : IEquatable<T>
+    public interface IModelSessionStateService<T> where T : IEquatable<T>, IComparable<T>
     {
         Task<ModelSessionState<T>> GetAsync(T sessionId);
         Task<IEnumerable<ModelSessionState<T>>> GetAllAsync();

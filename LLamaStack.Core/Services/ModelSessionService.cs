@@ -1,4 +1,5 @@
 ﻿using LLama.Abstractions;
+using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
 using LLamaStack.Core.Models;
@@ -14,10 +15,12 @@ namespace LLamaStack.Core.Services
     /// </summary>
     /// <typeparam name="T">Type used for the session identifier</typeparam>
     /// <seealso cref="LLamaStack.Core.Services.IModelSessionService&lt;T&gt;" />
-    public class ModelSessionService<T> : IModelSessionService<T> where T : IEquatable<T>
+    public class ModelSessionService<T> : IModelSessionService<T>
+        where T : IEquatable<T>, IComparable<T>
     {
         private readonly AsyncGuard<T> _sessionGuard;
         private readonly IModelService _modelService;
+        private readonly AsyncQueue<InferQueueItem, string> _inferQueue;
         private readonly IModelSessionStateService<T> _modelSessionStateService;
         private readonly ConcurrentDictionary<T, ModelSession<T>> _modelSessions;
 
@@ -33,7 +36,10 @@ namespace LLamaStack.Core.Services
             _modelSessionStateService = modelSessionStateService;
             _sessionGuard = new AsyncGuard<T>();
             _modelSessions = new ConcurrentDictionary<T, ModelSession<T>>();
+            _inferQueue = new AsyncQueue<InferQueueItem, string>(ProcessInferQueueAsync);
         }
+
+
 
 
         /// <summary>
@@ -123,7 +129,7 @@ namespace LLamaStack.Core.Services
                     yield return new InferTokenModel(default, default, token, InferTokenType.Content, GetElapsed(stopwatch));
 
                     // TODO:Revisit: Help ensure that the IAsyncEnumerable is properly scheduled for asynchronous execution as nothing in the upstream loop is awaited
-                    await Task.Yield(); 
+                    await Task.Yield();
                 }
 
                 // Send end of response
@@ -163,6 +169,21 @@ namespace LLamaStack.Core.Services
             return string.Concat(inferResult);
         }
 
+
+
+        /// <summary>
+        /// Queues the inference to be run.
+        /// </summary>
+        /// <param name="sessionId">The session identifier.</param>
+        /// <param name="prompt">The prompt.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<string> QueueInferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        {
+            var queueItem = new InferQueueItem(sessionId, prompt, inferenceParams);
+            return await _inferQueue.QueueItem(queueItem).WaitAsync(cancellationToken);
+        }
 
         /// <summary>
         /// Closes the session
@@ -310,5 +331,22 @@ namespace LLamaStack.Core.Services
         {
             return (int)Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds;
         }
+
+
+        /// <summary>
+        /// Processes the infer queue.
+        /// </summary>
+        /// <param name="inferQueueItem">The infer queue item.</param>
+        /// <returns></returns>
+        private Task<string> ProcessInferQueueAsync(InferQueueItem inferQueueItem)
+        {
+            return InferTextAsync(inferQueueItem.SessionId, inferQueueItem.Prompt, inferQueueItem.InferenceParams);
+        }
+
+
+        /// <summary>
+        /// Record for the Infer queue
+        /// </summary>
+        private record InferQueueItem(T SessionId, string Prompt, IInferenceParams InferenceParams);
     }
 }

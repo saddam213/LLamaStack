@@ -15,7 +15,7 @@ namespace LLamaStack.Core.Common
         private readonly BlockingCollection<AsyncQueueItem<T, U>> _asyncQueue = new BlockingCollection<AsyncQueueItem<T, U>>();
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref="ProcessorQueue" /> class.
+        ///   Initializes a new instance of the <see cref="AsyncQueue" /> class.
         /// </summary>
         /// <param name="processFunction">The function to be called when items are processed in the queue</param>
         public AsyncQueue(Func<T, Task<U>> processFunction)
@@ -104,7 +104,7 @@ namespace LLamaStack.Core.Common
         private readonly BlockingCollection<T> _processQueue = new BlockingCollection<T>();
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref="ProcessorQueue" /> class.
+        ///   Initializes a new instance of the <see cref="AsyncQueue" /> class.
         /// </summary>
         /// <param name="processFunction">The function to be called when items are processed in the queue</param>
         public AsyncQueue(Func<T, Task> processFunction)
@@ -161,14 +161,14 @@ namespace LLamaStack.Core.Common
 
 
     /// <summary>
-    ///   Class to encapsulate the item information to be proccesed and its completion task
+    /// Class to encapsulate the item information to be proccesed and its completion task
     /// </summary>
     /// <typeparam name="T">The itme containing the information to be used in the Process function</typeparam>
     /// <typeparam name="U">Th return type of the Process function</typeparam>
     public class AsyncQueueItem<T, U>
     {
         /// <summary>
-        ///   Initializes a new instance of the <see cref="ProcessorQueueItem" /> class.
+        ///   Initializes a new instance of the <see cref="AsyncQueueItem" /> class.
         /// </summary>
         /// <param name="item">The request.</param>
         public AsyncQueueItem(T item)

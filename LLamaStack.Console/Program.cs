@@ -19,8 +19,8 @@ namespace LLamaStack.Console
             serviceCollection.AddTransient<AppTest>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            //await serviceProvider.GetService<App>().RunAsync();
-            await serviceProvider.GetService<AppTest>().RunAsync();
+            await serviceProvider.GetService<App>().RunAsync();
+           // await serviceProvider.GetService<AppTest>().RunAsync();
         }
     }
 }

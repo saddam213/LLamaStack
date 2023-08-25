@@ -17,7 +17,8 @@ namespace LLamaStack.Core.Services
     /// </summary>
     /// <typeparam name="T">Type used for the session identifier</typeparam>
     /// <seealso cref="LLamaStack.Core.Services.IModelSessionStateService&lt;T&gt;" />
-    public class ModelSessionStateService<T> : IModelSessionStateService<T> where T : IEquatable<T>
+    public class ModelSessionStateService<T> : IModelSessionStateService<T>
+        where T : IEquatable<T>, IComparable<T>
     {
         private const string FilenameContextState = "ContextState.bin";
         private const string FilenameSessionState = "SessionState.json";

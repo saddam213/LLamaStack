@@ -3,14 +3,14 @@ LLamaStack.WPF is a lightweight barebones UI example to run LLM on your local ma
 
 
 ## Setup
-You can setup Models, Prompts and Inference parameters in the appsettings.json
+You can setup Models and other configuration appsettings.json
 
 **Models**
 You can add multiple models to the options for quick selection in the UI, options are based on LLamaSharp ModelParams so its fully configurable
 
 
 ## Interactive UI
-Manage and interact with all your models in one sime UI interface
+Manage and interact with all your models in one simple UI interface
 ![demo-wpf1](https://i.imgur.com/bGY70wH.png)
 
 ## Live Parameters

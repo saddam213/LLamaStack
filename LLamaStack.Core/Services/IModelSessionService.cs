@@ -6,6 +6,7 @@ namespace LLamaStack.Core.Services
 {
     public interface IModelSessionService<T> where T : IEquatable<T>, IComparable<T>
     {
+        int InferQueueCount { get; }
         Task<ModelSessionState<T>> GetAsync(T sessionId);
         Task<IEnumerable<ModelSessionState<T>>> GetAllAsync();
 
@@ -14,7 +15,7 @@ namespace LLamaStack.Core.Services
         Task<ModelSession<T>> CreateAsync(T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
         Task<string> InferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
         IAsyncEnumerable<InferTokenModel> InferAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
-        Task<string> QueueInferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default);
+        Task<string> QueueInferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, bool saveOnComplete = false, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(T sessionId);
         Task<ModelSession<T>> LoadAsync(T sessionId, CancellationToken cancellationToken = default);

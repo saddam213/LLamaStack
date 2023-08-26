@@ -70,7 +70,7 @@ You can setup Models in the appsettings.json
 			"RopeFrequencyBase": 10000.0,
 			"RopeFrequencyScale": 1.0,
 			"MulMatQ": false,
-        	"Encoding": "UTF-8"
+        		"Encoding": "UTF-8"
 		}]
 	}
 }

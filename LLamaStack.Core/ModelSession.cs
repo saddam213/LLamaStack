@@ -22,6 +22,7 @@ namespace LLamaStack.Core
         private readonly List<SessionHistoryModel> _sessionHistory;
 
         private IInferenceParams _inferenceParams;
+        private IInferenceParams _defaultInferenceParams;
         private CancellationTokenSource _cancellationTokenSource;
 
 
@@ -39,7 +40,7 @@ namespace LLamaStack.Core
             _context = context;
             _sessionId = sessionId;
             _sessionParams = sessionConfig;
-            _inferenceParams = inferenceParams;
+            _defaultInferenceParams = inferenceParams ?? new InferenceConfig();
             _sessionHistory = new List<SessionHistoryModel>();
 
             // Executor
@@ -197,7 +198,7 @@ namespace LLamaStack.Core
                 Created = DateTime.UtcNow,
                 ContextSize = _context.ContextSize,
                 ExecutorConfig = executorState,
-                InferenceConfig = _inferenceParams,
+                InferenceConfig = _inferenceParams ?? _defaultInferenceParams,
                 SessionConfig = _sessionParams,
                 SessionHistory = _sessionHistory,
             };
@@ -225,13 +226,7 @@ namespace LLamaStack.Core
         /// <param name="inferenceParams">The inference parameters.</param>
         private void ConfigureInferenceParams(IInferenceParams inferenceParams)
         {
-            // If not null set as default
-            if (inferenceParams is not null)
-                _inferenceParams = inferenceParams;
-
-            // If null set to new
-            if (_inferenceParams is null)
-                _inferenceParams = new InferenceParams();
+            _inferenceParams = inferenceParams ?? _defaultInferenceParams;
 
             // Merge Antiprompts
             var antiPrompts = new List<string>();

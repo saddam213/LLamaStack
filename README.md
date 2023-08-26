@@ -69,7 +69,8 @@ You can setup Models in the appsettings.json
 			"RmsNormEpsilon": 0.000005,
 			"RopeFrequencyBase": 10000.0,
 			"RopeFrequencyScale": 1.0,
-			"MulMatQ": false
+			"MulMatQ": false,
+        	"Encoding": "UTF-8"
 		}]
 	}
 }

@@ -12,15 +12,15 @@ namespace LLamaStack.Console
 
             // Add LLamaStack
             serviceCollection.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(LogLevel.Trace));
-            serviceCollection.AddLLamaStack<int>();
+            serviceCollection.AddLLamaStack<string>();
 
             // Add Services
             serviceCollection.AddTransient<App>();
             serviceCollection.AddTransient<AppTest>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            //await serviceProvider.GetService<App>().RunAsync();
-            await serviceProvider.GetService<AppTest>().RunAsync();
+            await serviceProvider.GetService<App>().RunAsync();
+            //await serviceProvider.GetService<AppTest>().RunAsync();
         }
     }
 }

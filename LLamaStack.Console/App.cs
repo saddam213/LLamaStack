@@ -1,5 +1,4 @@
-﻿using LLamaStack.Core;
-using LLamaStack.Core.Common;
+﻿using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Services;
 
@@ -11,9 +10,9 @@ namespace LLamaStack.Console
     public class App
     {
         private readonly LLamaStackConfig _configuration;
-        private readonly IModelSessionService<int> _modelSessionService;
+        private readonly IModelSessionService<string> _modelSessionService;
 
-        public App(LLamaStackConfig configuration, IModelSessionService<int> modelSessionService)
+        public App(LLamaStackConfig configuration, IModelSessionService<string> modelSessionService)
         {
             _configuration = configuration;
             _modelSessionService = modelSessionService;
@@ -33,23 +32,21 @@ namespace LLamaStack.Console
                 Temperature = 0.8f
             };
 
-            await _modelSessionService.CreateAsync(1, sessionConfig, inferenceConfig);
+            await _modelSessionService.CreateAsync("AppSession", sessionConfig, inferenceConfig);
 
-            await Task.WhenAll(
-                HandleResult("What is an apple?", inferenceConfig),
-                HandleResult("What is an lemon?", inferenceConfig),
-                HandleResult("What is an banana?", inferenceConfig),
-                HandleResult("What is an terrorist?", inferenceConfig), 
-                HandleResult("What is an jew?", inferenceConfig));
-        }
-
-        private async Task HandleResult(string prompt, InferenceConfig inferenceConfig)
-        {
-            OutputHelpers.WriteConsole(prompt, ConsoleColor.Green);
-            var result = await _modelSessionService.QueueInferTextAsync(1, prompt, inferenceConfig);
-            OutputHelpers.WriteConsole(prompt, ConsoleColor.Yellow);
-            OutputHelpers.WriteConsole(result, ConsoleColor.Cyan);
-            OutputHelpers.WriteConsole("-----------------------------------------", ConsoleColor.Red);
+            OutputHelpers.WriteConsole(sessionConfig.Prompt, ConsoleColor.Yellow);
+            while (true)
+            {
+                var sessionText = OutputHelpers.ReadConsole(ConsoleColor.Green);
+                await foreach (var token in _modelSessionService.InferAsync("AppSession", sessionText, inferenceConfig))
+                {
+                    if (token.Type == Core.Models.InferTokenType.Content)
+                        OutputHelpers.WriteConsole(token.Content, ConsoleColor.Cyan, false);
+                    else if (token.Type == Core.Models.InferTokenType.End)
+                        OutputHelpers.WriteConsole(token.Content, ConsoleColor.DarkGreen, false);
+                }
+                OutputHelpers.WriteConsole(string.Empty, ConsoleColor.Cyan);
+            }
         }
     }
 }

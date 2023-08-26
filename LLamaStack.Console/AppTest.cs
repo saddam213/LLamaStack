@@ -10,9 +10,9 @@ namespace LLamaStack.Console
     public class AppTest
     {
         private readonly LLamaStackConfig _configuration;
-        private readonly IModelSessionService<int> _modelSessionService;
+        private readonly IModelSessionService<string> _modelSessionService;
 
-        public AppTest(LLamaStackConfig configuration, IModelSessionService<int> modelSessionService)
+        public AppTest(LLamaStackConfig configuration, IModelSessionService<string> modelSessionService)
         {
             _configuration = configuration;
             _modelSessionService = modelSessionService;

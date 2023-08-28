@@ -396,7 +396,7 @@ namespace LLamaStack.WPF
                             continue;
                         }
 
-                        if (token.Type == InferTokenType.End)
+                        if (token.Type == InferTokenType.End || token.Type == InferTokenType.Cancel)
                         {
                             responseItem.Signature = token.Content;
                             break;

@@ -97,6 +97,9 @@ namespace LLamaStack.WPF
         /// <param name="message">The message.</param>
         private static void LLamaNativeLogCallback(ILLamaLogger.LogLevel llamalevel, string message)
         {
+            if (string.IsNullOrEmpty(message) || message.Equals(".") || message.Equals("\n"))
+                return;
+
             var level = llamalevel switch
             {
                 ILLamaLogger.LogLevel.Info => LogLevel.Information,

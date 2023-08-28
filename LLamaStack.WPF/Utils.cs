@@ -1,5 +1,7 @@
 ﻿using LLamaStack.Core.Common;
+using System;
 using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace LLamaStack.WPF
 {
@@ -31,5 +33,14 @@ namespace LLamaStack.WPF
                  ExecutorType.Stateless, new SessionConfiguration()
             }
         };
+
+
+        public static void LogToWindow(string message)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            {
+                (System.Windows.Application.Current.MainWindow as MainWindow).UpdateOutputLog(message);
+            }));
+        }
     }
 }

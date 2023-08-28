@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Windows.Threading;
+using static LLama.Common.ChatHistory;
 
 namespace LLamaStack.WPF
 {
@@ -54,23 +55,7 @@ namespace LLamaStack.WPF
                 return;
 
             var source = eventId.Id == LLamaCppId ? LLamaCpp : LLamaStack;
-            MainWindowLogCallback(logLevel, source, $"{formatter(state, exception)}\n");
-        }
-
-
-        /// <summary>
-        /// Log function the window output log.
-        /// </summary>
-        /// <param name="level">The level.</param>
-        /// <param name="sender">The sender.</param>
-        /// <param name="message">The message.</param>
-        private static void MainWindowLogCallback(LogLevel level, string sender, string message)
-        {
-            // Invoke back to the UI thread
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
-            {
-                (System.Windows.Application.Current.MainWindow as MainWindow).UpdateOutputLog($"[{DateTime.Now}] [{level}] [{sender}] - {message}");
-            }));
+            Utils.LogToWindow($"[{DateTime.Now}] [{logLevel}] [{source}] - {formatter(state, exception)}\n");
         }
     }
 

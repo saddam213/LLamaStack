@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace LLamaStack.WPF
 {
@@ -108,7 +109,11 @@ namespace LLamaStack.WPF
                 ILLamaLogger.LogLevel.Error => LogLevel.Error,
                 _ => LogLevel.None
             };
-            _logger.Log(level, _logLLamaCppEvent, $"{message}".TrimEnd('\n'));
+
+            // Redirecting to ILogger is retardedly slow and grinds the UI to a halt on model load
+            // So just call the static log function directly
+            // _logger.Log(level, _logLLamaCppEvent, $"{message}".TrimEnd('\n'));
+            Utils.LogToWindow($"[{DateTime.Now}] [{level}] [LLama.cpp] - {message}");
         }
     }
 }

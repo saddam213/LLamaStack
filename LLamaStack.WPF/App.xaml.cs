@@ -16,7 +16,7 @@ namespace LLamaStack.WPF
     /// </summary>
     public partial class App : Application
     {
-        private IHost _applicationHost;
+        private static IHost _applicationHost;
         private static ILogger<App> _logger;
         private static readonly EventId _logLLamaCppEvent = new(420);
 
@@ -45,7 +45,7 @@ namespace LLamaStack.WPF
         /// <summary>
         /// Gets the service provider.
         /// </summary>
-        public IServiceProvider ServiceProvider => _applicationHost.Services;
+        public static IServiceProvider ServiceProvider => _applicationHost.Services;
 
 
         /// <summary>

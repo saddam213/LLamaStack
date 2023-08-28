@@ -154,7 +154,7 @@
                             </DockPanel>
                             <Button DockPanel.Dock="Bottom" Content="Send"  Command="{Binding SendPromptCommand}" CommandParameter="{Binding ElementName=TextBoxPrompt, Path=Text}" IsDefault="True" Width="100"></Button>
                         </DockPanel>
-                        <TextBox Name="TextBoxPrompt" Text="{Binding Prompt}" TextWrapping="Wrap"  AcceptsReturn="True"/>
+						<TextBox Name="TextBoxPrompt" Text="{Binding Prompt}" TextWrapping="Wrap" behaviours:ShiftEnterBehavior.Enable="True" />
                     </DockPanel>
                 </Grid>
 

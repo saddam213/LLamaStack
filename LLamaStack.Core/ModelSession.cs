@@ -1,7 +1,5 @@
 ﻿using LLama;
 using LLama.Abstractions;
-using LLama.Common;
-using LLama.OldVersion;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
@@ -20,9 +18,9 @@ namespace LLamaStack.Core
         private readonly IPromptConfig _promptParams;
         private readonly ITextStreamTransform _outputTransform;
         private readonly List<SessionHistoryModel> _sessionHistory;
+        private readonly IInferenceParams _defaultInferenceParams;
 
         private IInferenceParams _inferenceParams;
-        private IInferenceParams _defaultInferenceParams;
         private CancellationTokenSource _cancellationTokenSource;
 
 

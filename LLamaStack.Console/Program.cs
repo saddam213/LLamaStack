@@ -1,4 +1,5 @@
 ﻿using LLamaStack.Core;
+using LLamaStack.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,16 +19,35 @@ namespace LLamaStack.Console
             builder.Services.AddLLamaStack<string>();
 
             // Add Services
+            builder.Services.AddHostedService<AppService>();
             builder.Services.AddTransient<App>();
             builder.Services.AddTransient<AppTest>();
 
             _applicationHost = builder.Build();
             await _applicationHost.RunAsync();
+        }
+    }
 
-            await ServiceProvider.GetService<App>().RunAsync();
-            //await ServiceProvider.GetService<AppTest>().RunAsync();
+    internal class AppService : IHostedService
+    {
+        private App _app;
+        private AppTest _appTest;
+
+        public AppService(App app, AppTest appTest)
+        {
+            _app = app;
+            _appTest = appTest;
         }
 
-        public static IServiceProvider ServiceProvider => _applicationHost.Services;
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await _app.RunAsync();
+            // await _appTest.RunAsync();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -26,8 +26,7 @@ namespace LLamaStack.WPF.Services
 
         private T Resolve<T>(Window owner) where T : Window
         {
-            var container = ((App)Application.Current).ServiceProvider;
-            var dialog = container.GetService<T>();
+            var dialog = App.ServiceProvider.GetService<T>();
             dialog.Owner = owner;
             return dialog;
         }

@@ -67,7 +67,7 @@ namespace LLamaStack.WPF
         private static void MainWindowLogCallback(LogLevel level, string sender, string message)
         {
             // Invoke back to the UI thread
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
             {
                 (System.Windows.Application.Current.MainWindow as MainWindow).UpdateOutputLog($"[{DateTime.Now}] [{level}] [{sender}] - {message}");
             }));

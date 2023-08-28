@@ -1,0 +1,160 @@
+﻿<UserControl x:Class="LLamaStack.WPF.Views.InferenceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:coreModels="clr-namespace:LLamaStack.Core.Models;assembly=LLamaStack.Core"
+             xmlns:behaviours="clr-namespace:LLamaStack.WPF.Behaviours"
+             xmlns:views="clr-namespace:LLamaStack.WPF.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Name="UI">
+    <Grid DataContext="{Binding ElementName=UI}" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Column="0">
+
+            <!--Model/Executor-->
+            <StackPanel DockPanel.Dock="Top" Margin="5,0,3,0">
+
+                <Label Content="Model" Margin="0,0,0,-5"/>
+                <ComboBox ItemsSource="{Binding Models}" SelectedItem="{Binding SessionConfiguration.SelectedModel}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}" DisplayMemberPath="Name" Text="Models" IsEditable="false" IsReadOnly="true"/>
+
+                <Label Content="Executor" Margin="0,0,0,-5"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource ExecutorTypeValues}}" SelectedItem="{Binding SessionConfiguration.ExecutorType}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}" IsEditable="false" IsReadOnly="true" Text=""/>
+            </StackPanel>
+
+            <!--Begin/End Session-->
+            <StackPanel DockPanel.Dock="Bottom" Margin="5">
+                <Button Height="40">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsSessionLoaded}" Value="False">
+                                    <Setter Property="Content" Value="Begin Session" />
+                                    <Setter Property="Command" Value="{Binding BeginSessionCommand}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=IsSessionLoaded}" Value="True">
+                                    <Setter Property="Content" Value="End Session" />
+                                    <Setter Property="Command" Value="{Binding EndSessionCommand}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <UniformGrid Columns="2">
+                    <Button Content="Load" Command="{Binding LoadSessionCommand}"/>
+                    <Button Content="Save" Command="{Binding SaveSessionCommand}"/>
+                </UniformGrid>
+            </StackPanel>
+
+            <!--Prompt/Parameters Tab-->
+            <TabControl Margin="5,10,5,5">
+
+                <!--Prompt Tab-->
+                <TabItem Header="Prompt">
+                    <StackPanel>
+                        <Label Content="Initial Prompt" Margin="0,0,0,-5"/>
+                        <TextBox Text="{Binding SessionConfiguration.Prompt}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}" Height="300" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                        <Label Content="Anti Prompts (csv)" Margin="0,0,0,-5"/>
+                        <TextBox Text="{Binding SessionConfiguration.AntiPrompt}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}"></TextBox>
+
+                        <Label Content="Output Filters (csv)" Margin="0,0,0,-5"/>
+                        <TextBox Text="{Binding SessionConfiguration.OutputFilter}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}"></TextBox>
+                    </StackPanel>
+                </TabItem>
+
+                <!--Parameters Tab-->
+                <TabItem Header="Parameters">
+                    <views:Parameters Configuration="{Binding InferenceConfiguration, Mode=TwoWay}" />
+                </TabItem>
+
+            </TabControl>
+        </DockPanel>
+
+        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+
+        <!--Main Tab-->
+
+        <Grid Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="32*"/>
+                <ColumnDefinition Width="291*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="120" />
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0" Grid.ColumnSpan="2"  >
+
+                <!--Response Listbox-->
+                <ListBox ItemsSource="{Binding SessionConfiguration.HistoryResponses}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" behaviours:AutoScrollToBottomBehavior.AutoScrollToBottom="True" behaviours:AutoScrollToBottomBehavior.AutoScrollToBottomStatus="AutoScrollingToBottom" ScrollViewer.CanContentScroll="False">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Margin" Value="0,1,0,0"/>
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="#c0c0c0" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <Border Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type coreModels:SessionHistoryModel}">
+                            <DockPanel Margin="0,0,0,0">
+                                <Image DockPanel.Dock="Left" Width="50" Stretch="Uniform" VerticalAlignment="Top" Margin="15">
+                                    <Image.Style>
+                                        <Style TargetType="{x:Type Image}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsResponse}" Value="True">
+                                                    <Setter Property="Source" Value="/Images/robot.png"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsResponse}" Value="False">
+                                                    <Setter Property="Source" Value="/Images/human.png"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <StackPanel  DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding Timestamp}" FontStyle="Italic" Margin="0,0,10,0" HorizontalAlignment="Right" FontSize="11"/>
+                                    <TextBlock Text="{Binding Signature}" FontStyle="Italic" Margin="0,0,10,5" HorizontalAlignment="Right"/>
+                                </StackPanel>
+                                <TextBox Text="{Binding Content}" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" Background="Transparent" Margin="0,15,10,0"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <GridSplitter Height="5" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" Margin="0,548,0,0" Grid.RowSpan="2" />
+
+            <!--Prompt Input-->
+            <DockPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,5,0,0" Grid.RowSpan="2" >
+                <DockPanel DockPanel.Dock="Right">
+                    <DockPanel DockPanel.Dock="Bottom" Height="40" >
+                        <Button  Content="Cancel"  Command="{Binding CancelPromptCommand}" Width="50"></Button>
+                        <Button DockPanel.Dock="Right" Content="Clear"  Command="{Binding ClearHistoryCommand}" Width="50"></Button>
+                    </DockPanel>
+                    <Button DockPanel.Dock="Bottom" Content="Send"  Command="{Binding SendPromptCommand}" CommandParameter="{Binding ElementName=TextBoxPrompt, Path=Text}" IsDefault="True" Width="100"></Button>
+                </DockPanel>
+                <TextBox Name="TextBoxPrompt" Text="{Binding Prompt}" TextWrapping="Wrap" behaviours:ShiftEnterBehavior.Enable="True" />
+            </DockPanel>
+        </Grid>
+
+
+    </Grid>
+</UserControl>

@@ -1,4 +1,6 @@
 ﻿using LLamaStack.WPF.Commands;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,7 +10,7 @@ namespace LLamaStack.WPF.Views
     /// <summary>
     /// Interaction logic for Parameters.xaml
     /// </summary>
-    public partial class Parameters : UserControl
+    public partial class Parameters : UserControl, INotifyPropertyChanged
     {
 
         /// <summary>Initializes a new instance of the <see cref="Parameters" /> class.</summary>
@@ -51,5 +53,13 @@ namespace LLamaStack.WPF.Views
         {
             Configuration = new InferenceConfiguration();
         }
+
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void NotifyPropertyChanged([CallerMemberName] string property = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+        #endregion
     }
 }

@@ -5,6 +5,7 @@ namespace LLamaStack.Core.Config
 {
     public class ConfigManager
     {
+        private static JsonDocument _appSettingsDocument;
 
         /// <summary>
         /// Loads the LLamaStackConfig configuration object from appsetting.json
@@ -12,7 +13,7 @@ namespace LLamaStack.Core.Config
         /// <returns>LLamaStackConfig object</returns>
         public static LLamaStackConfig LoadConfiguration()
         {
-            return LoadConfiguration<LLamaStackConfig>();
+            return LoadConfiguration<LLamaStackConfig>(new JsonStringEnumConverter());
         }
 
 
@@ -21,33 +22,69 @@ namespace LLamaStack.Core.Config
         /// </summary>
         /// <typeparam name="T">The custom IConfigSection class type, NOTE: json section name MUST match class name</typeparam>
         /// <returns>The deserialized custom configuration object</returns>
-        public static T LoadConfiguration<T>() where T : class, IConfigSection
+        public static T LoadConfiguration<T>(params JsonConverter[] converters) where T : class, IConfigSection
         {
-            return LoadConfigurationSection<T>();
+            return LoadConfigurationSection<T>(converters);
         }
 
 
-        private static T LoadConfigurationSection<T>() where T : class, IConfigSection
+        /// <summary>
+        /// Loads a configuration section.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="converters">The converters.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">Failed to parse json element</exception>
+        private static T LoadConfigurationSection<T>(params JsonConverter[] converters) where T : class, IConfigSection
         {
+            var serializerOptions = GetSerializerOptions(converters);
+            var jsonDocument = GetJsonDocument(serializerOptions);
+            var configElement = jsonDocument.RootElement.GetProperty(typeof(T).Name);
+            var configuration = configElement.Deserialize<T>(serializerOptions)
+                ?? throw new Exception($"Failed to parse {typeof(T).Name} json element");
+            configuration.Initialize();
+            return configuration;
+        }
+
+
+        /// <summary>
+        /// Gets and loads the appsettings.json document and caches it
+        /// </summary>
+        /// <param name="serializerOptions">The serializer options.</param>
+        /// <returns></returns>
+        /// <exception cref="System.IO.FileNotFoundException"></exception>
+        /// <exception cref="System.Exception">Failed to parse appsetting document</exception>
+        private static JsonDocument GetJsonDocument(JsonSerializerOptions serializerOptions)
+        {
+            if (_appSettingsDocument is not null)
+                return _appSettingsDocument;
+
             var appsettingStreamFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
             if (!File.Exists(appsettingStreamFile))
                 throw new FileNotFoundException(appsettingStreamFile);
 
             using var appsettingStream = File.OpenRead(appsettingStreamFile);
-            {
-                var serializerOptions = new JsonSerializerOptions
-                {
-                    Converters = { new JsonStringEnumConverter() }
-                };
+            _appSettingsDocument = JsonSerializer.Deserialize<JsonDocument>(appsettingStream, serializerOptions)
+                  ?? throw new Exception("Failed to parse appsetting document");
 
-                var appsettingDocument = JsonSerializer.Deserialize<JsonDocument>(appsettingStream, serializerOptions)
-                    ?? throw new Exception("Failed to parse appsetting document");
-                var configElement = appsettingDocument.RootElement.GetProperty(typeof(T).Name);
-                var configuration = configElement.Deserialize<T>(serializerOptions)
-                    ?? throw new Exception($"Failed to parse {typeof(T).Name} json element");
-                configuration.Initialize();
-                return configuration;
+            return _appSettingsDocument;
+        }
+
+
+        /// <summary>
+        /// Gets the serializer options.
+        /// </summary>
+        /// <param name="jsonConverters">The json converters.</param>
+        /// <returns>JsonSerializerOptions</returns>
+        private static JsonSerializerOptions GetSerializerOptions(params JsonConverter[] jsonConverters)
+        {
+            var serializerOptions = new JsonSerializerOptions();
+            if (jsonConverters is not null)
+            {
+                foreach (var jsonConverter in jsonConverters)
+                    serializerOptions.Converters.Add(jsonConverter);
             }
+            return serializerOptions;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace LLamaStack.Core.Config
 {
-    public class LLamaStackConfig
+    public class LLamaStackConfig : IConfigSection
     {
         public ModelLoadType ModelLoadType { get; set; }
         public string ModelStatePath { get; set; }

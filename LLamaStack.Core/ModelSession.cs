@@ -119,11 +119,34 @@ namespace LLamaStack.Core
 
 
         /// <summary>
+        /// Gets the ModelSessionState.
+        /// </summary>
+        /// <returns></returns>
+        public ModelSessionState<T> GetState()
+        {
+            ExecutorBaseState executorState = default;
+            if (_executor is StatefulExecutorBase statefulExecutorBase)
+                executorState = statefulExecutorBase.GetStateData();
+
+            return new ModelSessionState<T>
+            {
+                Id = _sessionId,
+                Name = StateName,
+                Created = DateTime.UtcNow,
+                ContextSize = _context.ContextSize,
+                ExecutorConfig = executorState,
+                InferenceConfig = _inferenceParams ?? _defaultInferenceParams,
+                SessionConfig = _sessionParams,
+                SessionHistory = _sessionHistory,
+            };
+        }
+
+        /// <summary>
         /// Initializes the prompt.
         /// </summary>
         /// <param name="inferenceParams">The inference parameters.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public async Task InitializePrompt(IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        internal async Task InitializePrompt(IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
         {
             ConfigureInferenceParams(inferenceParams);
 
@@ -147,7 +170,7 @@ namespace LLamaStack.Core
         /// <param name="inferenceParams">The inference parameters.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public IAsyncEnumerable<string> InferAsync(string message, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        internal IAsyncEnumerable<string> InferAsync(string message, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
         {
             ConfigureInferenceParams(inferenceParams);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -161,7 +184,7 @@ namespace LLamaStack.Core
         /// <summary>
         /// Cancels the current inference.
         /// </summary>
-        public void CancelInfer()
+        internal void CancelInfer()
         {
             _cancellationTokenSource?.Cancel();
         }
@@ -173,34 +196,13 @@ namespace LLamaStack.Core
         /// <returns>
         ///   <c>true</c> if inference is canceled; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsInferCanceled()
+        internal bool IsInferCanceled()
         {
             return _cancellationTokenSource?.IsCancellationRequested ?? false;
         }
 
 
-        /// <summary>
-        /// Gets the ModelSessionState.
-        /// </summary>
-        /// <returns></returns>
-        public ModelSessionState<T> GetState()
-        {
-            ExecutorBaseState executorState = default;
-            if (_executor is StatefulExecutorBase statefulExecutorBase)
-                executorState = statefulExecutorBase.GetStateData();
 
-            return new ModelSessionState<T>
-            {
-                Id = _sessionId,
-                Name = StateName,
-                Created = DateTime.UtcNow,
-                ContextSize = _context.ContextSize,
-                ExecutorConfig = executorState,
-                InferenceConfig = _inferenceParams ?? _defaultInferenceParams,
-                SessionConfig = _sessionParams,
-                SessionHistory = _sessionHistory,
-            };
-        }
 
 
         /// <summary>
@@ -208,7 +210,7 @@ namespace LLamaStack.Core
         /// </summary>
         /// <param name="sessionHistory">The session history.</param>
         /// <returns></returns>
-        public Task AddHistory(params SessionHistoryModel[] sessionHistory)
+        internal Task AddHistory(params SessionHistoryModel[] sessionHistory)
         {
             foreach (var history in sessionHistory)
             {

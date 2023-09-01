@@ -29,5 +29,12 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
+        
+        <!--TODO: Style dictionary for themeing-->
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Padding" Value="1" />
+        </Style>
+
     </Application.Resources>
 </Application>

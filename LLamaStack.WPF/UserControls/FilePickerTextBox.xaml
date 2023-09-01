@@ -17,8 +17,12 @@
 
     <DockPanel DataContext="{Binding ElementName=UI}">
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-            <Button Command="{Binding OpenFileDialogCommand}" Content=".." Width="25" />
-            <Button Command="{Binding ClearFileCommand}" Content="x" Visibility="{Binding IsRequired, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Width="25" BorderThickness="0,1,1,1" />
+            <Button Command="{Binding OpenFileDialogCommand}" Width="24" >
+                <local:FontAwesome Icon="&#xf002;" Size="12"/>
+            </Button>
+            <Button Command="{Binding ClearFileCommand}" Visibility="{Binding IsRequired, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Width="24" BorderThickness="0,1,1,1" >
+                <local:FontAwesome Icon="&#xf00d;" Size="15" IconStyle="Light"/>
+            </Button>
         </StackPanel>
         
         <TextBox>
@@ -31,7 +35,7 @@
                         <DataTrigger Binding="{Binding IsRequired}" Value="True">
                             <Setter Property="Text">
                                 <Setter.Value>
-                                    <Binding Path="FileName" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding Path="FileName" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                         <Binding.ValidationRules>
                                             <local:FileExistsValidationRule IsRequired="True" ValidatesOnTargetUpdated="True" />
                                         </Binding.ValidationRules>
@@ -42,7 +46,7 @@
                         <DataTrigger Binding="{Binding IsRequired}" Value="False">
                             <Setter Property="Text">
                                 <Setter.Value>
-                                    <Binding Path="FileName" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding Path="FileName" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                         <Binding.ValidationRules>
                                             <local:FileExistsValidationRule IsRequired="False" ValidatesOnTargetUpdated="True" />
                                         </Binding.ValidationRules>

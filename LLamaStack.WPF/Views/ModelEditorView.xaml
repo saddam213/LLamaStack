@@ -1,0 +1,186 @@
+﻿<UserControl x:Class="LLamaStack.WPF.Views.ModelEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LLamaStack.WPF.Views"
+             xmlns:userControls="clr-namespace:LLamaStack.WPF.UserControls"
+             mc:Ignorable="d"
+             Name="UI"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid DataContext="{Binding ElementName=UI}" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!--List-->
+        <DockPanel Grid.Column="0" Margin="5">
+
+            <TextBlock DockPanel.Dock="Top" Text="Models"/>
+
+            <UniformGrid DockPanel.Dock="Bottom" Columns="1">
+                <Button Content="New Model" Command="{Binding CreateCommand}"/>
+            </UniformGrid>
+
+            <ListBox ItemsSource="{Binding Models}" SelectedItem="{Binding SelectedModel}" DisplayMemberPath="Name" />
+        </DockPanel>
+
+        <!--Splitter-->
+        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+
+        <!--Main Content-->
+        <DockPanel Grid.Column="2">
+            <DockPanel.Style>
+                <Style TargetType="{x:Type DockPanel}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedModel}" Value="{x:Null}">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DockPanel.Style>
+            
+            <UniformGrid DockPanel.Dock="Bottom" Columns="3">
+                <TextBlock />
+                <TextBlock />
+                <UniformGrid Columns="2">
+                    <Button Content="Save" Command="{Binding SaveCommand}" />
+                    <Button Content="Remove" Command="{Binding RemoveCommand}"/>
+                </UniformGrid>
+            </UniformGrid>
+
+
+            <UniformGrid Columns="3">
+
+                <!--Configuration-->
+                <GroupBox Header="Configuration" Margin="5" Padding="5">
+                    <StackPanel>
+                        <StackPanel Margin="0,0,0,5">
+                            <TextBlock Text="Name"/>
+                            <TextBox Text="{Binding SelectedModel.Name}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5">
+                            <TextBlock Text="ModelPath"/>
+                            <userControls:FilePickerTextBox x:Name="ModelPath" FileName="{Binding SelectedModel.ModelPath, Mode=TwoWay}" IsRequired="True"/>
+                        </StackPanel>
+
+                        <UniformGrid Columns="2" Margin="0,0,0,5">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="ContextSize"/>
+                                <TextBox Text="{Binding SelectedModel.ContextSize}" />
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="BatchSize"/>
+                                <TextBox Text="{Binding SelectedModel.BatchSize}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <UniformGrid Columns="2" Margin="0,0,0,5">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="Encoding"/>
+                                <ComboBox ItemsSource="{Binding Encodings}" SelectedItem="{Binding SelectedModel.Encoding}" DisplayMemberPath="EncodingName" />
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="Seed"/>
+                                <TextBox Text="{Binding SelectedModel.Seed}"/>
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <StackPanel Margin="0,0,0,5">
+                            <TextBlock Text="LoraAdapter"/>
+                            <userControls:FilePickerTextBox x:Name="LoraAdapter" FileName="{Binding SelectedModel.LoraAdapter}" IsRequired="False"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5">
+                            <TextBlock Text="LoraBase"/>
+                            <userControls:FilePickerTextBox FileName="{Binding SelectedModel.LoraBase}" IsRequired="False"/>
+                        </StackPanel>
+
+                        <UniformGrid Columns="2" Margin="0,0,0,5">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="GroupedQueryAttention"/>
+                                <TextBox Text="{Binding SelectedModel.GroupedQueryAttention}" />
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="RmsNormEpsilon"/>
+                                <TextBox Text="{Binding SelectedModel.RmsNormEpsilon}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <UniformGrid Columns="2" Margin="0,0,0,10">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="RopeFrequencyBase"/>
+                                <TextBox Text="{Binding SelectedModel.RopeFrequencyBase}" />
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="RopeFrequencyScale"/>
+                                <TextBox Text="{Binding SelectedModel.RopeFrequencyScale}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <StackPanel>
+                            <CheckBox Content="MulMatQ" IsChecked="{Binding SelectedModel.MulMatQ}"  Margin="0,0,0,5"/>
+                            <CheckBox Content="Perplexity" IsChecked="{Binding SelectedModel.Perplexity}"  Margin="0,0,0,5"/>
+                            <CheckBox Content="ConvertEosToNewLine" IsChecked="{Binding SelectedModel.ConvertEosToNewLine}"  Margin="0,0,0,5"/>
+                            <CheckBox Content="EmbeddingMode" IsChecked="{Binding SelectedModel.EmbeddingMode}"  Margin="0,0,0,5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!--Performance-->
+                <GroupBox Header="Performance" Margin="5" Padding="5">
+                    <StackPanel>
+
+                        <UniformGrid Columns="2" Margin="0,0,0,10">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="Threads"/>
+                                <TextBox Text="{Binding SelectedModel.Threads}" />
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="MaxInstances"/>
+                                <TextBox Text="{Binding SelectedModel.MaxInstances}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <StackPanel>
+                            <CheckBox Content="UseMemorymap" IsChecked="{Binding SelectedModel.UseMemorymap}"  Margin="0,0,0,5"/>
+                            <CheckBox Content="UseMemoryLock" IsChecked="{Binding SelectedModel.UseMemoryLock}"  Margin="0,0,0,5"/>
+                            <CheckBox Content="UseFp16Memory" IsChecked="{Binding SelectedModel.UseFp16Memory}"  Margin="0,0,0,5"/>
+                        </StackPanel>
+
+                        <UniformGrid Columns="2" Margin="0,0,0,5">
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="MainGpu"/>
+                                <TextBox Text="{Binding SelectedModel.MainGpu}" />
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock Text="GpuLayerCount"/>
+                                <TextBox Text="{Binding SelectedModel.GpuLayerCount}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="TensorSplits"/>
+                            <TextBox Text="{Binding SelectedModel.TensorSplits}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,5">
+                            <CheckBox Content="LowVram" IsChecked="{Binding SelectedModel.LowVram}" />
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!--Downloads-->
+                <GroupBox Header="Downloads" Margin="5" Padding="5">
+                    <StackPanel>
+
+                    </StackPanel>
+                </GroupBox>
+
+            </UniformGrid>
+        </DockPanel>
+    </Grid>
+</UserControl>

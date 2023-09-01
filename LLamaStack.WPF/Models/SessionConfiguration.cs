@@ -1,6 +1,7 @@
 ﻿using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
+using LLamaStack.WPF.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +20,7 @@ namespace LLamaStack.WPF
     public class SessionConfiguration : ISessionConfig, INotifyPropertyChanged
     {
         private string _prompt;
-        private ModelConfig _selectedModel;
+        private ModelConfiguration _selectedModel;
         private string _name = string.Empty;
         private string _antiPrompt = string.Empty;
         private string _outputFilter = string.Empty;
@@ -27,10 +28,10 @@ namespace LLamaStack.WPF
         private string _inputPrefix = string.Empty;
         private string _inputSuffix = string.Empty;
 
-        public ModelConfig SelectedModel
+        public ModelConfiguration SelectedModel
         {
             get { return _selectedModel; }
-            set { _selectedModel = value; NotifyPropertyChanged(); }
+            set { _selectedModel = value; NotifyPropertyChanged(); SetDefaultPromptConfig(); }
         }
 
         public string Name

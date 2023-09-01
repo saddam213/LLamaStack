@@ -133,7 +133,7 @@
                                     <TextBlock Text="{Binding Timestamp}" FontStyle="Italic" Margin="0,0,10,0" HorizontalAlignment="Right" FontSize="11"/>
                                     <TextBlock Text="{Binding Signature}" FontStyle="Italic" Margin="0,0,10,5" HorizontalAlignment="Right"/>
                                 </StackPanel>
-                                <TextBox Text="{Binding Content}" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" Background="Transparent" Margin="0,15,10,0"/>
+                                <TextBox Style="{x:Null}" Text="{Binding Content}" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" Background="Transparent" Margin="0,15,10,0"/>
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -151,7 +151,7 @@
                     </DockPanel>
                     <Button DockPanel.Dock="Bottom" Content="Send"  Command="{Binding SendPromptCommand}" CommandParameter="{Binding ElementName=TextBoxPrompt, Path=Text}" IsDefault="True" Width="100"></Button>
                 </DockPanel>
-                <TextBox Name="TextBoxPrompt" Text="{Binding Prompt}" TextWrapping="Wrap" behaviours:ShiftEnterBehavior.Enable="True" />
+                <TextBox Name="TextBoxPrompt" Style="{x:Null}" Text="{Binding Prompt}" TextWrapping="Wrap" behaviours:ShiftEnterBehavior.Enable="True" />
             </DockPanel>
         </Grid>
 

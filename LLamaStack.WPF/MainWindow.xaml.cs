@@ -1,9 +1,7 @@
 ﻿using LLamaStack.Core.Config;
 using LLamaStack.WPF.Views;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
-using System.Configuration;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
@@ -18,6 +16,7 @@ namespace LLamaStack.WPF
         private readonly ILogger<MainWindow> _logger;
         private LLamaStackConfig _configuration;
         private string _outputLog;
+        private ITabView _selectedTab;
 
 
         /// <summary>
@@ -26,40 +25,34 @@ namespace LLamaStack.WPF
         public MainWindow(ILogger<MainWindow> logger, LLamaStackConfig configuration)
         {
             _logger = logger;
-            _configuration = configuration;
             Configuration = configuration;
             InitializeComponent();
         }
 
 
-
-
+        /// <summary>
+        /// Gets or sets the configuration.
+        /// </summary>
         public LLamaStackConfig Configuration
         {
-            get { return (LLamaStackConfig)GetValue(ConfigurationProperty); }
-            set { SetValue(ConfigurationProperty, value); }
+            get { return _configuration; }
+            set { _configuration = value; NotifyPropertyChanged(); }
         }
 
-        // Using a DependencyProperty as the backing store for Configuration.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ConfigurationProperty =
-            DependencyProperty.Register("Configuration", typeof(LLamaStackConfig), typeof(MainWindow));
 
-
-
-        //public LLamaStackConfig Configuration
-        //{
-        //    get { return _configuration; }
-        //    set { _configuration = value; NotifyPropertyChanged(); }
-        //}
-
-        private ITabView _selctedTab;
-
+        /// <summary>
+        /// Gets or sets the selected tab.
+        /// </summary>
         public ITabView SelectedTab
         {
-            get { return _selctedTab; }
-            set { _selctedTab = value; _selctedTab?.Initialize(); NotifyPropertyChanged(); }
+            get { return _selectedTab; }
+            set
+            {
+                _selectedTab = value;
+                _selectedTab?.Initialize();
+                NotifyPropertyChanged();
+            }
         }
-
 
 
         /// <summary>

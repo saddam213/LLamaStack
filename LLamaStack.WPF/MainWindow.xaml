@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:LLamaStack.WPF.Views"
         xmlns:userControls="clr-namespace:LLamaStack.WPF.UserControls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280" Name="UI" FontSize="14" >
+        Title="LLamaStack WPF" Height="720" Width="1280" Name="UI" FontSize="14" >
     <DockPanel DataContext="{Binding ElementName=UI}">
         <TabControl SelectedValue="{Binding SelectedTab}" SelectedValuePath="Content">
             <TabItem>
@@ -26,7 +26,7 @@
                         <TextBlock Text="Inference" Margin="5,0,0,0"/>
                     </StackPanel>
                 </TabItem.Header>
-                <views:InferenceView Configuration="{Binding Configuration, Mode=TwoWay}"/>
+                <views:InferenceView Configuration="{Binding Configuration, Mode=TwoWay}" />
             </TabItem>
             
             <TabItem>

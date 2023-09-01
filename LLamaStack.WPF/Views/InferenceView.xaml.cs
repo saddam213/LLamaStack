@@ -1,6 +1,5 @@
 ﻿using LLama.Abstractions;
 using LLamaStack.Core;
-using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
 using LLamaStack.Core.Services;
@@ -12,13 +11,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 
 namespace LLamaStack.WPF.Views
 {
@@ -27,9 +24,6 @@ namespace LLamaStack.WPF.Views
     /// </summary>
     public partial class InferenceView : UserControl, INotifyPropertyChanged, ITabView
     {
-        private readonly ILogger<InferenceView> _logger;
-        private readonly IDialogService _dialogService;
-        private readonly IModelSessionService<Guid> _modelSessionService;
         private string _prompt = string.Empty;
         private bool _isInferRunning;
         private bool _isSessionLoaded;
@@ -39,12 +33,6 @@ namespace LLamaStack.WPF.Views
 
         public InferenceView()
         {
-            _logger = App.ServiceProvider.GetService<ILogger<InferenceView>>();
-           // _configuration = App.ServiceProvider.GetService<LLamaStackConfig>();
-            _dialogService = App.ServiceProvider.GetService<IDialogService>();
-            _modelSessionService = App.ServiceProvider.GetService<IModelSessionService<Guid>>();
-
-   
             BeginSessionCommand = new AsyncRelayCommand(BeginSession, CanExecuteBeginSession);
             EndSessionCommand = new AsyncRelayCommand(EndSession, CanExecuteEndSession);
             LoadSessionCommand = new AsyncRelayCommand(LoadSession, CanExecuteLoadSession);
@@ -55,6 +43,13 @@ namespace LLamaStack.WPF.Views
             InitializeComponent();
         }
 
+
+        //TODO: Bit of an anti-pattern here, should probably bind a viewmodel with these inside
+        protected ILogger<InferenceView> Logger { get; init; } = App.ServiceProvider.GetService<ILogger<InferenceView>>();
+        protected IDialogService DialogService { get; init; } = App.ServiceProvider.GetService<IDialogService>();
+        protected IModelSessionService<Guid> ModelSessionService { get; init; } = App.ServiceProvider.GetService<IModelSessionService<Guid>>();
+
+
         public LLamaStackConfig Configuration
         {
             get { return (LLamaStackConfig)GetValue(ConfigurationProperty); }
@@ -63,7 +58,6 @@ namespace LLamaStack.WPF.Views
 
         public static readonly DependencyProperty ConfigurationProperty =
             DependencyProperty.Register("Configuration", typeof(LLamaStackConfig), typeof(InferenceView));
-
 
         public AsyncRelayCommand EndSessionCommand { get; }
         public AsyncRelayCommand BeginSessionCommand { get; }
@@ -188,7 +182,7 @@ namespace LLamaStack.WPF.Views
         {
             IsSessionLoading = true;
             IsSessionLoaded = false;
-            var loadSessionView = _dialogService.GetDialog<SessionLoadView>();
+            var loadSessionView = DialogService.GetDialog<SessionLoadView>();
             if (loadSessionView.ShowDialog() == true)
             {
                 var modelSession = loadSessionView.GetSeletedModel();
@@ -230,7 +224,7 @@ namespace LLamaStack.WPF.Views
         private Task SaveSession()
         {
             IsSessionLoading = true;
-            var saveSessionView = _dialogService.GetDialog<SessionSaveView>();
+            var saveSessionView = DialogService.GetDialog<SessionSaveView>();
             saveSessionView.SetModelSession(_modelSession);
             saveSessionView.ShowDialog();
             IsSessionLoading = false;
@@ -256,7 +250,7 @@ namespace LLamaStack.WPF.Views
         /// </summary>
         private async Task CancelPrompt()
         {
-            await _modelSessionService.CancelAsync(_sessionId);
+            await ModelSessionService.CancelAsync(_sessionId);
             IsInferRunning = false;
         }
 
@@ -292,7 +286,7 @@ namespace LLamaStack.WPF.Views
         /// </returns>
         private bool CanExecuteClearHistory()
         {
-            return SessionConfiguration.HistoryResponses.Count > 0 && !IsInferRunning;
+            return SessionConfiguration?.HistoryResponses?.Count > 0 && !IsInferRunning;
         }
 
 
@@ -316,11 +310,11 @@ namespace LLamaStack.WPF.Views
             try
             {
                 _sessionId = Guid.NewGuid();
-                return await Task.Run(() => _modelSessionService.CreateAsync(_sessionId, sessionConfig, inferenceParams));
+                return await Task.Run(() => ModelSessionService.CreateAsync(_sessionId, sessionConfig, inferenceParams));
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[CreateSession] - {ex.Message}");
+                Logger.LogError($"[CreateSession] - {ex.Message}");
                 return null;
             }
         }
@@ -334,11 +328,11 @@ namespace LLamaStack.WPF.Views
         {
             try
             {
-                await _modelSessionService.CloseAsync(_sessionId);
+                await ModelSessionService.CloseAsync(_sessionId);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[CloseSession] - {ex.Message}");
+                Logger.LogError($"[CloseSession] - {ex.Message}");
             }
         }
 
@@ -355,7 +349,7 @@ namespace LLamaStack.WPF.Views
                 var responseItem = CreateResponseItem(prompt);
                 await Task.Run(async () =>
                 {
-                    await foreach (var token in _modelSessionService.InferAsync(_sessionId, prompt, inferenceParams))
+                    await foreach (var token in ModelSessionService.InferAsync(_sessionId, prompt, inferenceParams))
                     {
                         if (token.Type == InferTokenType.Begin)
                         {
@@ -374,7 +368,7 @@ namespace LLamaStack.WPF.Views
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[ExecuteInference] - {ex.Message}");
+                Logger.LogError($"[ExecuteInference] - {ex.Message}");
             }
         }
 
@@ -412,13 +406,13 @@ namespace LLamaStack.WPF.Views
                 Models.Add(ModelConfiguration.From(item));
             }
 
-            if(!Models.Any(x => x.Name == lastSelected) && IsSessionLoaded)
+            if (!Models.Any(x => x.Name == lastSelected) && IsSessionLoaded)
             {
                 EndSession().Wait();
             }
 
             SessionConfiguration.SelectedModel = Models.FirstOrDefault(x => x.Name == lastSelected)
-                                              ?? Models.FirstOrDefault(); 
+                                              ?? Models.FirstOrDefault();
         }
 
         #endregion

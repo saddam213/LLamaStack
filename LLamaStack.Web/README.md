@@ -1,9 +1,11 @@
 ﻿## LLamaStack.Web - Basic ASP.NET Core example
 LLamaStack.Web has no heavy dependencies and no extra frameworks over bootstrap and jquery to keep the examples clean and easy to copy over to your own project
 
+## Live Demo
+[Live WebInterface Demo](https://llama-stack.com/)
+
 ## Websockets
 LLamaStack.Web uses Signalr websockets this simplifys the streaming of responses and model per connection management
-
 
 ## Setup
 You can setup Models, Prompts and Inference parameters in the appsettings.json

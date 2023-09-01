@@ -2,21 +2,18 @@
 LLamaStack.WPF is a lightweight barebones UI example to run LLM on your local machine, a perfect scaffold to clone and build your own feature rich WPF application
 
 
-## Setup
-You can setup Models and other configuration appsettings.json
+## Model Management
+Add/Remove models and configuration for easy switching
+![demo-wpf3](https://i.imgur.com/LWP5dcj.png)
 
-**Models**
-You can add multiple models to the options for quick selection in the UI, options are based on LLamaSharp ModelParams so its fully configurable
-
-
-## Interactive UI
+## Inference UI
 Manage and interact with all your models in one simple UI interface
-![demo-wpf1](https://i.imgur.com/bGY70wH.png)
+![demo-wpf1](https://i.imgur.com/NFCf8rd.png)
 
 ## Live Parameters
 Update inference parameters between each question/instruction
-![demo-wpf2](https://i.imgur.com/uR7KAeY.png)
+![demo-wpf2](https://i.imgur.com/hOQQpck.png)
 
 ## Output Log
 Output of llama.cpp output into the UI for easy debugging
-![demo-wpf3](https://i.imgur.com/Witubi5.png)
+![demo-wpf4](https://i.imgur.com/czIzwyy.png)

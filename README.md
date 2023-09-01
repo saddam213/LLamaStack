@@ -11,13 +11,7 @@ Here are the UI projects included in LLamaStack:
 
 1. **[LLamaStack.Web](LLamaStack.Web/README.md)**: ASP.NET Core Web interface with all the base functions of llama.cpp & LLamaSharp
 
-[Live WebInterface Demo](https://llamaweb.chainstack.nz/)
-
-![demo-web](https://i.imgur.com/fZEQTQ5.png)
-
 2. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: WPF UI interface with all the base functions of llama.cpp & LLamaSharp
-
-![demo-wpf](https://i.imgur.com/uR7KAeY.png)
 
 3. **LLamaStack.WebAPI**: ASP.NET Core WebAPI implemntation with all the base functions of llama.cpp & LLamaSharp
 
@@ -70,7 +64,7 @@ You can setup Models in the appsettings.json
 			"RopeFrequencyBase": 10000.0,
 			"RopeFrequencyScale": 1.0,
 			"MulMatQ": false,
-        		"Encoding": "UTF-8"
+			"Encoding": "UTF-8"
 		}]
 	}
 }

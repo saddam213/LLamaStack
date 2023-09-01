@@ -14,6 +14,7 @@
         <FontFamily x:Key="FontAwesomeSolid">pack://application:,,,/Fonts/fa-solid-900.ttf#Font Awesome 5 Pro Solid</FontFamily>
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
 
         <ObjectDataProvider x:Key="ExecutorTypeValues" MethodName="GetValues" ObjectType="{x:Type system:Enum}">

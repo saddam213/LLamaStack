@@ -5,9 +5,9 @@ using System.Text.Json.Serialization;
 
 namespace LLamaStack.Core.Config
 {
-    public class ModelConfig : IModelParams
+    public class ModelConfig : IModelConfig
     {
-        public int MaxInstances { get; set; }
+        public int MaxInstances { get; set; } = -1;
         public string Name { get; set; } = "unknown";
 
         public int ContextSize { get; set; } = 512;

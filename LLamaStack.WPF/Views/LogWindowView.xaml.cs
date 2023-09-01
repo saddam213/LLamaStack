@@ -8,7 +8,7 @@ namespace LLamaStack.WPF.Views
     /// <summary>
     /// Interaction logic for LogWindow.xaml
     /// </summary>
-    public partial class LogWindowView : UserControl, INotifyPropertyChanged
+    public partial class LogWindowView : UserControl, INotifyPropertyChanged, ITabView
     {
         public LogWindowView()
         {
@@ -23,6 +23,11 @@ namespace LLamaStack.WPF.Views
 
         public static readonly DependencyProperty LogOutputProperty =
             DependencyProperty.Register("LogOutput", typeof(string), typeof(LogWindowView), new PropertyMetadata(string.Empty));
+
+        public void Initialize()
+        {
+
+        }
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;

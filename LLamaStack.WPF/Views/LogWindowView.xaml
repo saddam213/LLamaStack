@@ -10,7 +10,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel DataContext="{Binding ElementName=UI}">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" behaviours:AutoScrollToBottomBehavior.AutoScrollToBottom="True" behaviours:AutoScrollToBottomBehavior.AutoScrollToBottomStatus="AutoScrollingToBottom" CanContentScroll="False">
-            <TextBox Text="{Binding LogOutput, Mode=TwoWay}" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" />
+            <TextBox Style="{x:Null}" Text="{Binding LogOutput, Mode=TwoWay}" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" />
         </ScrollViewer>
     </DockPanel>
 </UserControl>

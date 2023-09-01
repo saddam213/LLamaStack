@@ -5,15 +5,13 @@ namespace LLamaStack.Core.Config
 {
     public class ConfigManager
     {
-        private static JsonDocument _appSettingsDocument;
-
         /// <summary>
         /// Loads the LLamaStackConfig configuration object from appsetting.json
         /// </summary>
         /// <returns>LLamaStackConfig object</returns>
         public static LLamaStackConfig LoadConfiguration()
         {
-            return LoadConfiguration<LLamaStackConfig>(new JsonStringEnumConverter());
+            return LoadConfiguration<LLamaStackConfig>();
         }
 
 
@@ -56,18 +54,15 @@ namespace LLamaStack.Core.Config
         /// <exception cref="System.Exception">Failed to parse appsetting document</exception>
         private static JsonDocument GetJsonDocument(JsonSerializerOptions serializerOptions)
         {
-            if (_appSettingsDocument is not null)
-                return _appSettingsDocument;
-
-            var appsettingStreamFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+            string appsettingStreamFile = GetAppSettingsFile();
             if (!File.Exists(appsettingStreamFile))
                 throw new FileNotFoundException(appsettingStreamFile);
 
             using var appsettingStream = File.OpenRead(appsettingStreamFile);
-            _appSettingsDocument = JsonSerializer.Deserialize<JsonDocument>(appsettingStream, serializerOptions)
+            var appSettingsDocument = JsonSerializer.Deserialize<JsonDocument>(appsettingStream, serializerOptions)
                   ?? throw new Exception("Failed to parse appsetting document");
 
-            return _appSettingsDocument;
+            return appSettingsDocument;
         }
 
 
@@ -79,12 +74,43 @@ namespace LLamaStack.Core.Config
         private static JsonSerializerOptions GetSerializerOptions(params JsonConverter[] jsonConverters)
         {
             var serializerOptions = new JsonSerializerOptions();
+            serializerOptions.Converters.Add(new JsonStringEnumConverter());
             if (jsonConverters is not null)
             {
                 foreach (var jsonConverter in jsonConverters)
                     serializerOptions.Converters.Add(jsonConverter);
             }
             return serializerOptions;
+        }
+
+        public static void SaveConfiguration(LLamaStackConfig configuration)
+        {
+            SaveConfiguration<LLamaStackConfig>(configuration);
+        }
+
+        public static void SaveConfiguration<T>(T configuration)
+        {
+          
+            string appsettingStreamFile = GetAppSettingsFile();
+
+            // Read In File
+            Dictionary<string, object> appSettings;
+            using (var appsettingReadStream = File.OpenRead(appsettingStreamFile))
+                appSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(appsettingReadStream, GetSerializerOptions());
+
+            // Set Object
+            appSettings[typeof(T).Name] = configuration;
+
+            // Write out file
+            var serializerOptions = GetSerializerOptions();
+            serializerOptions.WriteIndented = true;
+            using (var appsettingWriteStream = File.Open(appsettingStreamFile, FileMode.Create))
+                JsonSerializer.Serialize(appsettingWriteStream, appSettings, serializerOptions);
+        }
+
+        private static string GetAppSettingsFile()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
         }
     }
 }

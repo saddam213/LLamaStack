@@ -4,16 +4,41 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:LLamaStack.WPF.Views"
+        xmlns:userControls="clr-namespace:LLamaStack.WPF.UserControls"
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1280" Name="UI" FontSize="14" >
     <DockPanel DataContext="{Binding ElementName=UI}">
-        <TabControl>
-            <TabItem Header="Inference">
-                <views:InferenceView />
+        <TabControl SelectedValue="{Binding SelectedTab}" SelectedValuePath="Content">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <userControls:FontAwesome Icon="&#xf1c0;" IconStyle="Light"/>
+                        <TextBlock Text="Models" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <views:ModelEditorView Configuration="{Binding Configuration, Mode=TwoWay}" />
             </TabItem>
-            <TabItem Header="Output Log" >
+            
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <userControls:FontAwesome Icon="&#xf544;"/>
+                        <TextBlock Text="Inference" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <views:InferenceView Configuration="{Binding Configuration, Mode=TwoWay}"/>
+            </TabItem>
+            
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <userControls:FontAwesome Icon="&#xf022;"/>
+                        <TextBlock Text="Output Log" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <views:LogWindowView LogOutput="{Binding OutputLog}"/>
             </TabItem>
+            
         </TabControl>
     </DockPanel>
  

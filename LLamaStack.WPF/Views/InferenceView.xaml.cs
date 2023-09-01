@@ -5,26 +5,29 @@ using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
 using LLamaStack.Core.Services;
 using LLamaStack.WPF.Commands;
+using LLamaStack.WPF.Models;
 using LLamaStack.WPF.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace LLamaStack.WPF.Views
 {
     /// <summary>
     /// Interaction logic for InferenceView.xaml
     /// </summary>
-    public partial class InferenceView : UserControl, INotifyPropertyChanged
+    public partial class InferenceView : UserControl, INotifyPropertyChanged, ITabView
     {
         private readonly ILogger<InferenceView> _logger;
-        private readonly LLamaStackConfig _configuration;
         private readonly IDialogService _dialogService;
         private readonly IModelSessionService<Guid> _modelSessionService;
         private string _prompt = string.Empty;
@@ -37,11 +40,11 @@ namespace LLamaStack.WPF.Views
         public InferenceView()
         {
             _logger = App.ServiceProvider.GetService<ILogger<InferenceView>>();
-            _configuration = App.ServiceProvider.GetService<LLamaStackConfig>();
+           // _configuration = App.ServiceProvider.GetService<LLamaStackConfig>();
             _dialogService = App.ServiceProvider.GetService<IDialogService>();
             _modelSessionService = App.ServiceProvider.GetService<IModelSessionService<Guid>>();
 
-            Models = new ObservableCollection<ModelConfig>(_configuration.Models);
+   
             BeginSessionCommand = new AsyncRelayCommand(BeginSession, CanExecuteBeginSession);
             EndSessionCommand = new AsyncRelayCommand(EndSession, CanExecuteEndSession);
             LoadSessionCommand = new AsyncRelayCommand(LoadSession, CanExecuteLoadSession);
@@ -49,10 +52,17 @@ namespace LLamaStack.WPF.Views
             SendPromptCommand = new AsyncRelayCommand<string>(SendPrompt, CanExecuteSendPrompt);
             CancelPromptCommand = new AsyncRelayCommand(CancelPrompt, CanExecuteCancelPrompt);
             ClearHistoryCommand = new AsyncRelayCommand(ClearHistory, CanExecuteClearHistory);
-            LoadDefaultValues();
             InitializeComponent();
         }
 
+        public LLamaStackConfig Configuration
+        {
+            get { return (LLamaStackConfig)GetValue(ConfigurationProperty); }
+            set { SetValue(ConfigurationProperty, value); }
+        }
+
+        public static readonly DependencyProperty ConfigurationProperty =
+            DependencyProperty.Register("Configuration", typeof(LLamaStackConfig), typeof(InferenceView));
 
 
         public AsyncRelayCommand EndSessionCommand { get; }
@@ -63,10 +73,10 @@ namespace LLamaStack.WPF.Views
         public AsyncRelayCommand CancelPromptCommand { get; }
         public AsyncRelayCommand ClearHistoryCommand { get; }
 
-        public ObservableCollection<ModelConfig> Models { get; }
-        public SessionConfiguration SessionConfiguration { get; set; }
+        public ObservableCollection<ModelConfiguration> Models { get; } = new ObservableCollection<ModelConfiguration>();
+        public SessionConfiguration SessionConfiguration { get; set; } = new SessionConfiguration();
 
-        private InferenceConfiguration _inferenceConfiguration;
+        private InferenceConfiguration _inferenceConfiguration = new InferenceConfiguration();
         public InferenceConfiguration InferenceConfiguration
         {
             get { return _inferenceConfiguration; }
@@ -293,19 +303,7 @@ namespace LLamaStack.WPF.Views
 
         #region Implemetation
 
-        /// <summary>
-        /// Loads the default values.
-        /// </summary>
-        private void LoadDefaultValues()
-        {
-            // Prompt = "what is a tree?";
-            SessionConfiguration = new SessionConfiguration
-            {
-                SelectedModel = _configuration.Models.FirstOrDefault(),
-                ExecutorType = ExecutorType.Instruct
-            };
-            InferenceConfiguration = new InferenceConfiguration();
-        }
+
 
 
         /// <summary>
@@ -404,6 +402,25 @@ namespace LLamaStack.WPF.Views
             return inference;
         }
 
+
+        public void Initialize()
+        {
+            var lastSelected = SessionConfiguration?.Model;
+            Models.Clear();
+            foreach (var item in Configuration.Models)
+            {
+                Models.Add(ModelConfiguration.From(item));
+            }
+
+            if(!Models.Any(x => x.Name == lastSelected) && IsSessionLoaded)
+            {
+                EndSession().Wait();
+            }
+
+            SessionConfiguration.SelectedModel = Models.FirstOrDefault(x => x.Name == lastSelected)
+                                              ?? Models.FirstOrDefault(); 
+        }
+
         #endregion
 
         #region INotifyPropertyChanged
@@ -412,6 +429,7 @@ namespace LLamaStack.WPF.Views
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
+
         #endregion
     }
 }

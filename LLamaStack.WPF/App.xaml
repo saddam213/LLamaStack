@@ -7,6 +7,12 @@
              xmlns:core="clr-namespace:LLamaStack.Core.Common;assembly=LLamaStack.Core"
              xmlns:llamaSharpCommon="clr-namespace:LLama.Common;assembly=LLamaSharp">
     <Application.Resources>
+        <FontFamily x:Key="FontAwesomeBrands">pack://application:,,,/Fonts/fa-brands-400.ttf#Font Awesome 5 Brands Regular</FontFamily>
+        <FontFamily x:Key="FontAwesomeDuotone">pack://application:,,,/Fonts/fa-duotone-900.ttf#Font Awesome 5 Duotone Solid</FontFamily>
+        <FontFamily x:Key="FontAwesomeLight">pack://application:,,,/Fonts/fa-light-300.ttf#Font Awesome 5 Pro Light</FontFamily>
+        <FontFamily x:Key="FontAwesomeRegular">pack://application:,,,/Fonts/fa-regular-400.ttf#Font Awesome 5 Pro Regular</FontFamily>
+        <FontFamily x:Key="FontAwesomeSolid">pack://application:,,,/Fonts/fa-solid-900.ttf#Font Awesome 5 Pro Solid</FontFamily>
+
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
 

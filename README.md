@@ -1,76 +1,46 @@
-# LLamaStack
-Welcome to LLamaStack! This repository serves as a collection of multiple barebone/bootstrap UI & API projects related to the LLama project. Here, you'll find various user interface applications, including Web, API, WPF, and Websocket, all built to showcase the capabilities of the LLama project.
+<p align="center" width="100%">
+    <img width="80%" src="Assets/LLamaStack-640%C3%97320.png">
+</p>
+
+### Welcome to LLamaStack!
+
+LLamaStack is a library that provides higher-level services and integrations for .NET applications, enhancing the functionality and versatility of the LLamaSharp and llama.cpp projects.
+
+ This repository also contains a collection of barebone/bootstrap UI & API projects. Here, you'll find various user interface applications, including Web, API, WPF, and Websocket, all built to showcase the capabilities of the LLamaStack.
+
+
 
 ## Overview
-LLamaStack is built on top of the popular LLamaSharp and llama.cpp projects, extending their functionalities with a range of user-friendly UI applications. LLamaSharp is a powerful library that provides C# interfaces and abstractions for the popular llama.cpp, the C++ counterpart that offers high-performance inference capabilities on low end hardware. LLamaStack complements these projects by creating intuitive UI & API interfaces, making the power of LLamaSharp and llama.cpp more accessible to users.
+LLamaStack is built on top of the popular **[LLamaSharp](https://github.com/SciSharp/LLamaSharp)** and **[llama.cpp](https://github.com/ggerganov/llama.cpp)** projects, extending their functionalities with a range of user-friendly UI applications. LLamaSharp is a powerful library that provides C# interfaces and abstractions for the popular llama.cpp, the C++ counterpart that offers high-performance inference capabilities on low end hardware. LLamaStack complements these projects by creating intuitive UI & API interfaces, making the power of LLamaSharp and llama.cpp more accessible to users.
 
 
-## Projects
+# Projects
+LLamaStack is a comprehensive library with several projects tailored for different purposes:
 
-Here are the UI projects included in LLamaStack:
+1. **[LLamaStack.Core](LLamaStack.Core/README.md)**: This project offers high-level services and integrations for .NET applications.
 
-1. **[LLamaStack.Core](LLamaStack.Core/README.md)**: Provides higher-level services and integrations for use in .NET applications.
+2. **[LLamaStack.Web](LLamaStack.Web/README.md)**: The ASP.NET Core Web interface provides all the core functions of llama.cpp & LLamaSharp.
 
-2. **[LLamaStack.Web](LLamaStack.Web/README.md)**: ASP.NET Core Web interface with all the base functions of llama.cpp & LLamaSharp
+3. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: The WPF UI interface provides all the core functions of llama.cpp & LLamaSharp.
 
-3. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: WPF UI interface with all the base functions of llama.cpp & LLamaSharp
+4. **LLamaStack.WebAPI**: This is an implementation of an ASP.NET Core WebAPI with all the essential features of llama.cpp & LLamaSharp.
 
-4. **LLamaStack.WebAPI**: ASP.NET Core WebAPI implemntation with all the base functions of llama.cpp & LLamaSharp
-
-5. **LLamaStack.Signalr**: Signalr websocket server and cliet implemetations for use in web and .NET environments
+5. **LLamaStack.Signalr**: SignalR websocket server and client implementations designed for use in web and .NET environments.
 
 
 
 
 ## Getting Started
+To start using a specific UI project, please refer to the README file located in its respective directory.
 
-To get started with a specific UI project, please refer to the README file of each project located in their respective directories.
+You can store model configurations in the `appsettings.json` file. For examples and documentation on the `appsettings.json` structure, please see the [appsettings.json Documentation](Docs/appsettings.md).
 
-## Setup
-You can setup Models in the appsettings.json
+LLamaStack also provides functionality for adding custom sections and loading/saving at runtime.
 
-```json
-{
-	"Logging": {
-		"LogLevel": {
-			"Default": "Information",
-			"Microsoft.AspNetCore": "Warning"
-		}
-	},
-	"AllowedHosts": "*",
-	"LLamaStackConfig": {
-		"ModelStatePath": "D:\\Repositories\\AI\\Models\\States",
-		"Models": [{
-			"Name": "WizardLM-7B",
-			"MaxInstances": 2,
-			"ModelPath": "D:\\Repositories\\Models\\wizardLM-7B.ggmlv3.q4_0.bin",
-			"ContextSize": 512,
-			"BatchSize": 512,
-			"Threads": -1,
-			"GpuLayerCount": 20,
-			"UseMemorymap": true,
-			"UseMemoryLock": false,
-			"MainGpu": 0,
-			"LowVram": false,
-			"Seed": 1686349486,
-			"UseFp16Memory": true,
-			"Perplexity": false,
-			"ModelAlias": "unknown",
-			"LoraAdapter": "",
-			"LoraBase": "",
-			"ConvertEosToNewLine": false,
-			"EmbeddingMode": false,
-			"TensorSplits": null,
-			"GroupedQueryAttention": 1,
-			"RmsNormEpsilon": 0.000005,
-			"RopeFrequencyBase": 10000.0,
-			"RopeFrequencyScale": 1.0,
-			"MulMatQ": false,
-			"Encoding": "UTF-8"
-		}]
-	}
-}
-```
+
+
+
+
 
 
 

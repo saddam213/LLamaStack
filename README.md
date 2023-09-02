@@ -9,13 +9,15 @@ LLamaStack is built on top of the popular LLamaSharp and llama.cpp projects, ext
 
 Here are the UI projects included in LLamaStack:
 
-1. **[LLamaStack.Web](LLamaStack.Web/README.md)**: ASP.NET Core Web interface with all the base functions of llama.cpp & LLamaSharp
+1. **[LLamaStack.Core](LLamaStack.Core/README.md)**: Provides higher-level services and integrations for use in .NET applications.
 
-2. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: WPF UI interface with all the base functions of llama.cpp & LLamaSharp
+2. **[LLamaStack.Web](LLamaStack.Web/README.md)**: ASP.NET Core Web interface with all the base functions of llama.cpp & LLamaSharp
 
-3. **LLamaStack.WebAPI**: ASP.NET Core WebAPI implemntation with all the base functions of llama.cpp & LLamaSharp
+3. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: WPF UI interface with all the base functions of llama.cpp & LLamaSharp
 
-4. **LLamaStack.Signalr**: Signalr websocket server and cliet implemetations for use in web and .NET environments
+4. **LLamaStack.WebAPI**: ASP.NET Core WebAPI implemntation with all the base functions of llama.cpp & LLamaSharp
+
+5. **LLamaStack.Signalr**: Signalr websocket server and cliet implemetations for use in web and .NET environments
 
 
 

@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLamaStack.Console\LLamaStack.Console.csproj" />
+    <ProjectReference Include="..\LLamaStack.Core\LLamaStack.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

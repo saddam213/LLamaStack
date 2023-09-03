@@ -8,13 +8,13 @@ namespace LLamaStack.Console
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main(string[] _)
         {
             var builder = Host.CreateApplicationBuilder();
             builder.Logging.ClearProviders();
+            builder.Services.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(LogLevel.Error));
 
             // Add LLamaStack
-            builder.Services.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(LogLevel.Error));
             builder.Services.AddLLamaStack<string>();
 
             // Add AppService

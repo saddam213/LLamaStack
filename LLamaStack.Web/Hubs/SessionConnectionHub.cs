@@ -32,7 +32,7 @@ namespace LLamaStack.Web.Hubs
             _logger.Log(LogLevel.Information, "[OnDisconnectedAsync], Id: {0}", Context.ConnectionId);
 
             // Remove connections session on dissconnect
-            await _modelSessionService.SaveAsync(Context.ConnectionId);
+            await _modelSessionService.SaveStateAsync(Context.ConnectionId);
             await _modelSessionService.CloseAsync(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
@@ -42,7 +42,7 @@ namespace LLamaStack.Web.Hubs
         public async Task OnLoadModel(SessionConfig sessionConfig, InferenceConfig inferenceConfig)
         {
             _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}", Context.ConnectionId);
-            await _modelSessionService.SaveAsync(Context.ConnectionId);
+            await _modelSessionService.SaveStateAsync(Context.ConnectionId);
             await _modelSessionService.CloseAsync(Context.ConnectionId);
 
             // Create model session

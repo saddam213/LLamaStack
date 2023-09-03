@@ -81,7 +81,7 @@ namespace LLamaStack.WPF.Views
             IsLoading = true;
             try
             {
-                _selectedModelSession = await Task.Run(() => _modelSessionService.LoadAsync(_selectedModelSessionState.Id));
+                _selectedModelSession = await Task.Run(() => _modelSessionService.LoadStateAsync(_selectedModelSessionState.Id));
             }
             catch (Exception ex)
             {
@@ -105,7 +105,7 @@ namespace LLamaStack.WPF.Views
             try
             {
                 // Delete Session
-                if(await _modelSessionService.RemoveAsync(sessionId))
+                if(await _modelSessionService.RemoveStateAsync(sessionId))
                 {
                     // Remove from UI
                     SavedSessions.Remove(SavedSessions.FirstOrDefault(x => x.Id == sessionId));
@@ -129,7 +129,7 @@ namespace LLamaStack.WPF.Views
         {
             base.OnContentRendered(e);
             SavedSessions.Clear();
-            var modelStates = await _modelSessionService.GetAllAsync();
+            var modelStates = await _modelSessionService.GetStatesAsync();
             foreach (var item in modelStates.OrderByDescending(x => x.Created))
             {
                 SavedSessions.Add(item);

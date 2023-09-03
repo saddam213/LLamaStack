@@ -46,23 +46,23 @@ namespace LLamaStack.Core.Services
 
 
         /// <summary>
-        /// Gets the ModelSessionState for the supplied id.
+        /// Gets the ModelSession with the specified Id.
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
-        /// <returns></returns>
-        public async Task<ModelSessionState<T>> GetAsync(T sessionId)
+        /// <returns>The ModelSession if exists, otherwise null</returns>
+        public Task<ModelSession<T>> GetAsync(T sessionId)
         {
-            return await _modelSessionStateService.GetAsync(sessionId);
+            return Task.FromResult(_modelSessions.TryGetValue(sessionId, out var session) ? session : null);
         }
 
 
         /// <summary>
-        /// Gets the current ModelSessionStates
+        /// Gets all ModelSessions
         /// </summary>
-        /// <returns></returns>
-        public async Task<IEnumerable<ModelSessionState<T>>> GetAllAsync()
+        /// <returns>A collection oa all Model instances</returns>
+        public Task<IEnumerable<ModelSession<T>>> GetAllAsync()
         {
-            return await _modelSessionStateService.GetAllAsync();
+            return Task.FromResult<IEnumerable<ModelSession<T>>>(_modelSessions.Values);
         }
 
 
@@ -220,6 +220,27 @@ namespace LLamaStack.Core.Services
 
 
         /// <summary>
+        /// Gets the ModelSessionState for the supplied id.
+        /// </summary>
+        /// <param name="sessionId">The session identifier.</param>
+        /// <returns></returns>
+        public async Task<ModelSessionState<T>> GetStateAsync(T sessionId)
+        {
+            return await _modelSessionStateService.GetAsync(sessionId);
+        }
+
+
+        /// <summary>
+        /// Gets the current ModelSessionStates
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<ModelSessionState<T>>> GetStatesAsync()
+        {
+            return await _modelSessionStateService.GetAllAsync();
+        }
+
+
+        /// <summary>
         /// Loads a ModelSession from a saved ModelSessionState.
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
@@ -232,7 +253,7 @@ namespace LLamaStack.Core.Services
         /// or
         /// Failed to add model session state
         /// </exception>
-        public async Task<ModelSession<T>> LoadAsync(T sessionId, CancellationToken cancellationToken = default)
+        public async Task<ModelSession<T>> LoadStateAsync(T sessionId, CancellationToken cancellationToken = default)
         {
             if (!_sessionGuard.Guard(sessionId))
                 throw new Exception($"Session is already loading");
@@ -275,7 +296,7 @@ namespace LLamaStack.Core.Services
         /// or
         /// Failed to save model session state
         /// </exception>
-        public async Task<ModelSessionState<T>> SaveAsync(T sessionId, CancellationToken cancellationToken = default)
+        public async Task<ModelSessionState<T>> SaveStateAsync(T sessionId, CancellationToken cancellationToken = default)
         {
             if (!_sessionGuard.Guard(sessionId))
                 throw new Exception($"Session is already loading");
@@ -307,7 +328,7 @@ namespace LLamaStack.Core.Services
         /// <param name="sessionId">The session identifier.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Session is already being removed</exception>
-        public async Task<bool> RemoveAsync(T sessionId)
+        public async Task<bool> RemoveStateAsync(T sessionId)
         {
             if (!_sessionGuard.Guard(sessionId))
                 throw new Exception($"Session is already being removed");
@@ -344,7 +365,7 @@ namespace LLamaStack.Core.Services
         {
             var inferenceResult = await InferTextAsync(inferQueueItem.SessionId, inferQueueItem.Prompt, inferQueueItem.InferenceParams, inferQueueItem.CancellationToken);
             if (inferQueueItem.SaveOnComplete)
-                await SaveAsync(inferQueueItem.SessionId, inferQueueItem.CancellationToken);
+                await SaveStateAsync(inferQueueItem.SessionId, inferQueueItem.CancellationToken);
 
             return inferenceResult;
         }

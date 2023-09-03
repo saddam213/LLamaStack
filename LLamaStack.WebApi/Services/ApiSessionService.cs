@@ -119,7 +119,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                return new List<ModelSessionState<Guid>>(await _modelSessionService.GetAllAsync());
+                return new List<ModelSessionState<Guid>>(await _modelSessionService.GetStatesAsync());
             }
             catch (Exception ex)
             {
@@ -132,7 +132,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                return await _modelSessionService.GetAsync(request.SessionId);
+                return await _modelSessionService.GetStateAsync(request.SessionId);
             }
             catch (Exception ex)
             {
@@ -145,8 +145,8 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                var modelSession = await _modelSessionService.LoadAsync(request.SessionId);
-                return await _modelSessionService.GetAsync(request.SessionId);
+                var modelSession = await _modelSessionService.LoadStateAsync(request.SessionId);
+                return await _modelSessionService.GetStateAsync(request.SessionId);
             }
             catch (Exception ex)
             {
@@ -159,7 +159,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                return await _modelSessionService.SaveAsync(request.SessionId);
+                return await _modelSessionService.SaveStateAsync(request.SessionId);
             }
             catch (Exception ex)
             {

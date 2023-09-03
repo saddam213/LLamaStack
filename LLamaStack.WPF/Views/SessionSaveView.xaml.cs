@@ -88,7 +88,7 @@ namespace LLamaStack.WPF.Views
             try
             {
                 _modelSession.StateName = SessionName;
-                var result = await Task.Run(() => _modelSessionService.SaveAsync(_modelSession.SessionId));
+                var result = await Task.Run(() => _modelSessionService.SaveStateAsync(_modelSession.SessionId));
                 return result is not null;
             }
             catch (Exception ex)

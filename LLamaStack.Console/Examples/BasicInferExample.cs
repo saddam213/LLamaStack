@@ -2,22 +2,24 @@
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Services;
 
-/// <summary>
-/// 
-/// </summary>
-namespace LLamaStack.Console
+namespace LLamaStack.Console.Runner
 {
-    public class App
+    public class BasicInferExample : IExampleRunner
     {
-        private readonly LLamaStackConfig _configuration;
         private readonly IModelSessionService<string> _modelSessionService;
 
-        public App(LLamaStackConfig configuration, IModelSessionService<string> modelSessionService)
+        public BasicInferExample(IModelSessionService<string> modelSessionService)
         {
-            _configuration = configuration;
             _modelSessionService = modelSessionService;
         }
 
+        public string Name => "Basic Inference Demo";
+
+        public string Description => "Creates a Instruct session using ModelSessionService and waits for input";
+
+        /// <summary>
+        /// Basic inference example, create a session, start a question loop
+        /// </summary>
         public async Task RunAsync()
         {
             var sessionConfig = new SessionConfig

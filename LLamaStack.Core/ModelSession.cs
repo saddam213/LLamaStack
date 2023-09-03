@@ -27,11 +27,11 @@ namespace LLamaStack.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="ModelSession{T}"/> class.
         /// </summary>
+        /// <param name="model">The model.</param>
         /// <param name="context">The context.</param>
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
-        /// <param name="sessionHistory">The session history.</param>
         public ModelSession(LLamaStackModel model, LLamaStackContext context, T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null)
         {
             _model = model;
@@ -148,6 +148,9 @@ namespace LLamaStack.Core
         /// <param name="cancellationToken">The cancellation token.</param>
         internal async Task InitializePrompt(IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrEmpty(_sessionParams.Prompt))
+                return;
+
             ConfigureInferenceParams(inferenceParams);
 
             if (_executor is StatelessExecutor)
@@ -200,9 +203,6 @@ namespace LLamaStack.Core
         {
             return _cancellationTokenSource?.IsCancellationRequested ?? false;
         }
-
-
-
 
 
         /// <summary>

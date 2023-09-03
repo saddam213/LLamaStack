@@ -39,9 +39,31 @@ builder.Services.AddSingleton<IModelSessionStateService<T>, ModelSessionStateSer
 
 ### ModelService
 
-The `ModelService` is a powerful service that handles the loading, unloading, and caching of LLama models. It offers support for both single and multiple models in memory and includes model preloading capabilities.
+The `ModelService` is a service that handles the loading, unloading, and caching of models. It offers support for both single and multiple models in memory and includes model preloading capabilities.
 ```cs
-// Load a model and create a context
+//Load a model
+var modelConfig = new ModelConfig { Name = "MyModel", ModelPath = "Path to model" };
+var model = await _modelService.LoadModel(modelConfig)
+
+//Unload a model
+await _modelService.UnloadModel("MyModel");
+
+//Load all models in the appsettings.json
+await _modelService.LoadModels();
+
+//Unload all models
+await _modelService.UnloadModels();
+
+//Get a model loaded model
+var model = await _modelService.GetModel("ModelName");
+
+//Create a context
+var context = await _modelService.CreateContext("ModelName", "MyContext");
+
+//Remove a context
+await _modelService.RemoveContext("ModelName", "MyContext");
+
+//Load a model and create a context
 var (model, context) = await _modelService.GetOrCreateModelAndContext("ModelName", "sessionId");
 ```
 
@@ -49,20 +71,55 @@ var (model, context) = await _modelService.GetOrCreateModelAndContext("ModelName
 
 The `ModelSessionService` is responsible for creating and managing model context sessions. It supports both streaming inference and completed inference results, making it versatile for various use cases.
 ```cs
-// Create session
+// Session identifier
 var sessionId = "sessionId";
-var sessionConfig = new SessionConfig { Prompt = "Initial prompt", ExecutorType = Common.ExecutorType.Instruct };
-var inferenceConfig = new InferenceConfig { Temperature = 0.6f, Mirostat = LLama.Common.MirostatType.Mirostat2 };
-await _modelSessionService.CreateAsync(sessionId, sessionConfig, inferenceConfig);
 
-// Run Inference
-var sessionText = "What is .NET Core?";
-await foreach (var token in _modelSessionService.InferAsync("sessionId, sessionText, inferenceConfig))
+// SessionConfig, model, initial prompt, anti-prompts etc.
+var sessionConfig = new SessionConfig 
 {
-   Console.Write(tokem.Content);
+   Model = "MyModel",
+   Prompt = "Initial prompt",
+   ExecutorType = ExecutorType.Instruct
+};
+
+// InferenceConfig
+var inferenceConfig = new InferenceConfig
+{ 
+   Temperature = 0.6f, 
+   Mirostat = MirostatType.Mirostat2 
+};
+
+
+// CreateAsync, create a new session
+var session = await _modelSessionService.CreateAsync(sessionId, sessionConfig, inferenceConfig);
+
+
+// CloseAsync, End the session
+await _modelSessionService.CloseAsync(sessionId);
+
+
+//Inference Examples:
+var questionText = "What is .NET Core?";
+
+// InferAsync, returns IAsyncEnumerable for streaming output of tokens
+IAsyncEnumerable<InferTokenModel> inferTokens = _modelSessionService.InferAsync(sessionId, questionText);
+await foreach (var token in inferTokens)
+{
+   Console.Write(token.Content);
 }
 
-// End the session
+
+// InferTextAsync, returns the full inference response as a string 
+string inferResponse = await _modelSessionService.InferAsync(sessionId, questionText);
+
+
+// QueueInferTextAsync, queues the request for inference, the task will wait until all other queue items
+// have processed and returns the full inference response as a string, be sure to set appropriate timeouts 
+// as inference can take time and the quue coule be long
+string inferResponse = await _modelSessionService.QueueInferTextAsync(sessionId, questionText);
+
+
+// CancelAsync, cancel the currently running inference
 await _modelSessionService.CloseAsync(sessionId);
 ```
 

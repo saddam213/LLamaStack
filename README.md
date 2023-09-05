@@ -41,7 +41,12 @@ LLamaStack is a comprehensive library with several projects tailored for differe
 PM> Install-Package LLamaStack
 ```
 
-`LLamaStack` requires a `llama.cpp` library, you can compile your own or download one of the `LLamaSharp` backend packages that is suited for your system
+**LLamaStack** relies on the `llama.cpp` and `LLamaSharp` libraries.
+
+- `LLamaSharp` is conveniently included in the NuGet package.
+- However, you will need to obtain `llama.cpp` separately. You can either **[download](https://github.com/ggerganov/llama.cpp/releases)** or compile it yourself.
+
+Alternatively, you can opt for one of the `LLamaSharp` backend Nuget packages tailored for your specific system.
 ```
 LLamaSharp.Backend.Cpu  # CPU for Windows, Linux and Mac
 LLamaSharp.Backend.Cuda11  # GPU CUDA11 for Windows and Linux

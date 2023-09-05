@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>0.0.1-alpha</Version>
+    <Version>0.1.0</Version>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PackageReference Include="LLamaSharp" Version="0.4.2-preview" />
+    <PackageReference Include="LLamaSharp" Version="0.5.1" />
   </ItemGroup>
 
   <ItemGroup>

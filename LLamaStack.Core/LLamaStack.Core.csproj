@@ -1,53 +1,59 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <Version>0.4.1-preview</Version>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>disable</Nullable>
-        <Title>$(AssemblyName)</Title>
-        <Company>Backyard Industries</Company>
-        <Description>LLamaSharp Integration Library for .NET Core
+  <PropertyGroup>
+    <Version>0.0.1-alpha</Version>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Title>LLamaStack</Title>
+    <Company>Backyard Industries</Company>
+    <Description>
+      LLamaSharp Integration Library for .NET Core
 
-Enhance your .NET Core applications with seamless integration of LLamaSharp models and contexts using our comprehensive .NET Core services. Our library facilitates robust interfacing with LLamaSharp models, allowing you to harness its powerful features in a wide range of .NET Core applications.</Description>
-        <Copyright>Backyard Industries - 2023</Copyright>
-        <PackageProjectUrl>https://www.llama-stack.com</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/saddam213/LLamaStack</RepositoryUrl>
-        <PackageTags>llama;alpaca;llm;llamasharp;chatgpt;llamacpp;llama2 </PackageTags>
-        <Authors>sa_ddam213</Authors>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>LLamaStack-128x128.png</PackageIcon>
-    </PropertyGroup>
+      Enhance your .NET Core applications with seamless integration of LLamaSharp models and contexts using our comprehensive .NET Core services. Our library facilitates robust interfacing with LLamaSharp models, allowing you to harness its powerful features in a wide range of .NET Core applications.
+    </Description>
+    <Copyright>Backyard Industries - 2023</Copyright>
+    <PackageProjectUrl>https://www.llama-stack.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/saddam213/LLamaStack</RepositoryUrl>
+    <PackageTags>llama;alpaca;llm;llamasharp;chatgpt;llamacpp;llama2 </PackageTags>
+    <Authors>sa_ddam213</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>LLamaStack-128x128.png</PackageIcon>
+    <PackageId>LLamaStack</PackageId>
+    <Product>$(AssemblyName)</Product>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <None Include="..\Assets\LLamaStack-128x128.png">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
-      </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Assets\LLamaStack-128x128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-        <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
 
-    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="LLamaSharp" Version="0.4.2-preview" />
-    </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackageReference Include="LLamaSharp" Version="0.4.2-preview" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Reference Include="LLamaSharp" Condition=" '$(Configuration)' == 'Debug' ">
-            <HintPath>..\..\LLamaSharp\LLama\bin\Debug\net7.0\LLamaSharp.dll</HintPath>
-        </Reference>
-    </ItemGroup>
+  <ItemGroup>
+    <Reference Include="LLamaSharp" Condition=" '$(Configuration)' == 'Debug' ">
+      <HintPath>..\..\LLamaSharp\LLama\bin\Debug\net7.0\LLamaSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Update="README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

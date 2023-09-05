@@ -23,9 +23,7 @@ namespace LLamaStack.WebApi.Services
 
         public async Task<ServiceResult<CreateResponse, ErrorResponse>> Create(CreateRequest request)
         {
-            _logger?.LogDebug($"Create");
-
-            try
+                try
             {
                 var sessionId = Guid.NewGuid();
                 var session = await _modelSessionService.CreateAsync(sessionId, request, request.ToInferenceParams());
@@ -37,37 +35,33 @@ namespace LLamaStack.WebApi.Services
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[Create] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }
 
         public async Task<ServiceResult<CloseResponse, ErrorResponse>> Close(CloseRequest request)
         {
-            _logger?.LogDebug($"Close");
-
             try
             {
                 return new CloseResponse(await _modelSessionService.CloseAsync(request.SessionId));
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[Close] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }
 
         public async Task<ServiceResult<CancelResponse, ErrorResponse>> Cancel(CancelRequest request)
         {
-            _logger?.LogDebug($"Cancel");
-
             try
             {
                 return new CancelResponse(await _modelSessionService.CancelAsync(request.SessionId));
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[Cancel] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }
@@ -75,8 +69,6 @@ namespace LLamaStack.WebApi.Services
 
         public Task<ServiceResult<InferResponse, ErrorResponse>> InferAsync(InferRequest request, CancellationToken cancellationToken)
         {
-            _logger?.LogDebug($"InferAsync, SessionId: {request.SessionId}");
-
             try
             {
                 var response = new InferResponse(_modelSessionService.InferAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken));
@@ -84,7 +76,7 @@ namespace LLamaStack.WebApi.Services
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[InferAsync] Exception: {ex}", ex);
                 return Task.FromResult<ServiceResult<InferResponse, ErrorResponse>>(new ErrorResponse(ex.Message));
             }
         }
@@ -92,25 +84,14 @@ namespace LLamaStack.WebApi.Services
 
         public Task<ServiceResult<InferTextResponse, ErrorResponse>> InferTextAsync(InferRequest request, CancellationToken cancellationToken)
         {
-            _logger?.LogDebug($"InferTextAsync, SessionId: {request.SessionId}");
-
-            async IAsyncEnumerable<string> ExecuteInferAsync()
-            {
-                await foreach (var token in _modelSessionService.InferAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken).ConfigureAwait(false))
-                {
-                    if (token.Type == InferTokenType.Content)
-                        yield return token.Content;
-                }
-            }
-
             try
             {
-                var response = new InferTextResponse(ExecuteInferAsync());
+                var response = new InferTextResponse(_modelSessionService.InferTextAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken));
                 return Task.FromResult<ServiceResult<InferTextResponse, ErrorResponse>>(response);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[InferTextAsync] Exception: {ex}", ex);
                 return Task.FromResult<ServiceResult<InferTextResponse, ErrorResponse>>(new ErrorResponse(ex.Message));
             }
         }
@@ -123,7 +104,7 @@ namespace LLamaStack.WebApi.Services
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[GetAll] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }
@@ -136,7 +117,7 @@ namespace LLamaStack.WebApi.Services
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[Get] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }
@@ -150,7 +131,7 @@ namespace LLamaStack.WebApi.Services
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[Load] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }
@@ -163,7 +144,7 @@ namespace LLamaStack.WebApi.Services
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex.ToString());
+                _logger?.LogError("[Save] Exception: {ex}", ex);
                 return new ErrorResponse(ex.Message);
             }
         }

@@ -101,7 +101,7 @@ await _modelSessionService.CloseAsync(sessionId);
 //Inference Examples:
 var questionText = "What is .NET Core?";
 
-// InferAsync, returns IAsyncEnumerable for streaming output of tokens
+// InferAsync, returns IAsyncEnumerable<InferTokenModel> for streaming output of tokens
 IAsyncEnumerable<InferTokenModel> inferTokens = _modelSessionService.InferAsync(sessionId, questionText);
 await foreach (var token in inferTokens)
 {
@@ -109,14 +109,22 @@ await foreach (var token in inferTokens)
 }
 
 
-// InferTextAsync, returns the full inference response as a string 
-string inferResponse = await _modelSessionService.InferAsync(sessionId, questionText);
+// InferTextAsync, returns IAsyncEnumerable<string> for streaming output of tokens
+IAsyncEnumerable<string> inferTokens = _modelSessionService.InferTextAsync(sessionId, questionText);
+await foreach (var token in inferTokens)
+{
+   Console.Write(token);
+}
 
 
-// QueueInferTextAsync, queues the request for inference, the task will wait until all other queue items
+// InferTextCompleteAsync, returns the full inference response as a string 
+string inferResponse = await _modelSessionService.InferTextCompleteAsync(sessionId, questionText);
+
+
+// InferTextCompleteQueuedAsync, queues the request for inference, the task will wait until all other queue items
 // have processed and returns the full inference response as a string, be sure to set appropriate timeouts 
 // as inference can take time and the quue coule be long
-string inferResponse = await _modelSessionService.QueueInferTextAsync(sessionId, questionText);
+string inferResponse = await _modelSessionService.InferTextCompleteQueuedAsync(sessionId, questionText);
 
 
 // CancelAsync, cancel the currently running inference

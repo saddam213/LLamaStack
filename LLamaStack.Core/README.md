@@ -128,7 +128,7 @@ string inferResponse = await _modelSessionService.InferTextCompleteQueuedAsync(s
 
 
 // CancelAsync, cancel the currently running inference
-await _modelSessionService.CloseAsync(sessionId);
+await _modelSessionService.CancelAsync(sessionId);
 ```
 
 

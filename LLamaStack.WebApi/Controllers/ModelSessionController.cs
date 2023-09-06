@@ -91,7 +91,7 @@ namespace LLamaStack.WebApi.Controllers
         public async Task<IActionResult> InferText(InferRequest request, CancellationToken cancellationToken)
         {
             var response = await _sessionService.InferTextAsync(request, cancellationToken);
-            return response.Resolve<IActionResult>(success => Ok(string.Concat(success.Tokens)), BadRequest);
+            return response.Resolve<IActionResult>(success => Ok(success.Tokens), BadRequest);
         }
 
 
@@ -100,6 +100,22 @@ namespace LLamaStack.WebApi.Controllers
         {
             var response = await _sessionService.InferTextAsync(request, cancellationToken);
             return response.Resolve<IActionResult>(success => Ok(success.TokensAsync), BadRequest);
+        }
+
+
+        [HttpPost("InferTextCompleteAsync")]
+        public async Task<IActionResult> InferTextCompleteAsync(InferRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _sessionService.InferTextCompleteAsync(request, cancellationToken);
+            return response.Resolve<IActionResult>(Ok, BadRequest);
+        }
+
+
+        [HttpPost("InferTextCompleteQueuedAsync")]
+        public async Task<IActionResult> InferTextCompleteQueuedAsync(InferRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _sessionService.InferTextCompleteQueuedAsync(request, cancellationToken);
+            return response.Resolve<IActionResult>(Ok, BadRequest);
         }
     }
 }

@@ -40,6 +40,7 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
+
         public async Task<ServiceResult<CloseResponse, ErrorResponse>> Close(CloseRequest request)
         {
             try
@@ -52,6 +53,7 @@ namespace LLamaStack.WebApi.Services
                 return new ErrorResponse(ex.Message);
             }
         }
+
 
         public async Task<ServiceResult<CancelResponse, ErrorResponse>> Cancel(CancelRequest request)
         {
@@ -96,6 +98,37 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
+
+        public async Task<ServiceResult<InferTextCompleteResponse, ErrorResponse>> InferTextCompleteAsync(InferRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var response = await _modelSessionService.InferTextCompleteAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken);
+                return new InferTextCompleteResponse(response);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("[InferTextAsync] Exception: {ex}", ex);
+                return new ErrorResponse(ex.Message);
+            }
+        }
+
+
+        public async Task<ServiceResult<InferTextCompleteQueuedResponse, ErrorResponse>> InferTextCompleteQueuedAsync(InferRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var response = await _modelSessionService.InferTextCompleteQueuedAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), false, cancellationToken);
+                return new InferTextCompleteQueuedResponse(response);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("[InferTextAsync] Exception: {ex}", ex);
+                return new ErrorResponse(ex.Message);
+            }
+        }
+
+
         public async Task<ServiceResult<List<ModelSessionState<Guid>>, ErrorResponse>> GetAll()
         {
             try
@@ -109,6 +142,7 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
+
         public async Task<ServiceResult<ModelSessionState<Guid>, ErrorResponse>> Get(GetRequest request)
         {
             try
@@ -121,6 +155,7 @@ namespace LLamaStack.WebApi.Services
                 return new ErrorResponse(ex.Message);
             }
         }
+
 
         public async Task<ServiceResult<ModelSessionState<Guid>, ErrorResponse>> Load(LoadRequest request)
         {
@@ -136,6 +171,7 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
+
         public async Task<ServiceResult<ModelSessionState<Guid>, ErrorResponse>> Save(SaveRequest request)
         {
             try
@@ -148,5 +184,6 @@ namespace LLamaStack.WebApi.Services
                 return new ErrorResponse(ex.Message);
             }
         }
-    }
+
+     }
 }

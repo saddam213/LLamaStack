@@ -2,10 +2,12 @@
     <img width="80%" src="Assets/LLamaStack-640%C3%97320.png">
 </p>
 
-[![Discord](https://img.shields.io/discord/1147446100442226699?label=Discord)](https://discord.gg/cDpupfb2JB)
-[![LLamaStack Badge](https://img.shields.io/nuget/v/LLamaStack?label=LLamaStack)](https://www.nuget.org/packages/LLamaStack)
+
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/saddam213/LLamaStack)
+[![LLamaStack Badge](https://img.shields.io/nuget/v/LLamaStack?color=4bc51e&label=LLamaStack)](https://www.nuget.org/packages/LLamaStack)
 [![Web Demo](https://img.shields.io/website/https/www.llama-stack.com?label=Web%20Demo&up_message=online)](https://www.llama-stack.com)
 [![Web API Demo](https://img.shields.io/website/https/api.llama-stack.com?label=Web%20API%20Demo&down_message=coming%20soon)](https://api.llama-stack.com)
+[![Discord](https://img.shields.io/discord/1147446100442226699?label=Discord)](https://discord.gg/cDpupfb2JB)
 
 ### Welcome to LLamaStack!
 

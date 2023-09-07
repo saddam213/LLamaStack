@@ -2,7 +2,7 @@
 using LLama.Abstractions;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
-using LLamaStack.Core.Helpers;
+using LLamaStack.Core.Extensions;
 using LLamaStack.Core.Models;
 using static LLama.StatefulExecutorBase;
 
@@ -15,7 +15,6 @@ namespace LLamaStack.Core
         private readonly LLamaStackContext _context;
         private readonly ILLamaExecutor _executor;
         private readonly ISessionConfig _sessionParams;
-        private readonly IPromptConfig _promptParams;
         private readonly ITextStreamTransform _outputTransform;
         private readonly List<SessionHistoryModel> _sessionHistory;
         private readonly IInferenceParams _defaultInferenceParams;
@@ -45,23 +44,15 @@ namespace LLamaStack.Core
             _executor = sessionConfig.ExecutorType switch
             {
                 ExecutorType.Interactive => new InteractiveExecutor(_context.LLamaContext),
-                ExecutorType.Instruct => new InstructExecutor(_context.LLamaContext),
+                ExecutorType.Instruct => new InstructExecutor(_context.LLamaContext, sessionConfig.InputSuffix, sessionConfig.InputPrefix),
                 ExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelConfig),
                 _ => default
             };
 
-            // Initial Prompt
-            _promptParams = new PromptConfig
-            {
-                Name = "Custom",
-                Prompt = _sessionParams.Prompt,
-                AntiPrompt = StringHelpers.CommaSeperatedToList(_sessionParams.AntiPrompt),
-                OutputFilter = StringHelpers.CommaSeperatedToList(_sessionParams.OutputFilter),
-            };
-
             //Output Filter
-            if (_promptParams.OutputFilter?.Count > 0)
-                _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptParams.OutputFilter, redundancyLength: 8);
+            var outputFilters = sessionConfig.GetOutputFilters();
+            if (outputFilters.Count > 0)
+                _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(outputFilters, redundancyLength: 8);
         }
 
 
@@ -230,9 +221,10 @@ namespace LLamaStack.Core
 
             // Merge Antiprompts
             var antiPrompts = new List<string>();
-            antiPrompts.AddRange(_promptParams.AntiPrompt ?? Enumerable.Empty<string>());
+            antiPrompts.AddRange(_sessionParams.GetAntiPrompts());
             antiPrompts.AddRange(_inferenceParams.AntiPrompts ?? Enumerable.Empty<string>());
             _inferenceParams.AntiPrompts = antiPrompts.Distinct();
         }
+
     }
 }

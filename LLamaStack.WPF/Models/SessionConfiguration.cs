@@ -25,8 +25,8 @@ namespace LLamaStack.WPF
         private string _antiPrompt = string.Empty;
         private string _outputFilter = string.Empty;
         private ExecutorType _executorType;
-        private string _inputPrefix = string.Empty;
-        private string _inputSuffix = string.Empty;
+        private string _inputPrefix = "\n\n### Instruction:\n\n";
+        private string _inputSuffix = "\n\n### Response:\n\n";
 
         public ModelConfiguration SelectedModel
         {
@@ -78,6 +78,9 @@ namespace LLamaStack.WPF
             set { _inputPrefix = value; NotifyPropertyChanged(); }
         }
 
+        public List<string> AntiPrompts { get; set; } = new List<string>();
+
+        public List<string> OutputFilters { get; set; } = new List<string>();
 
         public ObservableCollection<SessionHistoryModel> HistoryResponses { get; set; } = new ObservableCollection<SessionHistoryModel>();
 

@@ -24,10 +24,14 @@ namespace LLamaStack.WebApi.Models
         [DefaultValue("")]
         public string OutputFilter { get; set; }
 
-        [DefaultValue("")]
+        [DefaultValue("\n\n### Instruction:\n\n")]
+        public string InputPrefix { get; set; }
+
+        [DefaultValue("\n\n### Response:\n\n")]
         public string InputSuffix { get; set; }
 
-        [DefaultValue("")]
-        public string InputPrefix { get; set; }
+        public List<string> AntiPrompts { get; set; } = new List<string>();
+
+        public List<string> OutputFilters { get; set; } = new List<string>();
     }
 }

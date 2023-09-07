@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLamaStack.Core.Models;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -59,5 +60,7 @@ namespace LLamaStack.WebApi.Models
 
         [DefaultValue(1.0f)]
         public virtual float TypicalP { get; set; } = 1.0f;
+
+        public virtual List<LogitBiasModel> LogitBias { get; set; } = new List<LogitBiasModel>();
     }
 }

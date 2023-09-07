@@ -3,7 +3,7 @@ using LLamaStack.WebApi.Models;
 
 namespace LLamaStack.WebApi
 {
-    public static class Utils
+    public static class Extensions
     {
         public static InferenceParams ToInferenceParams(this InferRequestBase inferRequest)
         {
@@ -23,7 +23,8 @@ namespace LLamaStack.WebApi
                 TokensKeep = inferRequest.TokensKeep,
                 TopK = inferRequest.TopK,
                 TopP = inferRequest.TopP,
-                TypicalP = inferRequest.TypicalP
+                TypicalP = inferRequest.TypicalP,
+                LogitBias = inferRequest.LogitBias?.ToDictionary(k => k.TokenId, v => v.Bias)
             };
         }
     }

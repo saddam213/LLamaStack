@@ -8,7 +8,7 @@ namespace LLamaStack.WebApi.Models
     /// Using abstract class here instead of interface so we can share the attributes and defaults
     /// Virtual members so we can add/replace attributes etc in child classes
     /// </summary>
-    public abstract class InferRequestBase
+    public abstract record InferRequestBase
     {
         [Required]
         [DefaultValue("")]

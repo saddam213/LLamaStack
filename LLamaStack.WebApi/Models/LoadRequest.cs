@@ -2,5 +2,5 @@
 
 namespace LLamaStack.WebApi.Models
 {
-    public record CancelRequest([Required] Guid SessionId);
+    public record LoadRequest([Required] Guid SessionId);
 }

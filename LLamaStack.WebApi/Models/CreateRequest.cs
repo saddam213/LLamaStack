@@ -1,12 +1,11 @@
 ﻿using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
-using LLamaStack.Core.Models;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace LLamaStack.WebApi.Models
 {
-    public class CreateRequest : InferRequestBase, ISessionConfig
+    public record CreateRequest : InferRequestBase, ISessionConfig
     {
         [Required]
         [DefaultValue("WizardLM-7B")]

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LLamaStack.WebApi.Models
 {
-    public class InferRequest : InferRequestBase
+    public record InferRequest : InferRequestBase
     {
         [Required]
         [DefaultValue(typeof(Guid), "00000000-0000-0000-0000-000000000000")]

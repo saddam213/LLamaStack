@@ -1,5 +1,9 @@
-﻿namespace LLamaStack.Core.Common
+﻿
+namespace LLamaStack.Core.Common
 {
+    /// <summary>
+    /// The type of token sampling algo to use
+    /// </summary>
     public enum SamplerType
     {
         /// <summary>

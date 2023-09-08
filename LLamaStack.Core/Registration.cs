@@ -4,6 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LLamaStack.Core
 {
+    /// <summary>
+    /// .NET Core Service and Dependancy Injection registration helpers
+    /// </summary>
     public static class Registration
     {
 

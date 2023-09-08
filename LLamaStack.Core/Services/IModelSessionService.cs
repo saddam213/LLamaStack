@@ -3,6 +3,10 @@ using LLamaStack.Core.Models;
 
 namespace LLamaStack.Core.Services
 {
+    /// <summary>
+    /// Service for ineraticng with ModelSessions
+    /// </summary>
+    /// <typeparam name="T">Type used to identify contexts</typeparam>
     public interface IModelSessionService<T> where T : IEquatable<T>, IComparable<T>
     {
 

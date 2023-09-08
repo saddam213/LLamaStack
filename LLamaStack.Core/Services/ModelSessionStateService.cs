@@ -47,8 +47,9 @@ namespace LLamaStack.Core.Services
         }
 
 
+
         /// <summary>
-        /// Gets ModleSessionState by id.
+        /// Gets the ModelSessionState with the specified identifier.
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
         /// <returns></returns>

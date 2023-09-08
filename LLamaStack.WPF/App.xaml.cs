@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace LLamaStack.WPF
 {

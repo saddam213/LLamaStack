@@ -2,8 +2,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Windows.Threading;
-using static LLama.Common.ChatHistory;
 
 namespace LLamaStack.WPF
 {

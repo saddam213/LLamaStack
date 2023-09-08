@@ -9,6 +9,11 @@ namespace LLamaStack.Core.Extensions
 {
     public static class Extensions
     {
+
+        /// <summary>
+        /// Converts an IModelConfig to IModelParams.
+        /// </summary>
+        /// <param name="modelConfig">The model configuration.</param>
         public static IModelParams ToModelParams(this IModelConfig modelConfig)
         {
             return new ModelParams(modelConfig.ModelPath)
@@ -72,7 +77,6 @@ namespace LLamaStack.Core.Extensions
         /// Converts SamplerType to MirostatType.
         /// </summary>
         /// <param name="samplerType">Type of the sampler.</param>
-        /// <returns></returns>
         public static MirostatType ToMirostatType(this SamplerType samplerType)
         {
             return samplerType switch

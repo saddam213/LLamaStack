@@ -17,6 +17,10 @@ namespace LLamaStack.Core
         private readonly LLamaWeights _weights;
         private readonly ConcurrentDictionary<T, LLamaStackContext> _contexts;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LLamaStackModel{T}"/> class.
+        /// </summary>
+        /// <param name="modelParams">The model parameters.</param>
         public LLamaStackModel(ModelConfig modelParams)
         {
             _config = modelParams;

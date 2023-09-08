@@ -10,12 +10,12 @@ namespace LLamaStack.Core.Services
     /// Sercive for handling Models,Weights & Contexts
     /// </summary>
     /// <seealso cref="LLamaStack.Core.Services.IModelService" />
-    public class ModelService : IModelService
+    public class ModelService<T> : IModelService<T> where T : IEquatable<T>, IComparable<T>
     {
         private readonly AsyncLock _modelLock;
         private readonly AsyncLock _contextLock;
         private readonly LLamaStackConfig _configuration;
-        private readonly ConcurrentDictionary<string, LLamaStackModel> _modelInstances;
+        private readonly ConcurrentDictionary<string, LLamaStackModel<T>> _modelInstances;
 
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace LLamaStack.Core.Services
             _modelLock = new AsyncLock();
             _contextLock = new AsyncLock();
             _configuration = configuration;
-            _modelInstances = new ConcurrentDictionary<string, LLamaStackModel>();
+            _modelInstances = new ConcurrentDictionary<string, LLamaStackModel<T>>();
         }
 
 
@@ -37,14 +37,14 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="modelConfig">The model configuration.</param>
         /// <returns></returns>
-        public async Task<LLamaStackModel> LoadModel(ModelConfig modelConfig)
+        public async Task<LLamaStackModel<T>> LoadModel(ModelConfig modelConfig)
         {
-            if (_modelInstances.TryGetValue(modelConfig.Name, out LLamaStackModel existingModel))
+            if (_modelInstances.TryGetValue(modelConfig.Name, out var existingModel))
                 return existingModel;
 
             using (await _modelLock.LockAsync())
             {
-                if (_modelInstances.TryGetValue(modelConfig.Name, out LLamaStackModel model))
+                if (_modelInstances.TryGetValue(modelConfig.Name, out var model))
                     return model;
 
                 // If in single mode unload any other models
@@ -53,7 +53,7 @@ namespace LLamaStack.Core.Services
                     await UnloadModels();
 
 
-                model = new LLamaStackModel(modelConfig);
+                model = new LLamaStackModel<T>(modelConfig);
                 _modelInstances.TryAdd(modelConfig.Name, model);
                 return model;
             }
@@ -87,7 +87,7 @@ namespace LLamaStack.Core.Services
         /// <returns></returns>
         public Task UnloadModel(string modelName)
         {
-            if (_modelInstances.TryRemove(modelName, out LLamaStackModel model))
+            if (_modelInstances.TryRemove(modelName, out var model))
             {
                 model?.Dispose();
                 return Task.FromResult(true);
@@ -114,9 +114,9 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="modelName">Name of the model.</param>
         /// <returns></returns>
-        public Task<LLamaStackModel> GetModel(string modelName)
+        public Task<LLamaStackModel<T>> GetModel(string modelName)
         {
-            _modelInstances.TryGetValue(modelName, out LLamaStackModel model);
+            _modelInstances.TryGetValue(modelName, out var model);
             return Task.FromResult(model);
         }
 
@@ -125,15 +125,15 @@ namespace LLamaStack.Core.Services
         /// Gets a context from the specified model.
         /// </summary>
         /// <param name="modelName">Name of the model.</param>
-        /// <param name="key">The key.</param>
+        /// <param name="contextId">The contextId.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model not found</exception>
-        public async Task<LLamaStackContext> GetContext(string modelName, string key)
+        public async Task<LLamaStackContext> GetContext(string modelName, T contextId)
         {
-            if (!_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
+            if (!_modelInstances.TryGetValue(modelName, out var model))
                 throw new Exception("Model not found");
 
-            return await model.GetContext(key);
+            return await model.GetContext(contextId);
         }
 
 
@@ -141,17 +141,17 @@ namespace LLamaStack.Core.Services
         /// Creates a context on the specified model.
         /// </summary>
         /// <param name="modelName">Name of the model.</param>
-        /// <param name="key">The key.</param>
+        /// <param name="contextId">The contextId.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model not found</exception>
-        public async Task<LLamaStackContext> CreateContext(string modelName, string key)
+        public async Task<LLamaStackContext> CreateContext(string modelName, T contextId)
         {
-            if (!_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
+            if (!_modelInstances.TryGetValue(modelName, out var model))
                 throw new Exception("Model not found");
 
             using (await _contextLock.LockAsync())
             {
-                return await model.CreateContext(key);
+                return await model.CreateContext(contextId);
             }
         }
 
@@ -160,17 +160,17 @@ namespace LLamaStack.Core.Services
         /// Removes a context from the specified model.
         /// </summary>
         /// <param name="modelName">Name of the model.</param>
-        /// <param name="key">The key.</param>
+        /// <param name="contextId">The contextId.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model not found</exception>
-        public async Task<bool> RemoveContext(string modelName, string key)
+        public async Task<bool> RemoveContext(string modelName, T contextId)
         {
-            if (!_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
+            if (!_modelInstances.TryGetValue(modelName, out var model))
                 throw new Exception("Model not found");
 
             using (await _contextLock.LockAsync())
             {
-                return await model.RemoveContext(key);
+                return await model.RemoveContext(contextId);
             }
         }
 
@@ -179,13 +179,13 @@ namespace LLamaStack.Core.Services
         /// Loads, Gets,Creates a Model and a Context
         /// </summary>
         /// <param name="modelName">Name of the model.</param>
-        /// <param name="key">The key.</param>
+        /// <param name="contextId">The contextId.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">Model option '{modelName}' not found</exception>
-        public async Task<(LLamaStackModel, LLamaStackContext)> GetOrCreateModelAndContext(string modelName, string key)
+        public async Task<(LLamaStackModel<T>, LLamaStackContext)> GetOrCreateModelAndContext(string modelName, T contextId)
         {
-            if (_modelInstances.TryGetValue(modelName, out LLamaStackModel model))
-                return (model, await model.GetContext(key) ?? await model.CreateContext(key));
+            if (_modelInstances.TryGetValue(modelName, out var model))
+                return (model, await model.GetContext(contextId) ?? await model.CreateContext(contextId));
 
 
             // Get model configuration
@@ -197,7 +197,7 @@ namespace LLamaStack.Core.Services
             model = await LoadModel(modelConfig);
 
             // Get or Create Context
-            return (model, await model.GetContext(key) ?? await model.CreateContext(key));
+            return (model, await model.GetContext(contextId) ?? await model.CreateContext(contextId));
         }
 
     }

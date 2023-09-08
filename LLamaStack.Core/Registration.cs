@@ -26,8 +26,8 @@ namespace LLamaStack.Core
             where T : IEquatable<T>, IComparable<T>
         {
             serviceCollection.AddSingleton(ConfigManager.LoadConfiguration());
-            serviceCollection.AddHostedService<ModelLoaderService>();
-            serviceCollection.AddSingleton<IModelService, ModelService>();
+            serviceCollection.AddHostedService<ModelLoaderService<T>>();
+            serviceCollection.AddSingleton<IModelService<T>, ModelService<T>>();
             serviceCollection.AddSingleton<IModelSessionService<T>, ModelSessionService<T>>();
             serviceCollection.AddSingleton<IModelSessionStateService<T>, ModelSessionStateService<T>>();
         }

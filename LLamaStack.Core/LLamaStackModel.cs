@@ -4,17 +4,22 @@ using System.Collections.Concurrent;
 
 namespace LLamaStack.Core
 {
-    public class LLamaStackModel : IDisposable
+    /// <summary>
+    /// Wrapper class for LLamaSharp LLamaWeights
+    /// </summary>
+    /// <typeparam name="T">Type used to identify contexts</typeparam>
+    /// <seealso cref="System.IDisposable" />
+    public class LLamaStackModel<T> : IDisposable
     {
         private readonly ModelConfig _config;
         private readonly LLamaWeights _weights;
-        private readonly ConcurrentDictionary<string, LLamaStackContext> _contexts;
+        private readonly ConcurrentDictionary<T, LLamaStackContext> _contexts;
 
         public LLamaStackModel(ModelConfig modelParams)
         {
             _config = modelParams;
             _weights = LLamaWeights.LoadFromFile(modelParams);
-            _contexts = new ConcurrentDictionary<string, LLamaStackContext>();
+            _contexts = new ConcurrentDictionary<T, LLamaStackContext>();
         }
 
         /// <summary>
@@ -40,7 +45,7 @@ namespace LLamaStack.Core
         /// <param name="contextId">The unique context identifier</param>
         /// <returns>LLamaModelContext for this LLamaModel</returns>
         /// <exception cref="Exception">Context exists</exception>
-        public Task<LLamaStackContext> CreateContext(string contextId)
+        public Task<LLamaStackContext> CreateContext(T contextId)
         {
             if (_contexts.TryGetValue(contextId, out var context))
                 throw new Exception($"Context with id {contextId} already exists.");
@@ -60,7 +65,7 @@ namespace LLamaStack.Core
         /// </summary>
         /// <param name="contextId">The unique context identifier</param>
         /// <returns>LLamaModelContext for this LLamaModel with the specified contextId</returns>
-        public Task<LLamaStackContext> GetContext(string contextId)
+        public Task<LLamaStackContext> GetContext(T contextId)
         {
             if (_contexts.TryGetValue(contextId, out var context))
                 return Task.FromResult(context);
@@ -73,7 +78,7 @@ namespace LLamaStack.Core
         /// </summary>
         /// <param name="contextId">The unique context identifier</param>
         /// <returns>true if removed, otherwise false</returns>
-        public Task<bool> RemoveContext(string contextId)
+        public Task<bool> RemoveContext(T contextId)
         {
             if (!_contexts.TryRemove(contextId, out var context))
                 return Task.FromResult(false);

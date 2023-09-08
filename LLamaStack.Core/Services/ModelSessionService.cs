@@ -1,5 +1,4 @@
-﻿using LLama.Abstractions;
-using LLamaStack.Core.Async;
+﻿using LLamaStack.Core.Async;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
 using System.Collections.Concurrent;
@@ -14,11 +13,10 @@ namespace LLamaStack.Core.Services
     /// </summary>
     /// <typeparam name="T">Type used for the session identifier</typeparam>
     /// <seealso cref="LLamaStack.Core.Services.IModelSessionService&lt;T&gt;" />
-    public class ModelSessionService<T> : IModelSessionService<T>
-        where T : IEquatable<T>, IComparable<T>
+    public class ModelSessionService<T> : IModelSessionService<T> where T : IEquatable<T>, IComparable<T>
     {
         private readonly AsyncGuard<T> _sessionGuard;
-        private readonly IModelService _modelService;
+        private readonly IModelService<T> _modelService;
         private readonly AsyncQueue<InferQueueItem, string> _inferTextQueue;
         private readonly IModelSessionStateService<T> _modelSessionStateService;
         private readonly ConcurrentDictionary<T, ModelSession<T>> _modelSessions;
@@ -29,7 +27,7 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="modelService">The model service.</param>
         /// <param name="modelSessionStateService">The model session state service.</param>
-        public ModelSessionService(IModelService modelService, IModelSessionStateService<T> modelSessionStateService)
+        public ModelSessionService(IModelService<T> modelService, IModelSessionStateService<T> modelSessionStateService)
         {
             _modelService = modelService;
             _modelSessionStateService = modelSessionStateService;
@@ -85,7 +83,7 @@ namespace LLamaStack.Core.Services
                 throw new Exception($"Session with id {sessionId} already exists");
 
             // Create context
-            var (model, context) = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId.ToString());
+            var (model, context) = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId);
 
             // Create session
             var modelSession = new ModelSession<T>(model, context, sessionId, sessionConfig, inferenceConfig);
@@ -109,7 +107,7 @@ namespace LLamaStack.Core.Services
             if (_modelSessions.TryRemove(sessionId, out var modelSession))
             {
                 modelSession.CancelInfer();
-                return await _modelService.RemoveContext(modelSession.ModelName, sessionId.ToString());
+                return await _modelService.RemoveContext(modelSession.ModelName, sessionId);
             }
             return false;
         }
@@ -291,7 +289,7 @@ namespace LLamaStack.Core.Services
                     throw new Exception($"Failed to load model session state");
 
                 // Create context state
-                var (model, context) = await _modelService.GetOrCreateModelAndContext(modelSessionState.SessionConfig.Model, sessionId.ToString());
+                var (model, context) = await _modelService.GetOrCreateModelAndContext(modelSessionState.SessionConfig.Model, sessionId);
 
                 // Load context state
                 await context.LoadStateAsync(modelSessionState.ContextFile);

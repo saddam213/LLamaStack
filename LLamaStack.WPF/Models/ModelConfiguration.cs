@@ -1,7 +1,6 @@
 ﻿using LLamaStack.Core.Config;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace LLamaStack.WPF.Models
 {
@@ -9,7 +8,7 @@ namespace LLamaStack.WPF.Models
     {
         private int _maxInstances;
         private string _name;
-        private Encoding _encoding;
+        private string _encoding;
         private bool _mulMatQ;
         private float _ropeFrequencyScale;
         private float _ropeFrequencyBase;
@@ -161,7 +160,7 @@ namespace LLamaStack.WPF.Models
             get { return _mulMatQ; }
             set { _mulMatQ = value; NotifyPropertyChanged(); }
         }
-        public Encoding Encoding
+        public string Encoding
         {
             get { return _encoding; }
             set { _encoding = value; NotifyPropertyChanged(); }

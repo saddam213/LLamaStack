@@ -81,7 +81,7 @@
                         <UniformGrid Columns="2" Margin="0,0,0,5">
                             <StackPanel Margin="0,0,5,0">
                                 <TextBlock Text="Encoding"/>
-                                <ComboBox ItemsSource="{Binding Encodings}" SelectedItem="{Binding SelectedModel.Encoding}" DisplayMemberPath="EncodingName" />
+                                <ComboBox ItemsSource="{Binding Encodings}" SelectedValue="{Binding SelectedModel.Encoding}" SelectedValuePath="WebName" DisplayMemberPath="EncodingName" />
                             </StackPanel>
                             <StackPanel Margin="5,0,0,0">
                                 <TextBlock Text="Seed"/>

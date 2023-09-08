@@ -1,5 +1,7 @@
 ﻿using LLama;
+using LLama.Abstractions;
 using LLamaStack.Core.Config;
+using LLamaStack.Core.Extensions;
 using System.Collections.Concurrent;
 
 namespace LLamaStack.Core
@@ -18,14 +20,14 @@ namespace LLamaStack.Core
         public LLamaStackModel(ModelConfig modelParams)
         {
             _config = modelParams;
-            _weights = LLamaWeights.LoadFromFile(modelParams);
+            _weights = LLamaWeights.LoadFromFile(modelParams.ToModelParams());
             _contexts = new ConcurrentDictionary<T, LLamaStackContext>();
         }
 
         /// <summary>
         /// Gets the model configuration.
         /// </summary>
-        public ModelConfig ModelConfig => _config;
+        public IModelParams ModelParams => _config.ToModelParams();
 
         /// <summary>
         /// Gets the LLamaWeights
@@ -53,7 +55,7 @@ namespace LLamaStack.Core
             if (_config.MaxInstances > -1 && ContextCount >= _config.MaxInstances)
                 throw new Exception($"Maximum model instances reached");
 
-            context = new LLamaStackContext(_weights.CreateContext(_config));
+            context = new LLamaStackContext(_weights.CreateContext(_config.ToModelParams()));
             if (_contexts.TryAdd(contextId, context))
                 return Task.FromResult(context);
 

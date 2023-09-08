@@ -1,12 +1,44 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
+using LLama.Common;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
+using System.Text;
 
 namespace LLamaStack.Core.Extensions
 {
     public static class Extensions
     {
+        public static IModelParams ToModelParams(this IModelConfig modelConfig)
+        {
+            return new ModelParams(modelConfig.ModelPath)
+            {
+                BatchSize = modelConfig.BatchSize,
+                ContextSize = modelConfig.ContextSize,
+                ConvertEosToNewLine = modelConfig.ConvertEosToNewLine,
+                EmbeddingMode = modelConfig.EmbeddingMode,
+                Encoding = Encoding.GetEncoding(modelConfig.Encoding),
+                GpuLayerCount = modelConfig.GpuLayerCount,
+                LoraAdapter = modelConfig.LoraAdapter,
+                LoraBase = modelConfig.LoraBase,
+                LowVram = modelConfig.LowVram,
+                MainGpu = modelConfig.MainGpu,
+                ModelAlias = modelConfig.ModelAlias,
+                MulMatQ = modelConfig.MulMatQ,
+                Perplexity = modelConfig.Perplexity,
+                RopeFrequencyBase = modelConfig.RopeFrequencyBase,
+                RopeFrequencyScale = modelConfig.RopeFrequencyScale,
+                Seed = modelConfig.Seed,
+                TensorSplits = modelConfig.TensorSplits,
+                UseFp16Memory = modelConfig.UseFp16Memory,
+                UseMemoryLock = modelConfig.UseMemoryLock,
+                UseMemorymap = modelConfig.UseMemorymap,
+                Threads = modelConfig.Threads > 0
+                    ? modelConfig.Threads
+                    : Math.Max(Environment.ProcessorCount / 2, 1)
+            };
+        }
+
         /// <summary>
         /// Converts IInferenceConfig to InferenceParams.
         /// </summary>

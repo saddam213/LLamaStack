@@ -44,7 +44,7 @@ namespace LLamaStack.Core
             {
                 ExecutorType.Interactive => new InteractiveExecutor(_context.LLamaContext),
                 ExecutorType.Instruct => new InstructExecutor(_context.LLamaContext, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
-                ExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelConfig),
+                ExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelParams),
                 _ => default
             };
 

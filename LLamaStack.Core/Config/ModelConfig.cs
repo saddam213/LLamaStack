@@ -1,14 +1,9 @@
-﻿using LLamaStack.Core.Converters;
-using System.Text;
-using System.Text.Json.Serialization;
-
-namespace LLamaStack.Core.Config
+﻿namespace LLamaStack.Core.Config
 {
     public class ModelConfig : IModelConfig
     {
         public int MaxInstances { get; set; } = -1;
         public string Name { get; set; } = "unknown";
-
         public int ContextSize { get; set; } = 512;
         public int MainGpu { get; set; } = 0;
         public bool LowVram { get; set; } = false;
@@ -32,8 +27,6 @@ namespace LLamaStack.Core.Config
         public float RopeFrequencyScale { get; set; } = 1.0f;
         public string ModelAlias { get; set; }
         public bool MulMatQ { get; set; }
-
-        [JsonConverter(typeof(JsonEncodingConverter))]
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
+        public string Encoding { get; set; } = "UTF-8";
     }
 }

@@ -1,10 +1,57 @@
-﻿using LLamaStack.Core.Config;
+﻿using LLama.Common;
+using LLamaStack.Core.Common;
+using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
 
 namespace LLamaStack.Core.Extensions
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Converts IInferenceConfig to InferenceParams.
+        /// </summary>
+        /// <param name="inferenceConfig">The inference configuration.</param>
+        /// <returns>InferenceParams object</returns>
+        public static InferenceParams ToInferenceParams(this IInferenceConfig inferenceConfig)
+        {
+            return new InferenceParams
+            {
+                FrequencyPenalty = inferenceConfig.FrequencyPenalty,
+                MaxTokens = inferenceConfig.MaxTokens,
+                Mirostat = inferenceConfig.SamplerType.ToMirostatType(),
+                MirostatEta = inferenceConfig.MirostatEta,
+                MirostatTau = inferenceConfig.MirostatTau,
+                PenalizeNL = inferenceConfig.PenalizeNL,
+                PresencePenalty = inferenceConfig.PresencePenalty,
+                RepeatLastTokensCount = inferenceConfig.RepeatLastTokensCount,
+                RepeatPenalty = inferenceConfig.RepeatPenalty,
+                Temperature = inferenceConfig.Temperature,
+                TfsZ = inferenceConfig.TfsZ,
+                TokensKeep = inferenceConfig.TokensKeep,
+                TopK = inferenceConfig.TopK,
+                TopP = inferenceConfig.TopP,
+                TypicalP = inferenceConfig.TypicalP,
+                LogitBias = inferenceConfig.LogitBias?.ToDictionary(k => k.TokenId, v => v.Bias)
+            };
+        }
+
+
+        /// <summary>
+        /// Converts SamplerType to MirostatType.
+        /// </summary>
+        /// <param name="samplerType">Type of the sampler.</param>
+        /// <returns></returns>
+        public static MirostatType ToMirostatType(this SamplerType samplerType)
+        {
+            return samplerType switch
+            {
+                SamplerType.Default => MirostatType.Disable,
+                SamplerType.Mirostatv1 => MirostatType.Mirostat,
+                SamplerType.Mirostatv2 => MirostatType.Mirostat2,
+                _ => MirostatType.Disable
+            };
+        }
+
 
         /// <summary>
         /// Combines the AntiPrompts list and AntiPrompt csv 
@@ -25,6 +72,7 @@ namespace LLamaStack.Core.Extensions
         {
             return CombineCSV(sessionConfig.OutputFilters, sessionConfig.OutputFilter);
         }
+
 
 
         /// <summary>

@@ -4,8 +4,7 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:LLamaStack.WPF"
              xmlns:converters="clr-namespace:LLamaStack.WPF.Converters"
-             xmlns:core="clr-namespace:LLamaStack.Core.Common;assembly=LLamaStack.Core"
-             xmlns:llamaSharpCommon="clr-namespace:LLama.Common;assembly=LLamaSharp">
+             xmlns:core="clr-namespace:LLamaStack.Core.Common;assembly=LLamaStack.Core">
     <Application.Resources>
         <FontFamily x:Key="FontAwesomeBrands">pack://application:,,,/Fonts/fa-brands-400.ttf#Font Awesome 5 Brands Regular</FontFamily>
         <FontFamily x:Key="FontAwesomeDuotone">pack://application:,,,/Fonts/fa-duotone-900.ttf#Font Awesome 5 Duotone Solid</FontFamily>
@@ -23,13 +22,12 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
-        <ObjectDataProvider x:Key="MirostatType" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+        <ObjectDataProvider x:Key="SamplerType" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="llamaSharpCommon:MirostatType"/>
+                <x:Type TypeName="core:SamplerType"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
-        
         <!--TODO: Style dictionary for themeing-->
         <Style TargetType="{x:Type TextBox}">
             <Setter Property="Height" Value="24" />

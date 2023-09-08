@@ -108,8 +108,8 @@
             </UniformGrid>
 
             <StackPanel>
-                <Label>Mirostat</Label>
-                <ComboBox ItemsSource="{Binding Source={StaticResource MirostatType}}" SelectedItem="{Binding Configuration.Mirostat}"/>
+                <Label>Sampler</Label>
+                <ComboBox ItemsSource="{Binding Source={StaticResource SamplerType}}" SelectedItem="{Binding Configuration.SamplerType}"/>
             </StackPanel>
 
             <UniformGrid Columns="2">

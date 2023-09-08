@@ -1,4 +1,6 @@
 ﻿using LLama.Common;
+using LLamaStack.Core.Common;
+using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +11,7 @@ namespace LLamaStack.WebApi.Models
     /// Using abstract class here instead of interface so we can share the attributes and defaults
     /// Virtual members so we can add/replace attributes etc in child classes
     /// </summary>
-    public abstract record InferRequestBase
+    public abstract record InferRequestBase : IInferenceConfig
     {
         [Required]
         [DefaultValue("")]
@@ -21,8 +23,8 @@ namespace LLamaStack.WebApi.Models
         [DefaultValue(-1)]
         public virtual int MaxTokens { get; set; } = -1;
 
-        [DefaultValue(MirostatType.Disable)]
-        public virtual MirostatType Mirostat { get; set; } = MirostatType.Disable;
+        [DefaultValue(SamplerType.Default)]
+        public virtual SamplerType SamplerType { get; set; } = SamplerType.Default;
 
         [DefaultValue(0.1f)]
         public virtual float MirostatEta { get; set; } = 0.1f;

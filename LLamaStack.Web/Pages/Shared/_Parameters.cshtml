@@ -1,5 +1,5 @@
 ﻿@page
-@model LLama.Abstractions.IInferenceParams
+@model LLamaStack.Core.Config.IInferenceConfig
 @{
 }
 
@@ -114,8 +114,8 @@
 
 
 <div class="d-flex flex-column mb-2">
-    <small>Mirostat</small>
-    @Html.DropDownListFor(m => m.Mirostat,  Html.GetEnumSelectList<LLama.Common.MirostatType>(), new { @class = "form-control form-select" })
+    <small>Sampler Type</small>
+    @Html.DropDownListFor(m => m.SamplerType,  Html.GetEnumSelectList<LLamaStack.Core.Common.SamplerType>(), new { @class = "form-control form-select" })
 </div>
 
 <div class="d-flex flex-row gap-3">

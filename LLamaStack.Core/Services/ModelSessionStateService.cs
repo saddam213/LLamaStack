@@ -1,5 +1,4 @@
-﻿using LLama.Abstractions;
-using LLamaStack.Core.Async;
+﻿using LLamaStack.Core.Async;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Converters;
@@ -45,7 +44,7 @@ namespace LLamaStack.Core.Services
             _asyncLock = new AsyncLock();
             _savedSessions = new ConcurrentDictionary<T, ModelSessionState<T>>();
             _jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
-            _jsonDeserializerOptions = new JsonSerializerOptions { Converters = { new JsonInterfaceConverter<SessionConfig, ISessionConfig>(), new JsonInterfaceConverter<InferenceConfig, IInferenceParams>() } };
+            _jsonDeserializerOptions = new JsonSerializerOptions { Converters = { new JsonInterfaceConverter<SessionConfig, ISessionConfig>(), new JsonInterfaceConverter<InferenceConfig, IInferenceConfig>() } };
         }
 
 
@@ -105,7 +104,7 @@ namespace LLamaStack.Core.Services
         {
             //Save session state
             var sessionStateDirectory = GetSessionPath(sessionId);
-            var modelSessionState = await SaveToDirectory(modelSession.GetState(), sessionStateDirectory);
+            var modelSessionState = await SaveToDirectory(modelSession.CreateState(), sessionStateDirectory);
 
             // Add to cache
             AddOrUpdateSavedModelSession(modelSessionState);

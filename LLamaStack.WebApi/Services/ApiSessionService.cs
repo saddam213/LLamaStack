@@ -1,4 +1,5 @@
-﻿using LLamaStack.Core.Models;
+﻿using LLamaStack.Core.Extensions;
+using LLamaStack.Core.Models;
 using LLamaStack.Core.Services;
 using LLamaStack.WebApi.Controllers;
 using LLamaStack.WebApi.Models;
@@ -26,7 +27,7 @@ namespace LLamaStack.WebApi.Services
                 try
             {
                 var sessionId = Guid.NewGuid();
-                var session = await _modelSessionService.CreateAsync(sessionId, request, request.ToInferenceParams());
+                var session = await _modelSessionService.CreateAsync(sessionId, request, request);
                 if (session is null)
                     return new ErrorResponse("Failed to create model session");
 
@@ -73,7 +74,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                var response = new InferResponse(_modelSessionService.InferAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken));
+                var response = new InferResponse(_modelSessionService.InferAsync(request.SessionId, request.Prompt, request, cancellationToken));
                 return Task.FromResult<ServiceResult<InferResponse, ErrorResponse>>(response);
             }
             catch (Exception ex)
@@ -88,7 +89,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                var response = new InferTextResponse(_modelSessionService.InferTextAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken));
+                var response = new InferTextResponse(_modelSessionService.InferTextAsync(request.SessionId, request.Prompt, request, cancellationToken));
                 return Task.FromResult<ServiceResult<InferTextResponse, ErrorResponse>>(response);
             }
             catch (Exception ex)
@@ -103,7 +104,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                var response = await _modelSessionService.InferTextCompleteAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), cancellationToken);
+                var response = await _modelSessionService.InferTextCompleteAsync(request.SessionId, request.Prompt, request, cancellationToken);
                 return new InferTextCompleteResponse(response);
             }
             catch (Exception ex)
@@ -118,7 +119,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                var response = await _modelSessionService.InferTextCompleteQueuedAsync(request.SessionId, request.Prompt, request.ToInferenceParams(), false, cancellationToken);
+                var response = await _modelSessionService.InferTextCompleteQueuedAsync(request.SessionId, request.Prompt, request, false, cancellationToken);
                 return new InferTextCompleteQueuedResponse(response);
             }
             catch (Exception ex)

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LLamaStack.Core
 {
-    public static class Utils
+    public static class Registration
     {
 
         /// <summary>

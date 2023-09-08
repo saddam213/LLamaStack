@@ -1,5 +1,4 @@
-﻿using LLama.Abstractions;
-using LLamaStack.Core;
+﻿using LLamaStack.Core;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Models;
 using LLamaStack.Core.Services;
@@ -305,12 +304,12 @@ namespace LLamaStack.WPF.Views
         /// </summary>
         /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
-        private async Task<ModelSession<Guid>> CreateSession(ISessionConfig sessionConfig, IInferenceParams inferenceParams)
+        private async Task<ModelSession<Guid>> CreateSession(ISessionConfig sessionConfig, IInferenceConfig inferenceConfiguration)
         {
             try
             {
                 _sessionId = Guid.NewGuid();
-                return await Task.Run(() => ModelSessionService.CreateAsync(_sessionId, sessionConfig, inferenceParams));
+                return await Task.Run(() => ModelSessionService.CreateAsync(_sessionId, sessionConfig, inferenceConfiguration));
             }
             catch (Exception ex)
             {
@@ -342,14 +341,14 @@ namespace LLamaStack.WPF.Views
         /// </summary>
         /// <param name="prompt">The prompt.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
-        private async Task ExecuteInference(string prompt, IInferenceParams inferenceParams)
+        private async Task ExecuteInference(string prompt, IInferenceConfig inferenceConfiguration)
         {
             try
             {
                 var responseItem = CreateResponseItem(prompt);
                 await Task.Run(async () =>
                 {
-                    await foreach (var token in ModelSessionService.InferAsync(_sessionId, prompt, inferenceParams))
+                    await foreach (var token in ModelSessionService.InferAsync(_sessionId, prompt, inferenceConfiguration))
                     {
                         if (token.Type == InferTokenType.Begin)
                         {

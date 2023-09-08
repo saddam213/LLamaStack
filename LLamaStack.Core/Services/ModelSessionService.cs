@@ -71,7 +71,7 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="sessionConfig">The session configuration.</param>
-        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="inferenceConfig">The default inference configuration, will be used for all inference where no infer configuration is supplied.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">
@@ -79,7 +79,7 @@ namespace LLamaStack.Core.Services
         /// or
         /// Failed to create model session
         /// </exception>
-        public async Task<ModelSession<T>> CreateAsync(T sessionId, ISessionConfig sessionConfig, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        public async Task<ModelSession<T>> CreateAsync(T sessionId, ISessionConfig sessionConfig, IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
         {
             if (_modelSessions.TryGetValue(sessionId, out _))
                 throw new Exception($"Session with id {sessionId} already exists");
@@ -88,12 +88,12 @@ namespace LLamaStack.Core.Services
             var (model, context) = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId.ToString());
 
             // Create session
-            var modelSession = new ModelSession<T>(model, context, sessionId, sessionConfig, inferenceParams);
+            var modelSession = new ModelSession<T>(model, context, sessionId, sessionConfig, inferenceConfig);
             if (!_modelSessions.TryAdd(sessionId, modelSession))
                 throw new Exception($"Failed to create model session");
 
             // Run initial Prompt
-            await modelSession.InitializePrompt(inferenceParams, cancellationToken);
+            await modelSession.InitializePrompt(inferenceConfig, cancellationToken);
             return modelSession;
 
         }
@@ -120,11 +120,11 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="prompt">The prompt.</param>
-        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="inferenceConfig">The inference configuration, if null session default is used</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Streaming async result of <see cref="LLamaStack.Core.Models.InferTokenModel" /></returns>
         /// <exception cref="System.Exception">Inference is already running for this session</exception>
-        public async IAsyncEnumerable<InferTokenModel> InferAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<InferTokenModel> InferAsync(T sessionId, string prompt, IInferenceConfig inferenceConfig = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (!_sessionGuard.Guard(sessionId))
                 throw new Exception($"Inference is already running for this session");
@@ -142,7 +142,7 @@ namespace LLamaStack.Core.Services
                 yield return new InferTokenModel(default, default, default, InferTokenType.Begin, GetElapsed(stopwatch));
 
                 // Send content of response
-                await foreach (var token in modelSession.InferAsync(prompt, inferenceParams, cancellationToken).ConfigureAwait(false))
+                await foreach (var token in modelSession.InferAsync(prompt, inferenceConfig, cancellationToken).ConfigureAwait(false))
                 {
                     response.Append(token);
                     yield return new InferTokenModel(default, default, token, InferTokenType.Content, GetElapsed(stopwatch));
@@ -174,15 +174,15 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="prompt">The prompt.</param>
-        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="inferenceConfig">The inference configuration, if null session default is used</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Streaming async result of <see cref="System.String" /></returns>
         /// <exception cref="System.Exception">Inference is already running for this session</exception>
-        public IAsyncEnumerable<string> InferTextAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<string> InferTextAsync(T sessionId, string prompt, IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
         {
             async IAsyncEnumerable<string> InferTextInternal()
             {
-                await foreach (var token in InferAsync(sessionId, prompt, inferenceParams, cancellationToken).ConfigureAwait(false))
+                await foreach (var token in InferAsync(sessionId, prompt, inferenceConfig, cancellationToken).ConfigureAwait(false))
                 {
                     if (token.Type == InferTokenType.Content)
                         yield return token.Content;
@@ -197,13 +197,13 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="prompt">The prompt.</param>
-        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="inferenceConfig">The inference configuration, if null session default is used</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Completed inference result as string</returns>
         /// <exception cref="System.Exception">Inference is already running for this session</exception>
-        public async Task<string> InferTextCompleteAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        public async Task<string> InferTextCompleteAsync(T sessionId, string prompt, IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
         {
-            var inferResult = await InferAsync(sessionId, prompt, inferenceParams, cancellationToken)
+            var inferResult = await InferAsync(sessionId, prompt, inferenceConfig, cancellationToken)
                 .Where(x => x.Type == InferTokenType.Content)
                 .Select(x => x.Content)
                 .ToListAsync(cancellationToken: cancellationToken);
@@ -218,14 +218,14 @@ namespace LLamaStack.Core.Services
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="prompt">The prompt.</param>
-        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="inferenceConfig">The inference configuration, if null session default is used</param>
         /// <param name="saveOnComplete">Save the session after the queue processes the request</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Completed inference result as string</returns>
         /// <exception cref="System.Exception">Inference is already running for this session</exception>
-        public async Task<string> InferTextCompleteQueuedAsync(T sessionId, string prompt, IInferenceParams inferenceParams = null, bool saveOnComplete = false, CancellationToken cancellationToken = default)
+        public async Task<string> InferTextCompleteQueuedAsync(T sessionId, string prompt, IInferenceConfig inferenceConfig = null, bool saveOnComplete = false, CancellationToken cancellationToken = default)
         {
-            return await _inferTextQueue.QueueItem(new InferQueueItem(sessionId, prompt, inferenceParams, saveOnComplete, cancellationToken));
+            return await _inferTextQueue.QueueItem(new InferQueueItem(sessionId, prompt, inferenceConfig, saveOnComplete, cancellationToken));
         }
 
 
@@ -389,7 +389,7 @@ namespace LLamaStack.Core.Services
         /// <returns></returns>
         private async Task<string> ProcessInferQueueAsync(InferQueueItem inferQueueItem)
         {
-            var inferenceResult = await InferTextCompleteAsync(inferQueueItem.SessionId, inferQueueItem.Prompt, inferQueueItem.InferenceParams, inferQueueItem.CancellationToken);
+            var inferenceResult = await InferTextCompleteAsync(inferQueueItem.SessionId, inferQueueItem.Prompt, inferQueueItem.InferenceConfig, inferQueueItem.CancellationToken);
             if (inferQueueItem.SaveOnComplete)
                 await SaveStateAsync(inferQueueItem.SessionId, inferQueueItem.CancellationToken);
 
@@ -400,6 +400,6 @@ namespace LLamaStack.Core.Services
         /// <summary>
         /// Record for the Infer queue
         /// </summary>
-        private record InferQueueItem(T SessionId, string Prompt, IInferenceParams InferenceParams, bool SaveOnComplete, CancellationToken CancellationToken = default);
+        private record InferQueueItem(T SessionId, string Prompt, IInferenceConfig InferenceConfig, bool SaveOnComplete, CancellationToken CancellationToken = default);
     }
 }

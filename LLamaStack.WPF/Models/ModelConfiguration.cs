@@ -12,8 +12,6 @@ namespace LLamaStack.WPF.Models
         private bool _mulMatQ;
         private float _ropeFrequencyScale;
         private float _ropeFrequencyBase;
-        private float _rmsNormEpsilon;
-        private int _groupedQueryAttention;
         private float[] _tensorSplits;
         private bool _embeddingMode;
         private bool _convertEosToNewLine;
@@ -135,16 +133,7 @@ namespace LLamaStack.WPF.Models
             get { return _tensorSplits; }
             set { _tensorSplits = value; NotifyPropertyChanged(); }
         }
-        public int GroupedQueryAttention
-        {
-            get { return _groupedQueryAttention; }
-            set { _groupedQueryAttention = value; NotifyPropertyChanged(); }
-        }
-        public float RmsNormEpsilon
-        {
-            get { return _rmsNormEpsilon; }
-            set { _rmsNormEpsilon = value; NotifyPropertyChanged(); }
-        }
+
         public float RopeFrequencyBase
         {
             get { return _ropeFrequencyBase; }
@@ -176,7 +165,6 @@ namespace LLamaStack.WPF.Models
                 EmbeddingMode = config.EmbeddingMode,
                 Encoding = config.Encoding,
                 GpuLayerCount = config.GpuLayerCount,
-                GroupedQueryAttention = config.GroupedQueryAttention,
                 LoraAdapter = config.LoraAdapter,
                 LoraBase = config.LoraBase,
                 LowVram = config.LowVram,
@@ -187,7 +175,6 @@ namespace LLamaStack.WPF.Models
                 MulMatQ = config.MulMatQ,
                 Name = config.Name,
                 Perplexity = config.Perplexity,
-                RmsNormEpsilon = config.RmsNormEpsilon,
                 RopeFrequencyBase = config.RopeFrequencyBase,
                 RopeFrequencyScale = config.RopeFrequencyScale,
                 Seed = config.Seed,
@@ -209,7 +196,6 @@ namespace LLamaStack.WPF.Models
                 EmbeddingMode = config.EmbeddingMode,
                 Encoding = config.Encoding,
                 GpuLayerCount = config.GpuLayerCount,
-                GroupedQueryAttention = config.GroupedQueryAttention,
                 LoraAdapter = config.LoraAdapter,
                 LoraBase = config.LoraBase,
                 LowVram = config.LowVram,
@@ -220,7 +206,6 @@ namespace LLamaStack.WPF.Models
                 MulMatQ = config.MulMatQ,
                 Name = config.Name,
                 Perplexity = config.Perplexity,
-                RmsNormEpsilon = config.RmsNormEpsilon,
                 RopeFrequencyBase = config.RopeFrequencyBase,
                 RopeFrequencyScale = config.RopeFrequencyScale,
                 Seed = config.Seed,

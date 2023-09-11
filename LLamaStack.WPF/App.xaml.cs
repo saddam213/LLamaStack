@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Native;
 using LLamaStack.Core;
 using LLamaStack.WPF.Services;
 using LLamaStack.WPF.Views;
@@ -27,6 +28,7 @@ namespace LLamaStack.WPF
         public App()
         {
             var builder = Host.CreateApplicationBuilder();
+            builder.Logging.ClearProviders();
 
             // Add LLamaStack
             builder.Services.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddWindowLogger());
@@ -80,7 +82,7 @@ namespace LLamaStack.WPF
             _logger = ServiceProvider.GetService<ILogger<App>>();
 
             // Setup Extra Logging
-            LLama.Native.NativeApi.llama_log_set(LLamaNativeLogCallback);
+            NativeApi.llama_log_set(LLamaNativeLogCallback);
 
             // Try catch any deeper exceptions
             AppDomain.CurrentDomain.UnhandledException += (s, e) => _logger.LogError($"UnhandledException: {e.ExceptionObject}");
@@ -90,22 +92,23 @@ namespace LLamaStack.WPF
         }
 
 
+
         /// <summary>
         /// LLama.cpp Native log callback.
         /// </summary>
         /// <param name="llamalevel">The llamalevel.</param>
         /// <param name="message">The message.</param>
-        private static void LLamaNativeLogCallback(ILLamaLogger.LogLevel llamalevel, string message)
+        private static void LLamaNativeLogCallback(LLamaLogLevel llamalevel, string message)
         {
             if (string.IsNullOrEmpty(message) || message.Equals(".") || message.Equals("\n"))
                 return;
 
             var level = llamalevel switch
             {
-                ILLamaLogger.LogLevel.Info => LogLevel.Information,
-                ILLamaLogger.LogLevel.Debug => LogLevel.Debug,
-                ILLamaLogger.LogLevel.Warning => LogLevel.Warning,
-                ILLamaLogger.LogLevel.Error => LogLevel.Error,
+                LLamaLogLevel.Info => LogLevel.Information,
+                LLamaLogLevel.Debug => LogLevel.Debug,
+                LLamaLogLevel.Warning => LogLevel.Warning,
+                LLamaLogLevel.Error => LogLevel.Error,
                 _ => LogLevel.None
             };
 

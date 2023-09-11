@@ -284,11 +284,15 @@ namespace LLamaStack.Core.Services
 
             try
             {
+                // Close and remove existing session
+                await CloseAsync(sessionId);
+
+                // Load session state
                 var modelSessionState = await _modelSessionStateService.LoadAsync(sessionId);
                 if (modelSessionState is null)
                     throw new Exception($"Failed to load model session state");
 
-                // Create context state
+                // Create context
                 var (model, context) = await _modelService.GetOrCreateModelAndContext(modelSessionState.SessionConfig.Model, sessionId);
 
                 // Load context state

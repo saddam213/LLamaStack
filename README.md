@@ -30,9 +30,12 @@ LLamaStack is a comprehensive library with several projects tailored for differe
 
 3. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: The WPF UI interface provides all the core functions of llama.cpp & LLamaSharp.
 
-4. **LLamaStack.WebAPI**: This is an implementation of an ASP.NET Core WebAPI with all the essential features of llama.cpp & LLamaSharp.
+4. **[LLamaStack.WebAPI](LLamaStack.WebApi/README.md)**: This is an implementation of an ASP.NET Core WebAPI with all the essential features of llama.cpp & LLamaSharp.
 
-5. **LLamaStack.Signalr**: SignalR websocket server and client implementations designed for use in web and .NET environments.
+### In Development
+5. **LLamaStack.Signalr**: `SignalR` websocket server and client implementations designed for use in web and .NET environments.
+
+6. **LLamaStack.SemanticKernel**: Support for `Microsoft.SemanticKernel` using local models and the `LLamaStack.WebAPI` and `LLamaStack.Signalr` implementations
 
 
 ## Installation

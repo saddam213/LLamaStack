@@ -5,7 +5,8 @@ namespace LLamaStack.WebApi.Services
 {
     public interface IApiModelService
     {
-        Task<ServiceResult<ModelResponse, ErrorResponse>> GetModels();
+        Task<ServiceResult<ModelResponse, ErrorResponse>> GetModel(string name);
+        Task<ServiceResult<ModelsResponse, ErrorResponse>> GetModels();
     }
 
 }

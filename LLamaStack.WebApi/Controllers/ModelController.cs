@@ -1,5 +1,6 @@
 using LLamaStack.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace LLamaStack.WebApi.Controllers
 {
@@ -12,6 +13,13 @@ namespace LLamaStack.WebApi.Controllers
         public ModelController(IApiModelService modelService)
         {
             _modelService = modelService;
+        }
+
+        [HttpGet("Get")]
+        public async Task<IActionResult> GetModel([Required]string name)
+        {
+            var response = await _modelService.GetModel(name);
+            return response.Resolve<IActionResult>(Ok, BadRequest);
         }
 
         [HttpGet("GetAll")]

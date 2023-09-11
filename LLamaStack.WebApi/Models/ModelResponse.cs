@@ -1,4 +1,4 @@
 ﻿namespace LLamaStack.WebApi.Models
 {
-    public record ModelResponse(List<ModelInfo> Models);
+    public record ModelResponse(ModelInfo Model);
 }

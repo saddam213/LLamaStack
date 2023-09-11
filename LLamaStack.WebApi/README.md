@@ -1,8 +1,8 @@
 ﻿## LLamaStack.WebApi - Basic ASP.NET Core WebAPI example
 LLamaStack.WebApi has no heavy dependencies and no extra frameworks except `SwaggerUI` to keep the examples clean and easy to copy over to your own project
 
-## Live Demo
-[Live WebAPI Demo](https://api.llama-stack.com/)
+## Swagger Documentation
+[WebAPI Swagger Documentation + Demo](https://api.llama-stack.com/swagger/index.html)
 
 ## Setup
 You can setup Models, Prompts and Inference parameters in the appsettings.json

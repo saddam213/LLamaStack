@@ -1,5 +1,4 @@
-﻿using LLamaStack.Core.Extensions;
-using LLamaStack.Core.Models;
+﻿using LLamaStack.Core.Models;
 using LLamaStack.Core.Services;
 using LLamaStack.WebApi.Controllers;
 using LLamaStack.WebApi.Models;
@@ -24,14 +23,14 @@ namespace LLamaStack.WebApi.Services
 
         public async Task<ServiceResult<CreateResponse, ErrorResponse>> Create(CreateRequest request)
         {
-                try
+            try
             {
                 var sessionId = Guid.NewGuid();
                 var session = await _modelSessionService.CreateAsync(sessionId, request, request);
                 if (session is null)
                     return new ErrorResponse("Failed to create model session");
 
-                _logger?.LogDebug($"Session created, SessionId: {sessionId}");
+                _logger?.LogInformation($"Session created, SessionId: {sessionId}");
                 return new CreateResponse(sessionId);
             }
             catch (Exception ex)
@@ -46,7 +45,10 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                return new CloseResponse(await _modelSessionService.CloseAsync(request.SessionId));
+                var result = await _modelSessionService.CloseAsync(request.SessionId);
+
+                _logger?.LogInformation($"Session closed, SessionId: {request.SessionId}");
+                return new CloseResponse(result);
             }
             catch (Exception ex)
             {
@@ -60,7 +62,10 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
-                return new CancelResponse(await _modelSessionService.CancelAsync(request.SessionId));
+                var result = await _modelSessionService.CancelAsync(request.SessionId);
+
+                _logger?.LogInformation($"Session canceled, SessionId: {request.SessionId}");
+                return new CancelResponse(result);
             }
             catch (Exception ex)
             {
@@ -75,6 +80,8 @@ namespace LLamaStack.WebApi.Services
             try
             {
                 var response = new InferResponse(_modelSessionService.InferAsync(request.SessionId, request.Prompt, request, cancellationToken));
+
+                _logger?.LogInformation($"Session InferAsync, SessionId: {request.SessionId}");
                 return Task.FromResult<ServiceResult<InferResponse, ErrorResponse>>(response);
             }
             catch (Exception ex)
@@ -90,6 +97,8 @@ namespace LLamaStack.WebApi.Services
             try
             {
                 var response = new InferTextResponse(_modelSessionService.InferTextAsync(request.SessionId, request.Prompt, request, cancellationToken));
+
+                _logger?.LogInformation($"Session InferTextAsync, SessionId: {request.SessionId}");
                 return Task.FromResult<ServiceResult<InferTextResponse, ErrorResponse>>(response);
             }
             catch (Exception ex)
@@ -105,6 +114,8 @@ namespace LLamaStack.WebApi.Services
             try
             {
                 var response = await _modelSessionService.InferTextCompleteAsync(request.SessionId, request.Prompt, request, cancellationToken);
+
+                _logger?.LogInformation($"Session InferTextCompleteAsync, SessionId: {request.SessionId}");
                 return new InferTextCompleteResponse(response);
             }
             catch (Exception ex)
@@ -120,6 +131,8 @@ namespace LLamaStack.WebApi.Services
             try
             {
                 var response = await _modelSessionService.InferTextCompleteQueuedAsync(request.SessionId, request.Prompt, request, false, cancellationToken);
+
+                _logger?.LogInformation($"Session InferTextCompleteQueuedAsync, SessionId: {request.SessionId}");
                 return new InferTextCompleteQueuedResponse(response);
             }
             catch (Exception ex)
@@ -134,6 +147,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
+                _logger?.LogInformation($"Session GetAll");
                 return new List<ModelSessionState<Guid>>(await _modelSessionService.GetStatesAsync());
             }
             catch (Exception ex)
@@ -148,6 +162,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
+                _logger?.LogInformation($"Session Get, SessionId: {request.SessionId}");
                 return await _modelSessionService.GetStateAsync(request.SessionId);
             }
             catch (Exception ex)
@@ -163,6 +178,8 @@ namespace LLamaStack.WebApi.Services
             try
             {
                 var modelSession = await _modelSessionService.LoadStateAsync(request.SessionId);
+
+                _logger?.LogInformation($"Session Load, SessionId: {request.SessionId}");
                 return await _modelSessionService.GetStateAsync(request.SessionId);
             }
             catch (Exception ex)
@@ -177,6 +194,7 @@ namespace LLamaStack.WebApi.Services
         {
             try
             {
+                _logger?.LogInformation($"Session Save, SessionId: {request.SessionId}");
                 return await _modelSessionService.SaveStateAsync(request.SessionId);
             }
             catch (Exception ex)
@@ -186,5 +204,5 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
-     }
+    }
 }

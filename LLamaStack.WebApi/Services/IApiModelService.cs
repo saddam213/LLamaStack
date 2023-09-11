@@ -4,7 +4,7 @@ using LLamaStack.WebApi.Models;
 namespace LLamaStack.WebApi.Services
 {
     /// <summary>
-    /// Service for Model related operations
+    /// Service for handling Model requests
     /// </summary>
     public interface IApiModelService
     {

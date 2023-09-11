@@ -1,5 +1,4 @@
-﻿using LLamaStack.Core.Models;
-using LLamaStack.Core.Services;
+﻿using LLamaStack.Core.Services;
 using LLamaStack.WebApi.Controllers;
 using LLamaStack.WebApi.Models;
 
@@ -14,6 +13,12 @@ namespace LLamaStack.WebApi.Services
         private readonly ILogger<ModelSessionController> _logger;
         private readonly IModelSessionService<Guid> _modelSessionService;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiSessionService"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="modelSessionService">The model session service.</param>
         public ApiSessionService(ILogger<ModelSessionController> logger, IModelSessionService<Guid> modelSessionService)
         {
             _logger = logger;
@@ -21,6 +26,13 @@ namespace LLamaStack.WebApi.Services
         }
 
 
+        /// <summary>
+        /// Creates a new ModelSession.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>
+        /// SessionId of the created session
+        /// </returns>
         public async Task<ServiceResult<CreateResponse, ErrorResponse>> Create(CreateRequest request)
         {
             try
@@ -41,6 +53,13 @@ namespace LLamaStack.WebApi.Services
         }
 
 
+        /// <summary>
+        /// Closes the specified ModelSession.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns>
+        /// true if the ModelSession was closed successfully
+        /// </returns>
         public async Task<ServiceResult<CloseResponse, ErrorResponse>> Close(CloseRequest request)
         {
             try
@@ -58,6 +77,11 @@ namespace LLamaStack.WebApi.Services
         }
 
 
+        /// <summary>
+        /// Cancels the any long running action(Infer, Save etc) the ModelSession is currently executing.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// true if the ModelSession action canceled successfully
         public async Task<ServiceResult<CancelResponse, ErrorResponse>> Cancel(CancelRequest request)
         {
             try
@@ -74,7 +98,12 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
-
+        /// <summary>
+        /// Run text inference on the ModelSession
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>IAsyncEnumerable<InferTokenModel> type result for streaming of token results</returns>
         public Task<ServiceResult<InferResponse, ErrorResponse>> InferAsync(InferRequest request, CancellationToken cancellationToken)
         {
             try
@@ -92,6 +121,12 @@ namespace LLamaStack.WebApi.Services
         }
 
 
+        /// <summary>
+        /// Run text inference on the ModelSession
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>IAsyncEnumerable<string> type result for streaming of token results</returns>
         public Task<ServiceResult<InferTextResponse, ErrorResponse>> InferTextAsync(InferRequest request, CancellationToken cancellationToken)
         {
             try
@@ -109,6 +144,14 @@ namespace LLamaStack.WebApi.Services
         }
 
 
+        /// <summary>
+        /// Run text inference on the ModelSession
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// Completed string result of inference
+        /// </returns>
         public async Task<ServiceResult<InferTextCompleteResponse, ErrorResponse>> InferTextCompleteAsync(InferRequest request, CancellationToken cancellationToken)
         {
             try
@@ -126,6 +169,14 @@ namespace LLamaStack.WebApi.Services
         }
 
 
+        /// <summary>
+        /// Queue the text inference on the ModelSession
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// Completed string result of inference
+        /// </returns>
         public async Task<ServiceResult<InferTextCompleteQueuedResponse, ErrorResponse>> InferTextCompleteQueuedAsync(InferRequest request, CancellationToken cancellationToken)
         {
             try
@@ -141,68 +192,5 @@ namespace LLamaStack.WebApi.Services
                 return new ErrorResponse(ex.Message);
             }
         }
-
-
-        public async Task<ServiceResult<List<ModelSessionState<Guid>>, ErrorResponse>> GetAll()
-        {
-            try
-            {
-                _logger?.LogInformation($"Session GetAll");
-                return new List<ModelSessionState<Guid>>(await _modelSessionService.GetStatesAsync());
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("[GetAll] Exception: {ex}", ex);
-                return new ErrorResponse(ex.Message);
-            }
-        }
-
-
-        public async Task<ServiceResult<ModelSessionState<Guid>, ErrorResponse>> Get(GetRequest request)
-        {
-            try
-            {
-                _logger?.LogInformation($"Session Get, SessionId: {request.SessionId}");
-                return await _modelSessionService.GetStateAsync(request.SessionId);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("[Get] Exception: {ex}", ex);
-                return new ErrorResponse(ex.Message);
-            }
-        }
-
-
-        public async Task<ServiceResult<ModelSessionState<Guid>, ErrorResponse>> Load(LoadRequest request)
-        {
-            try
-            {
-                var modelSession = await _modelSessionService.LoadStateAsync(request.SessionId);
-
-                _logger?.LogInformation($"Session Load, SessionId: {request.SessionId}");
-                return await _modelSessionService.GetStateAsync(request.SessionId);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("[Load] Exception: {ex}", ex);
-                return new ErrorResponse(ex.Message);
-            }
-        }
-
-
-        public async Task<ServiceResult<ModelSessionState<Guid>, ErrorResponse>> Save(SaveRequest request)
-        {
-            try
-            {
-                _logger?.LogInformation($"Session Save, SessionId: {request.SessionId}");
-                return await _modelSessionService.SaveStateAsync(request.SessionId);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("[Save] Exception: {ex}", ex);
-                return new ErrorResponse(ex.Message);
-            }
-        }
-
     }
 }

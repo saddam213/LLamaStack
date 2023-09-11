@@ -15,6 +15,12 @@ namespace LLamaStack.WebApi.Services
         private readonly ILogger<ApiModelService> _logger;
         private readonly ImmutableDictionary<string, ModelInfo> _models;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiModelService"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
         public ApiModelService(ILogger<ApiModelService> logger, LLamaStackConfig configuration)
         {
             _logger = logger;
@@ -22,6 +28,12 @@ namespace LLamaStack.WebApi.Services
             _models = _configuration.Models.ToImmutableDictionary(k => k.Name, FromModelConfig);
         }
 
+
+        /// <summary>
+        /// Gets the model with the speified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public Task<ServiceResult<ModelResponse, ErrorResponse>> GetModel(string name)
         {
             try
@@ -39,6 +51,11 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
+
+        /// <summary>
+        /// Gets all models.
+        /// </summary>
+        /// <returns></returns>
         public Task<ServiceResult<ModelsResponse, ErrorResponse>> GetModels()
         {
             try
@@ -52,6 +69,12 @@ namespace LLamaStack.WebApi.Services
             }
         }
 
+
+        /// <summary>
+        /// Convert ModelConfig to ModelInfo
+        /// </summary>
+        /// <param name="modelConfig">The model configuration.</param>
+        /// <returns></returns>
         private static ModelInfo FromModelConfig(ModelConfig modelConfig)
         {
             return new ModelInfo(modelConfig.Name)

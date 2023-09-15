@@ -1,5 +1,4 @@
-﻿using LLama;
-using LLama.Abstractions;
+﻿using LLama.Abstractions;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Extensions;
@@ -15,7 +14,7 @@ namespace LLamaStack.Core
         private readonly LLamaStackContext _context;
         private readonly IInferenceHandler _inferHandler;
         private readonly ISessionConfig _sessionParams;
-        private readonly ITextStreamTransform _outputTransform;
+        private readonly ITokenStreamTransform _outputTransform;
         private readonly List<SessionHistoryModel> _sessionHistory;
         private readonly IInferenceConfig _defaultInferenceConfig;
 
@@ -51,7 +50,7 @@ namespace LLamaStack.Core
             //Output Filter
             var outputFilters = sessionConfig.GetOutputFilters();
             if (outputFilters.Count > 0)
-                _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(outputFilters, redundancyLength: 8);
+                _outputTransform = new TokenOutputStreamTransform(outputFilters, redundancyLength: 8);
         }
 
 
@@ -162,10 +161,12 @@ namespace LLamaStack.Core
         {
             var inferenceParams = ConfigureInferenceParams(inferenceConfig);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            //if (_outputTransform is not null)
-            //    return _outputTransform.TransformAsync(_inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token));
 
-            return _inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+            var inferenceStream = _inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+            if (_outputTransform is not null)
+                return _outputTransform.TransformAsync(inferenceStream);
+
+            return inferenceStream;
         }
 
 

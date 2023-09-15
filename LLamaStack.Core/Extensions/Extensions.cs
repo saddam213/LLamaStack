@@ -21,7 +21,6 @@ namespace LLamaStack.Core.Extensions
             {
                 BatchSize = modelConfig.BatchSize,
                 ContextSize = modelConfig.ContextSize,
-                ConvertEosToNewLine = modelConfig.ConvertEosToNewLine,
                 EmbeddingMode = modelConfig.EmbeddingMode,
                 Encoding = Encoding.GetEncoding(modelConfig.Encoding),
                 GpuLayerCount = modelConfig.GpuLayerCount,
@@ -29,7 +28,6 @@ namespace LLamaStack.Core.Extensions
                 LoraBase = modelConfig.LoraBase,
                 LowVram = modelConfig.LowVram,
                 MainGpu = modelConfig.MainGpu,
-                ModelAlias = modelConfig.ModelAlias,
                 MulMatQ = modelConfig.MulMatQ,
                 Perplexity = modelConfig.Perplexity,
                 RopeFrequencyBase = modelConfig.RopeFrequencyBase,

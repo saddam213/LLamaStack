@@ -50,7 +50,7 @@ namespace LLamaStack.Core
             //Output Filter
             var outputFilters = sessionConfig.GetOutputFilters();
             if (outputFilters.Count > 0)
-                _outputTransform = new TokenOutputStreamTransform(outputFilters, redundancyLength: 8);
+                _outputTransform = new TokenContentKeywordTransform(outputFilters);
         }
 
 

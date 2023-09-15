@@ -12,8 +12,8 @@ namespace LLamaStack.WebApi.Models
         public string Model { get; set; }
 
         [Required]
-        [DefaultValue(ExecutorType.Instruct)]
-        public ExecutorType ExecutorType { get; set; }
+        [DefaultValue(InferenceType.Instruct)]
+        public InferenceType InferenceType { get; set; }
 
         [DefaultValue("Below is an instruction that describes a task. Write a response that appropriately completes the request.")]
         public override string Prompt { get; set; }

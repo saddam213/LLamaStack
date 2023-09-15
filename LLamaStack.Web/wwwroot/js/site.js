@@ -40,7 +40,7 @@ const Enums = {
 		Loaded: 4,
 		Connected: 10
 	}),
-	ExecutorType: Object.freeze({
+	InferenceType: Object.freeze({
 		Interactive: 0,
 		Instruct: 1,
 		Stateless: 2

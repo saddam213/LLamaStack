@@ -13,9 +13,9 @@ namespace LLamaStack.Core.Config
         string Model { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the executor to use for inference.
+        /// Gets or sets the type of inference
         /// </summary>
-        ExecutorType ExecutorType { get; set; }
+        InferenceType InferenceType { get; set; }
 
         /// <summary>
         /// Gets or sets the initial prompt to start the session with.
@@ -23,12 +23,12 @@ namespace LLamaStack.Core.Config
         string Prompt { get; set; }
 
         /// <summary>
-        /// Gets or sets the input prefix for Instruct executors.
+        /// Gets or sets the input prefix for Instruct mode.
         /// </summary>
         string InputPrefix { get; set; }
 
         /// <summary>
-        /// Gets or sets the input suffix for Instruct executors.
+        /// Gets or sets the input suffix for Instruct mode.
         /// </summary>
         string InputSuffix { get; set; }
 

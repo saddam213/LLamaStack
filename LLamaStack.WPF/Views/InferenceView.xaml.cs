@@ -189,7 +189,7 @@ namespace LLamaStack.WPF.Views
                 {
                     _modelSession = modelSession;
                     _sessionId = modelSession.SessionId;
-                    SessionConfiguration.ExecutorType = modelSession.SessionConfig.ExecutorType;
+                    SessionConfiguration.InferenceType = modelSession.SessionConfig.InferenceType;
                     SessionConfiguration.Prompt = modelSession.SessionConfig.Prompt;
                     SessionConfiguration.AntiPrompt = modelSession.SessionConfig.AntiPrompt;
                     SessionConfiguration.OutputFilter = modelSession.SessionConfig.OutputFilter;
@@ -353,15 +353,16 @@ namespace LLamaStack.WPF.Views
                         if (token.Type == InferTokenType.Begin)
                         {
                             responseItem.Timestamp = DateTime.Now;
-                            continue;
                         }
-
-                        if (token.Type == InferTokenType.End || token.Type == InferTokenType.Cancel)
+                        else if (token.Type == InferTokenType.Content)
+                        {
+                            responseItem.Content += token.Content;
+                        }
+                        else if (token.Type == InferTokenType.End || token.Type == InferTokenType.Cancel)
                         {
                             responseItem.Signature = token.Content;
-                            break;
                         }
-                        responseItem.Content += token.Content;
+
                     }
                 });
             }

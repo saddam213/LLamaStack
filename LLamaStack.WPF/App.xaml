@@ -16,9 +16,9 @@
         <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
 
-        <ObjectDataProvider x:Key="ExecutorTypeValues" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+        <ObjectDataProvider x:Key="InferenceTypeValues" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="core:ExecutorType"/>
+                <x:Type TypeName="core:InferenceType"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 

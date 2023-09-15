@@ -1,6 +1,6 @@
 ﻿using LLamaStack.Core.Config;
+using LLamaStack.Core.Inference;
 using System.Text.Json.Serialization;
-using static LLama.StatefulExecutorBase;
 
 namespace LLamaStack.Core.Models
 {
@@ -19,7 +19,7 @@ namespace LLamaStack.Core.Models
         public string ContextFile { get; set; }
 
         [JsonIgnore]
-        public ExecutorBaseState ExecutorConfig { get; set; }
+        public InferenceHandlerState InferenceState { get; set; }
     }
 
 }

@@ -14,6 +14,7 @@ namespace LLamaStack.WebApi
             builder.Services.AddLLamaStack<Guid>();
             builder.Services.AddSingleton<IApiModelService, ApiModelService>();
             builder.Services.AddSingleton<IApiSessionService, ApiSessionService>();
+            builder.Services.AddSingleton<IApiSessionStateService, ApiSessionStateService>();
 
             // Add Controllers
             builder.Services.AddControllers().AddJsonOptions(options =>

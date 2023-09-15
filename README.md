@@ -6,7 +6,7 @@
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/saddam213/LLamaStack)
 [![LLamaStack Badge](https://img.shields.io/nuget/v/LLamaStack?color=4bc51e&label=LLamaStack)](https://www.nuget.org/packages/LLamaStack)
 [![Web Demo](https://img.shields.io/website/https/www.llama-stack.com?label=Web%20Demo&up_message=online)](https://www.llama-stack.com)
-[![Web API Demo](https://img.shields.io/website/https/api.llama-stack.com?label=Web%20API%20Demo&down_message=coming%20soon)](https://api.llama-stack.com)
+[![Web API Demo](https://img.shields.io/website/https/llama-stack.com?label=Web%20API%20Demo&up_message=online)](https://api.llama-stack.com/swagger/index.html)
 [![Discord](https://img.shields.io/discord/1147446100442226699?label=Discord)](https://discord.gg/cDpupfb2JB)
 
 ### Welcome to LLamaStack!
@@ -30,9 +30,12 @@ LLamaStack is a comprehensive library with several projects tailored for differe
 
 3. **[LLamaStack.WPF](LLamaStack.WPF/README.md)**: The WPF UI interface provides all the core functions of llama.cpp & LLamaSharp.
 
-4. **LLamaStack.WebAPI**: This is an implementation of an ASP.NET Core WebAPI with all the essential features of llama.cpp & LLamaSharp.
+4. **[LLamaStack.WebAPI](LLamaStack.WebApi/README.md)**: This is an implementation of an ASP.NET Core WebAPI with all the essential features of llama.cpp & LLamaSharp.
 
-5. **LLamaStack.Signalr**: SignalR websocket server and client implementations designed for use in web and .NET environments.
+### In Development
+5. **LLamaStack.Signalr**: `SignalR` websocket server and client implementations designed for use in web and .NET environments.
+
+6. **LLamaStack.SemanticKernel**: Support for `Microsoft.SemanticKernel` using local models and the `LLamaStack.WebAPI` and `LLamaStack.Signalr` implementations
 
 
 ## Installation

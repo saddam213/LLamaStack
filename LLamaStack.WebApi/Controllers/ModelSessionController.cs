@@ -16,21 +16,6 @@ namespace LLamaStack.WebApi.Controllers
         }
 
 
-        [HttpGet("Get")]
-        public async Task<IActionResult> Get(GetRequest request)
-        {
-            var response = await _sessionService.Get(request);
-            return response.Resolve<IActionResult>(Ok, BadRequest);
-        }
-
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var response = await _sessionService.GetAll();
-            return response.Resolve<IActionResult>(Ok, BadRequest);
-        }
-
-
         [HttpPost("Create")]
         public async Task<IActionResult> Create(CreateRequest request)
         {
@@ -51,22 +36,6 @@ namespace LLamaStack.WebApi.Controllers
         public async Task<IActionResult> Cancel(CancelRequest request)
         {
             var response = await _sessionService.Cancel(request);
-            return response.Resolve<IActionResult>(Ok, BadRequest);
-        }
-
-
-        [HttpPost("Save")]
-        public async Task<IActionResult> Save(SaveRequest request)
-        {
-            var response = await _sessionService.Save(request);
-            return response.Resolve<IActionResult>(Ok, BadRequest);
-        }
-
-
-        [HttpPost("Load")]
-        public async Task<IActionResult> Load(LoadRequest request)
-        {
-            var response = await _sessionService.Load(request);
             return response.Resolve<IActionResult>(Ok, BadRequest);
         }
 

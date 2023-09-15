@@ -79,7 +79,7 @@ var sessionConfig = new SessionConfig
 {
    Model = "MyModel",
    Prompt = "Initial prompt",
-   ExecutorType = ExecutorType.Instruct
+   InferenceType = InferenceType.Instruct
 };
 
 // InferenceConfig
@@ -105,6 +105,9 @@ var questionText = "What is .NET Core?";
 IAsyncEnumerable<InferTokenModel> inferTokens = _modelSessionService.InferAsync(sessionId, questionText);
 await foreach (var token in inferTokens)
 {
+   Console.Write(token.Id);
+   Console.Write(token.Logit);
+   Console.Write(token.Probability);
    Console.Write(token.Content);
 }
 
@@ -134,7 +137,7 @@ await _modelSessionService.CancelAsync(sessionId);
 
 ### ModelSessionStateService
 
-The `ModelSessionStateService` plays a crucial role in loading and saving a model's session state. This includes context state, executor state, and session/inference parameters. It provides robust state management for your LLama model sessions.
+The `ModelSessionStateService` plays a crucial role in loading and saving a model's session state. This includes context state, inference state, and session/inference parameters. It provides robust state management for your LLama model sessions.
 
 ### ModelLoaderService
 

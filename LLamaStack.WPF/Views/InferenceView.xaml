@@ -23,8 +23,8 @@
                 <Label Content="Model" Margin="0,0,0,-5"/>
                 <ComboBox ItemsSource="{Binding Models}" SelectedItem="{Binding SessionConfiguration.SelectedModel}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}" DisplayMemberPath="Name" Text="Models" IsEditable="false" IsReadOnly="true"/>
 
-                <Label Content="Executor" Margin="0,0,0,-5"/>
-                <ComboBox ItemsSource="{Binding Source={StaticResource ExecutorTypeValues}}" SelectedItem="{Binding SessionConfiguration.ExecutorType}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}" IsEditable="false" IsReadOnly="true" Text=""/>
+                <Label Content="Inference Type" Margin="0,0,0,-5"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource InferenceTypeValues}}" SelectedItem="{Binding SessionConfiguration.InferenceType}" IsEnabled="{Binding IsSessionLoaded, Converter={StaticResource InverseBoolConverter}}" IsEditable="false" IsReadOnly="true" Text=""/>
             </StackPanel>
 
             <!--Begin/End Session-->

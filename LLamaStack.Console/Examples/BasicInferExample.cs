@@ -26,12 +26,14 @@ namespace LLamaStack.Console.Runner
             {
                 Model = "WizardLM-7B",
                 Prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
-                ExecutorType = ExecutorType.Instruct
+                InferenceType = InferenceType.Instruct,
+               //  AntiPrompt = "User:"
             };
 
             var inferenceConfig = new InferenceConfig
             {
-                Temperature = 0.8f
+                Temperature = 0.8f,
+                 SamplerType = SamplerType.Mirostatv1
             };
 
             await _modelSessionService.CreateAsync("AppSession", sessionConfig, inferenceConfig);

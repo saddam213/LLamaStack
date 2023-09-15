@@ -1,35 +1,34 @@
-﻿using LLama;
-using LLama.Abstractions;
+﻿using LLama.Abstractions;
 using LLama.Common;
 using LLamaStack.Core.Common;
+using LLamaStack.Core.Services;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace LLamaStack.Core.Inference
 {
-    internal class StatelessInferenceHandler : IInferenceHandler
+    public sealed class StatelessInferenceHandler<T> : IInferenceHandler
     {
-        private readonly LLamaWeights _weights;
-        private readonly IModelParams _params;
+        private readonly LLamaStackModel<T> _model;
 
-        public StatelessInferenceHandler(LLamaWeights weights, IModelParams @params)
+        public StatelessInferenceHandler(LLamaStackModel<T> model)
         {
-            _weights = weights;
-            _params = @params;
+            _model = model;
         }
 
-        public LLamaContext Context { get; private set; }
 
         public InferenceType Type => InferenceType.Stateless;
 
-        /// <inheritdoc />
-        public async IAsyncEnumerable<TokenData> InferAsync(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+
+        public async IAsyncEnumerable<TokenData> InferAsync(string text, IInferenceParams inferenceParams = null, [EnumeratorCancellation]CancellationToken cancellationToken = default)
         {
-            using (Context = _weights.CreateContext(_params))
+            using (var context = await _model.CreateContext(default))
             {
+
                 if (inferenceParams != null)
                 {
-                    if (inferenceParams.TokensKeep > Context.ContextSize)
-                        throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
+                    if (inferenceParams.TokensKeep > context.ContextSize)
+                        throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({context.ContextSize})");
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -42,26 +41,22 @@ namespace LLamaStack.Core.Inference
                 for (var i = 0; i < inferenceParams.RepeatLastTokensCount; i++)
                     lastTokens.Add(new TokenData(0));
 
-                var tokens = Context.TokenizeTextToList(text, true);
+                var tokens = context.TokenizeTextToList(text, true);
                 var n_prompt_tokens = tokens.Count;
 
-                await Context.Eval(tokens, n_past);
+                await context.EvalAsync(tokens, n_past);
 
                 lastTokens.AddRange(tokens);
                 n_past += n_prompt_tokens;
 
-                var mu = (float?)null;
+                var sampleService = new SampleService(context);
                 var max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
                 for (var i = 0; i < max_tokens; i++)
                 {
                     if (cancellationToken.IsCancellationRequested)
                         break;
-                 
-                    var tokenDataArray = Context.ApplyPenalty(lastTokens, inferenceParams);
 
-                    var id = Context.Sample(tokenDataArray, inferenceParams, ref mu);
-
-                    var tokenData = tokenDataArray.GetTokenData(Context, id);
+                    var tokenData = await sampleService.SampleAsync(inferenceParams, lastTokens);
 
                     lastTokens.Add(tokenData);
 
@@ -75,7 +70,7 @@ namespace LLamaStack.Core.Inference
 
                     // when run out of context
                     // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L433
-                    if (n_past + tokens.Count > Context.ContextSize)
+                    if (n_past + tokens.Count > context.ContextSize)
                     {
                         var n_left = n_past - inferenceParams.TokensKeep;
 
@@ -85,7 +80,7 @@ namespace LLamaStack.Core.Inference
                         tokens.AddRange(lastTokens.Skip(lastTokens.Count - n_left / 2).Take(n_left / 2));
                     }
 
-                    n_past = await Context.Eval(tokens, n_past);
+                    n_past = await context.EvalAsync(tokens, n_past);
                 }
             }
         }
@@ -118,12 +113,12 @@ namespace LLamaStack.Core.Inference
         }
 
 
-        public Task<InferenceHandlerState> GetState()
+        public Task<InferenceHandlerState> GetStateAsync()
         {
             return Task.FromResult(default(InferenceHandlerState));
         }
 
-        public Task SetState(InferenceHandlerState state)
+        public Task SetStateAsync(InferenceHandlerState state)
         {
             return Task.CompletedTask;
         }

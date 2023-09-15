@@ -144,9 +144,6 @@ namespace LLamaStack.Core.Services
                 {
                     response.Append(token);
                     yield return new InferTokenModel(token.Id, token.Logit, token.Probability, token.Content, InferTokenType.Content, GetElapsed(stopwatch));
-
-                    // TODO:Revisit: Help ensure that the IAsyncEnumerable is properly scheduled for asynchronous execution as nothing in the upstream loop is awaited
-                    await Task.Yield();
                 }
 
                 // Send end of response

@@ -353,15 +353,16 @@ namespace LLamaStack.WPF.Views
                         if (token.Type == InferTokenType.Begin)
                         {
                             responseItem.Timestamp = DateTime.Now;
-                            continue;
                         }
-
-                        if (token.Type == InferTokenType.End || token.Type == InferTokenType.Cancel)
+                        else if (token.Type == InferTokenType.Content)
+                        {
+                            responseItem.Content += token.Content;
+                        }
+                        else if (token.Type == InferTokenType.End || token.Type == InferTokenType.Cancel)
                         {
                             responseItem.Signature = token.Content;
-                            break;
                         }
-                        responseItem.Content += token.Content;
+
                     }
                 });
             }

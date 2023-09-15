@@ -1,14 +1,12 @@
-﻿using LLama;
-using LLama.Abstractions;
+﻿using LLama.Abstractions;
 using LLama.Common;
 using LLamaStack.Core.Common;
+using LLamaStack.Core.Services;
 using System.Runtime.CompilerServices;
 
 namespace LLamaStack.Core.Inference
 {
-    //using llama_token = Int32;
-
-    public abstract class InferenceHandlerBase : IInferenceHandler
+    public abstract class InferenceHandlerBase<T> : IInferenceHandler
     {
         /// <summary>
         /// The tokens that were already processed by the model.
@@ -35,29 +33,29 @@ namespace LLamaStack.Core.Inference
         /// </summary>
         protected FixedSizeQueue<TokenData> _lastTokens;
 
-        /// <summary>
-        /// Current "mu" value for mirostat sampling
-        /// </summary>
-        protected float? MirostatMu { get; set; }
 
-
-
-        protected InferenceHandlerBase(LLamaContext context)
-        {
-            Context = context;
-            _pastTokensCount = 0;
-            _consumedTokensCount = 0;
-            _lastTokens = new FixedSizeQueue<TokenData>(Context.ContextSize).FillWith(new(0));
-        }
+        protected LLamaStackModel<T> _model;
 
         /// <summary>
         /// The context used by the handler.
         /// </summary>
-        public LLamaContext Context { get; }
+        protected LLamaStackContext _context;
+
+        protected ISampleService _sampleService;
+
+        protected InferenceHandlerBase(LLamaStackModel<T> model, LLamaStackContext context)
+        {
+            _model = model;
+            _context = context;
+            _pastTokensCount = 0;
+            _consumedTokensCount = 0;
+            _sampleService = new SampleService(_context);
+            _lastTokens = new FixedSizeQueue<TokenData>(_context.ContextSize).FillWith(new(0));
+        }
 
         public abstract InferenceType Type { get; }
 
-        public virtual Task<InferenceHandlerState> GetState()
+        public virtual Task<InferenceHandlerState> GetStateAsync()
         {
             var state = new InferenceHandlerState()
             {
@@ -67,24 +65,25 @@ namespace LLamaStack.Core.Inference
                 LastTokens = _lastTokens.ToArray(),
                 PastTokensCount = _pastTokensCount,
                 LastTokensCapacity = _lastTokens.Capacity,
-                MirostatMu = MirostatMu
+                MirostatMu = _sampleService.MirostatMu
             };
             return Task.FromResult(state);
         }
 
-        /// <inheritdoc />
-        public virtual Task SetState(InferenceHandlerState state)
+
+        public virtual Task SetStateAsync(InferenceHandlerState state)
         {
             ArgumentNullException.ThrowIfNull(state);
 
             _currentTokens = state.Embeds;
-            MirostatMu = state.MirostatMu;
             _promptTokens = state.EmbedInps;
             _pastTokensCount = state.PastTokensCount;
             _consumedTokensCount = state.ConsumedTokensCount;
             _lastTokens = new FixedSizeQueue<TokenData>(state.LastTokensCapacity, state.LastTokens);
+            _sampleService.MirostatMu = state.MirostatMu;
             return Task.CompletedTask;
         }
+
 
         /// <summary>
         /// After running out of the context, take some tokens from the original prompt and recompute the logits in batches.
@@ -100,10 +99,11 @@ namespace LLamaStack.Core.Inference
             _pastTokensCount = Math.Max(1, tokensToKeep);
 
             // insert n_left/2 tokens at the start of embed from last_n_tokens
-            _currentTokens.InsertRange(0, _lastTokens.Take(_lastTokens.Count - _currentTokens.Count).Skip(Context.ContextSize - n_left / 2 - _currentTokens.Count));
+            _currentTokens.InsertRange(0, _lastTokens.Take(_lastTokens.Count - _currentTokens.Count).Skip(_context.ContextSize - n_left / 2 - _currentTokens.Count));
 
             return Task.CompletedTask;
         }
+
 
         /// <summary>
         /// Decide whether to continue the loop.
@@ -112,12 +112,14 @@ namespace LLamaStack.Core.Inference
         /// <returns></returns>
         protected abstract Task<bool> GetLoopCondition(InferStateArgs args);
 
+
         /// <summary>
         /// Preprocess the inputs before the inference.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="args"></param>
         protected abstract Task PreprocessInputs(string text, InferStateArgs args);
+
 
         /// <summary>
         /// Do some post processing after the inference.
@@ -127,6 +129,7 @@ namespace LLamaStack.Core.Inference
         /// <param name="extraOutputs"></param>
         /// <returns></returns>
         protected abstract Task<bool> PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
+
 
         /// <summary>
         /// The core inference logic.
@@ -143,7 +146,7 @@ namespace LLamaStack.Core.Inference
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async virtual IAsyncEnumerable<TokenData> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async virtual IAsyncEnumerable<TokenData> InferAsync(string text, IInferenceParams inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             inferenceParams ??= new InferenceParams();
@@ -182,13 +185,10 @@ namespace LLamaStack.Core.Inference
         }
 
 
-
-
-
         /// <summary>
         /// State arguments that are used in single inference
         /// </summary>
-        protected class InferStateArgs
+        protected sealed class InferStateArgs
         {
             public IList<string> Antiprompts { get; set; }
 
@@ -201,7 +201,5 @@ namespace LLamaStack.Core.Inference
 
             public bool WaitForInput { get; set; }
         }
-
-
     }
 }

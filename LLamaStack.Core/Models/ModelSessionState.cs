@@ -1,7 +1,6 @@
 ﻿using LLamaStack.Core.Config;
 using LLamaStack.Core.Inference;
 using System.Text.Json.Serialization;
-using static LLamaStack.Core.Inference.InferenceHandlerBase;
 
 namespace LLamaStack.Core.Models
 {

@@ -1,20 +1,17 @@
-﻿using LLama;
-using LLama.Abstractions;
-using LLama.Native;
+﻿using LLama.Abstractions;
 using LLamaStack.Core.Common;
 using System.Text;
 
 namespace LLamaStack.Core.Inference
 {
-    internal class InteractiveInferenceHandler : InferenceHandlerBase
+    public sealed class InteractiveInferenceHandler<T> : InferenceHandlerBase<T>
     {
-        private bool _is_prompt_run = true;
-        private readonly TokenData _llama_token_newline;
+        private bool _isPromptRun = true;
+        private readonly TokenData _tokenNewline;
 
-
-        public InteractiveInferenceHandler(LLamaContext context) : base(context)
+        public InteractiveInferenceHandler(LLamaStackModel<T> model, LLamaStackContext context) : base(model, context)
         {
-            _llama_token_newline = new TokenData(NativeApi.llama_token_nl(Context.NativeHandle));
+            _tokenNewline = new TokenData(_context.TokenNL);
         }
 
         public override InferenceType Type => InferenceType.Instruct;
@@ -26,16 +23,16 @@ namespace LLamaStack.Core.Inference
         /// <returns></returns>
         protected override Task<bool> GetLoopCondition(InferStateArgs args)
         {
-            return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
+            return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _isPromptRun);
         }
 
 
         protected override Task PreprocessInputs(string text, InferStateArgs args)
         {
-            if (_is_prompt_run)
+            if (_isPromptRun)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                _promptTokens = Context.TokenizeTextToList(text, true);
+                _promptTokens = _context.TokenizeTextToList(text, true);
             }
             else
             {
@@ -43,7 +40,7 @@ namespace LLamaStack.Core.Inference
                 {
                     text += "\n";
                 }
-                var line_inp = Context.TokenizeTextToList(text, false);
+                var line_inp = _context.TokenizeTextToList(text, false);
                 _promptTokens.AddRange(line_inp);
                 args.RemainedTokens -= line_inp.Count;
             }
@@ -60,7 +57,7 @@ namespace LLamaStack.Core.Inference
                     var last_output_builder = new StringBuilder();
                     foreach (var token in _lastTokens)
                     {
-                        Context.NativeHandle.TokenToString(token.Id, Context.Encoding, last_output_builder);
+                        _context.TokenToString(token, last_output_builder);
                     }
 
                     var last_output = last_output_builder.ToString();
@@ -80,7 +77,7 @@ namespace LLamaStack.Core.Inference
                 }
             }
 
-            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == NativeApi.llama_token_eos(Context.NativeHandle))
+            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == _context.TokenEOS)
             {
                 return Task.FromResult(true);
             }
@@ -98,36 +95,31 @@ namespace LLamaStack.Core.Inference
         {
             if (_currentTokens.Count > 0)
             {
-                _is_prompt_run = false;
-                if (_pastTokensCount + _currentTokens.Count > Context.ContextSize)
+                _isPromptRun = false;
+                if (_pastTokensCount + _currentTokens.Count > _context.ContextSize)
                 {
                     await HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
-                _pastTokensCount = await Context.Eval(_currentTokens, _pastTokensCount);
+                _pastTokensCount = await _context.EvalAsync(_currentTokens, _pastTokensCount);
             }
 
             _currentTokens.Clear();
 
             if (_promptTokens.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var tokenDataArray = Context.ApplyPenalty(_lastTokens, inferenceParams);
 
-                var mu = MirostatMu;
-                var id = Context.Sample(tokenDataArray, inferenceParams, ref mu);
-                MirostatMu = mu;
-
-                var tokenData = tokenDataArray.GetTokenData(Context, id);
+                var tokenData = await _sampleService.SampleAsync(inferenceParams, _lastTokens);
 
                 _lastTokens.Enqueue(tokenData);
 
 
-                if (id == NativeApi.llama_token_eos(Context.NativeHandle))
+                if (tokenData.Id == _context.TokenEOS)
                 {
-                    tokenData = _llama_token_newline;
+                    tokenData = _tokenNewline;
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
-                        var first_antiprompt = Context.TokenizeTextToList(args.Antiprompts[0], false);
+                        var first_antiprompt = _context.TokenizeTextToList(args.Antiprompts[0], false);
                         _promptTokens.AddRange(first_antiprompt);
                     }
                 }
@@ -144,7 +136,7 @@ namespace LLamaStack.Core.Inference
                     _currentTokens.Add(_promptTokens[_consumedTokensCount]);
                     _lastTokens.Enqueue(_promptTokens[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_currentTokens.Count >= Context.Params.BatchSize)
+                    if (_currentTokens.Count >= _model.ModelParams.BatchSize)
                     {
                         break;
                     }
@@ -152,20 +144,20 @@ namespace LLamaStack.Core.Inference
             }
         }
 
-        public override async Task<InferenceHandlerState> GetState()
+        public override async Task<InferenceHandlerState> GetStateAsync()
         {
-            var state = await base.GetState();
-            state.IsPromptRun = _is_prompt_run;
+            var state = await base.GetStateAsync();
+            state.IsPromptRun = _isPromptRun;
             state.InferenceType = Type;
             return state;
         }
 
-        public override Task SetState(InferenceHandlerState state)
+        public override Task SetStateAsync(InferenceHandlerState state)
         {
             ArgumentNullException.ThrowIfNull(state);
 
-            _is_prompt_run = state.IsPromptRun;
-            return base.SetState(state);
+            _isPromptRun = state.IsPromptRun;
+            return base.SetStateAsync(state);
         }
     }
 }

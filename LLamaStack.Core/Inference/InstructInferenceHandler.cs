@@ -1,14 +1,11 @@
-﻿using LLama;
-using LLama.Abstractions;
-using LLama.Native;
+﻿using LLama.Abstractions;
 using LLamaStack.Core.Common;
 using System.Text;
 
 namespace LLamaStack.Core.Inference
 {
-    public class InstructInferenceHandler : InferenceHandlerBase
+    public sealed class InstructInferenceHandler<T> : InferenceHandlerBase<T>
     {
-
         private readonly string _instructionPrefix;
         private readonly string _instructionSuffix;
 
@@ -17,12 +14,12 @@ namespace LLamaStack.Core.Inference
         private TokenData[] _instructionSuffixTokens;
 
 
-        public InstructInferenceHandler(LLamaContext context, string instructionPrefix = "\n\n### Instruction:\n\n", string instructionSuffix = "\n\n### Response:\n\n") : base(context)
+        public InstructInferenceHandler(LLamaStackModel<T> model, LLamaStackContext context, string instructionPrefix = "\n\n### Instruction:\n\n", string instructionSuffix = "\n\n### Response:\n\n") : base(model, context)
         {
             _instructionPrefix = instructionPrefix;
             _instructionSuffix = instructionSuffix;
-            _instructionPrefixTokens = Context.TokenizeTextToArray(_instructionPrefix, true);
-            _instructionSuffixTokens = Context.TokenizeTextToArray(_instructionSuffix, false);
+            _instructionPrefixTokens = _context.TokenizeTextToArray(_instructionPrefix, true);
+            _instructionSuffixTokens = _context.TokenizeTextToArray(_instructionSuffix, false);
         }
 
         public override InferenceType Type => InferenceType.Instruct;
@@ -41,7 +38,7 @@ namespace LLamaStack.Core.Inference
             if (_isPromptRun)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                _promptTokens = Context.TokenizeTextToList(text, true);
+                _promptTokens = _context.TokenizeTextToList(text, true);
             }
             else
             {
@@ -52,7 +49,7 @@ namespace LLamaStack.Core.Inference
                 _consumedTokensCount = _promptTokens.Count;
                 _promptTokens.AddRange(_instructionPrefixTokens);
 
-                var line_inp = Context.TokenizeTextToList(text, false);
+                var line_inp = _context.TokenizeTextToList(text, false);
                 _promptTokens.AddRange(line_inp);
 
                 _promptTokens.AddRange(_instructionSuffixTokens);
@@ -72,7 +69,7 @@ namespace LLamaStack.Core.Inference
                     var last_output_builder = new StringBuilder();
                     foreach (var token in _lastTokens)
                     {
-                        Context.NativeHandle.TokenToString(token.Id, Context.Encoding, last_output_builder);
+                        _context.TokenToString(token, last_output_builder);
                     }
 
                     var last_output = last_output_builder.ToString();
@@ -92,7 +89,7 @@ namespace LLamaStack.Core.Inference
                 }
             }
 
-            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == NativeApi.llama_token_eos(Context.NativeHandle))
+            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == _context.TokenEOS)
             {
                 args.WaitForInput = true;
             }
@@ -111,25 +108,19 @@ namespace LLamaStack.Core.Inference
             if (_currentTokens.Count > 0)
             {
                 _isPromptRun = false;
-                if (_pastTokensCount + _currentTokens.Count > Context.ContextSize)
+                if (_pastTokensCount + _currentTokens.Count > _context.ContextSize)
                 {
                     await HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
-                _pastTokensCount = await Context.Eval(_currentTokens, _pastTokensCount);
+                _pastTokensCount = await _context.EvalAsync(_currentTokens, _pastTokensCount);
             }
 
             _currentTokens.Clear();
 
             if (_promptTokens.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var tokenDataArray = Context.ApplyPenalty(_lastTokens, inferenceParams);
-
-                var mu = MirostatMu;
-                var id = Context.Sample(tokenDataArray, inferenceParams, ref mu);
-                MirostatMu = mu;
-
-                var tokenData = tokenDataArray.GetTokenData(Context, id);
+                var tokenData = await _sampleService.SampleAsync(inferenceParams, _lastTokens);
 
                 _lastTokens.Enqueue(tokenData);
 
@@ -145,7 +136,7 @@ namespace LLamaStack.Core.Inference
                     _currentTokens.Add(_promptTokens[_consumedTokensCount]);
                     _lastTokens.Enqueue(_promptTokens[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_currentTokens.Count >= Context.Params.BatchSize)
+                    if (_currentTokens.Count >= _model.ModelParams.BatchSize)
                     {
                         break;
                     }
@@ -154,9 +145,9 @@ namespace LLamaStack.Core.Inference
         }
 
 
-        public override async Task<InferenceHandlerState> GetState()
+        public override async Task<InferenceHandlerState> GetStateAsync()
         {
-            var state = await base.GetState();
+            var state = await base.GetStateAsync();
             state.IsPromptRun = _isPromptRun;
             state.InputPrefixTokens = _instructionPrefixTokens;
             state.InputSuffixTokens = _instructionSuffixTokens;
@@ -165,14 +156,14 @@ namespace LLamaStack.Core.Inference
         }
 
 
-        public override Task SetState(InferenceHandlerState state)
+        public override Task SetStateAsync(InferenceHandlerState state)
         {
             ArgumentNullException.ThrowIfNull(state);
 
             _isPromptRun = state.IsPromptRun;
             _instructionPrefixTokens = state.InputPrefixTokens;
             _instructionSuffixTokens = state.InputSuffixTokens;
-            return base.SetState(state);
+            return base.SetStateAsync(state);
         }
     }
 }

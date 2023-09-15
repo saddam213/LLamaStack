@@ -7,8 +7,6 @@ using LLamaStack.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Text.Json;
-using static LLamaStack.Core.Inference.InstructInferenceHandler;
-using static LLamaStack.Core.Inference.InteractiveInferenceHandler;
 
 namespace LLamaStack.Core.Services
 {

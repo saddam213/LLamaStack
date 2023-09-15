@@ -3,6 +3,7 @@ using LLama.Abstractions;
 using LLama.Common;
 using LLama.Native;
 using LLamaStack.Core.Inference;
+using System.Text;
 
 namespace LLamaStack.Core
 {
@@ -29,11 +30,18 @@ namespace LLamaStack.Core
         /// </summary>
         public LLamaContext LLamaContext => _context;
 
-
+    
         /// <summary>
         /// Gets the size of the context.
         /// </summary>
         public int ContextSize => _context.ContextSize;
+
+
+        public int TokenEOS => NativeApi.llama_token_eos(_context.NativeHandle);
+
+        public int TokenNL => NativeApi.llama_token_nl(_context.NativeHandle);
+
+
 
 
         /// <summary>
@@ -76,6 +84,90 @@ namespace LLamaStack.Core
         }
 
 
+        public TokenData GetTokenData(LLamaTokenDataArray tokenDataArray, int id)
+        {
+            // TODO: are all samplers sorted? if not we need to do a binary serach using id
+            var tokenDataSpan = tokenDataArray.data[..1].Span;
+            if (tokenDataSpan.Length == 0)
+                throw new InvalidOperationException("The input sequence is empty.");
+
+            var tokenData = tokenDataSpan[0];
+            return new TokenData(tokenData.id)
+            {
+                Logit = tokenData.logit,
+                Probability = tokenData.p,
+                Content = _context.TokenToString(tokenData.id)
+            };
+        }
+
+
+        public LLamaTokenDataArray ApplyPenalty(IEnumerable<TokenData> lastTokens, IInferenceParams inferenceParams)
+        {
+            var repeatLastN = inferenceParams.RepeatLastTokensCount < 0
+                ? _context.ContextSize
+                : inferenceParams.RepeatLastTokensCount;
+
+            return _context.ApplyPenalty
+            (
+                lastTokens.ToTokenIds(),
+                inferenceParams.LogitBias,
+                repeatLastN,
+                inferenceParams.RepeatPenalty,
+                inferenceParams.FrequencyPenalty,
+                inferenceParams.PresencePenalty,
+                inferenceParams.PenalizeNL
+            );
+        }
+
+
+
+        public int Sample(LLamaTokenDataArray tokenDataArray, IInferenceParams inferenceParams, ref float? mirostatMu)
+        {
+            return _context.Sample
+            (
+                tokenDataArray,
+                ref mirostatMu,
+                inferenceParams.Temperature,
+                inferenceParams.Mirostat,
+                inferenceParams.MirostatTau,
+                inferenceParams.MirostatEta,
+                inferenceParams.TopK,
+                inferenceParams.TopP,
+                inferenceParams.TfsZ,
+                inferenceParams.TypicalP,
+                inferenceParams.Grammar
+            );
+        }
+
+
+        private IEnumerable<TokenData> TokenizeText(string text, bool addBos)
+        {
+            return _context.Tokenize(text, addBos)
+                .Select(x => new TokenData(x) { Content = _context.TokenToString(x) });
+        }
+
+        public List<TokenData> TokenizeTextToList(string text, bool addBos)
+        {
+            return TokenizeText(text, addBos).ToList();
+        }
+
+        public TokenData[] TokenizeTextToArray(string text, bool addBos)
+        {
+            return TokenizeText(text, addBos).ToArray();
+        }
+
+
+        public Task<int> EvalAsync(IEnumerable<TokenData> tokens, int pastTokensCount)
+        {
+            return Task.Run(() => _context.Eval(tokens.ToTokenIds(), pastTokensCount));
+        }
+
+ 
+        public void TokenToString(TokenData token, StringBuilder stringBuilder)
+        {
+            _context.NativeHandle.TokenToString(token.Id, _context.Encoding, stringBuilder);
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -85,5 +177,13 @@ namespace LLamaStack.Core
         }
 
 
+    }
+
+    public static class Ext
+    {
+        public static int[] ToTokenIds(this IEnumerable<TokenData> tokens)
+        {
+            return tokens.Select(x => x.Id).ToArray();
+        }
     }
 }

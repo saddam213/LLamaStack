@@ -1,6 +1,6 @@
 ﻿namespace LLamaStack.Core.Inference
 {
-    public record TokenData(int Id)
+    public sealed record TokenData(int Id)
     {
         public float Logit { get; set; }
         public float Probability { get; set; }

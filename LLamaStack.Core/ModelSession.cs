@@ -5,7 +5,6 @@ using LLamaStack.Core.Config;
 using LLamaStack.Core.Extensions;
 using LLamaStack.Core.Inference;
 using LLamaStack.Core.Models;
-using static LLamaStack.Core.Inference.InferenceHandlerBase;
 
 namespace LLamaStack.Core
 {
@@ -43,9 +42,9 @@ namespace LLamaStack.Core
             // Inference Handler
             _inferHandler = sessionConfig.InferenceType switch
             {
-                InferenceType.Interactive => new InteractiveInferenceHandler(_context.LLamaContext),
-                InferenceType.Instruct => new InstructInferenceHandler(_context.LLamaContext, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
-                InferenceType.Stateless => new StatelessInferenceHandler(model.LLamaWeights, model.ModelParams),
+                InferenceType.Interactive => new InteractiveInferenceHandler<T>(_model, _context),
+                InferenceType.Instruct => new InstructInferenceHandler<T>(_model, _context, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
+                InferenceType.Stateless => new StatelessInferenceHandler<T>(_model),
                 _ => default
             };
 
@@ -65,7 +64,7 @@ namespace LLamaStack.Core
              : this(model, context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig)
         {
             // Load Inference state
-            _inferHandler.SetState(sessionState.InferenceState);
+            _inferHandler.SetStateAsync(sessionState.InferenceState);
 
             StateName = sessionState.Name;
             _sessionHistory = new List<SessionHistoryModel>(sessionState.SessionHistory ?? Enumerable.Empty<SessionHistoryModel>());
@@ -114,7 +113,7 @@ namespace LLamaStack.Core
         /// <returns></returns>
         public async Task<ModelSessionState<T>> CreateState(string name = null)
         {
-            var inferenceState = await _inferHandler.GetState();
+            var inferenceState = await _inferHandler.GetStateAsync();
             return new ModelSessionState<T>
             {
                 Id = _sessionId,
@@ -135,7 +134,7 @@ namespace LLamaStack.Core
         /// <param name="cancellationToken">The cancellation token.</param>
         internal async Task InitializePrompt(IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
         {
-            if (_inferHandler is StatelessInferenceHandler)
+            if (_inferHandler.Type == InferenceType.Stateless)
                 return;
 
             if (string.IsNullOrEmpty(_sessionParams.Prompt))

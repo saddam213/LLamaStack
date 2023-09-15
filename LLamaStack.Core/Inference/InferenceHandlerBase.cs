@@ -33,7 +33,9 @@ namespace LLamaStack.Core.Inference
         /// </summary>
         protected FixedSizeQueue<TokenData> _lastTokens;
 
-
+        /// <summary>
+        /// The model used by the handler.
+        /// </summary>
         protected LLamaStackModel<T> _model;
 
         /// <summary>
@@ -41,8 +43,17 @@ namespace LLamaStack.Core.Inference
         /// </summary>
         protected LLamaStackContext _context;
 
+        /// <summary>
+        /// The SampleService used for token selection
+        /// </summary>
         protected ISampleService _sampleService;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InferenceHandlerBase{T}"/> class.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="context">The context.</param>
         protected InferenceHandlerBase(LLamaStackModel<T> model, LLamaStackContext context)
         {
             _model = model;
@@ -53,36 +64,11 @@ namespace LLamaStack.Core.Inference
             _lastTokens = new FixedSizeQueue<TokenData>(_context.ContextSize).FillWith(new(0));
         }
 
+
+        /// <summary>
+        /// Gets the InferenceType.
+        /// </summary>
         public abstract InferenceType Type { get; }
-
-        public virtual Task<InferenceHandlerState> GetStateAsync()
-        {
-            var state = new InferenceHandlerState()
-            {
-                EmbedInps = _promptTokens,
-                ConsumedTokensCount = _consumedTokensCount,
-                Embeds = _currentTokens,
-                LastTokens = _lastTokens.ToArray(),
-                PastTokensCount = _pastTokensCount,
-                LastTokensCapacity = _lastTokens.Capacity,
-                MirostatMu = _sampleService.MirostatMu
-            };
-            return Task.FromResult(state);
-        }
-
-
-        public virtual Task SetStateAsync(InferenceHandlerState state)
-        {
-            ArgumentNullException.ThrowIfNull(state);
-
-            _currentTokens = state.Embeds;
-            _promptTokens = state.EmbedInps;
-            _pastTokensCount = state.PastTokensCount;
-            _consumedTokensCount = state.ConsumedTokensCount;
-            _lastTokens = new FixedSizeQueue<TokenData>(state.LastTokensCapacity, state.LastTokens);
-            _sampleService.MirostatMu = state.MirostatMu;
-            return Task.CompletedTask;
-        }
 
 
         /// <summary>
@@ -186,10 +172,53 @@ namespace LLamaStack.Core.Inference
 
 
         /// <summary>
+        /// Gets the state.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Task<InferenceHandlerState> GetStateAsync()
+        {
+            var state = new InferenceHandlerState()
+            {
+                EmbedInps = _promptTokens,
+                ConsumedTokensCount = _consumedTokensCount,
+                Embeds = _currentTokens,
+                LastTokens = _lastTokens.ToArray(),
+                PastTokensCount = _pastTokensCount,
+                LastTokensCapacity = _lastTokens.Capacity,
+                MirostatMu = _sampleService.MirostatMu
+            };
+            return Task.FromResult(state);
+        }
+
+
+        /// <summary>
+        /// Sets the state.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual Task SetStateAsync(InferenceHandlerState state)
+        {
+            ArgumentNullException.ThrowIfNull(state);
+
+            _currentTokens = state.Embeds;
+            _promptTokens = state.EmbedInps;
+            _pastTokensCount = state.PastTokensCount;
+            _consumedTokensCount = state.ConsumedTokensCount;
+            _lastTokens = new FixedSizeQueue<TokenData>(state.LastTokensCapacity, state.LastTokens);
+            _sampleService.MirostatMu = state.MirostatMu;
+            return Task.CompletedTask;
+        }
+
+
+        /// <summary>
         /// State arguments that are used in single inference
         /// </summary>
         protected sealed class InferStateArgs
         {
+            /// <summary>
+            /// Gets or sets the antiprompts.
+            /// </summary>
             public IList<string> Antiprompts { get; set; }
 
             /// <summary>
@@ -197,8 +226,14 @@ namespace LLamaStack.Core.Inference
             /// </summary>
             public int RemainedTokens { get; set; }
 
+            /// <summary>
+            /// Gets or sets a value indicating whether return value.
+            /// </summary>
             public bool ReturnValue { get; set; }
 
+            /// <summary>
+            /// Gets or sets a value indicating whether to wait for input.
+            /// </summary>
             public bool WaitForInput { get; set; }
         }
     }

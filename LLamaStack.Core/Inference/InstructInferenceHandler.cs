@@ -14,6 +14,13 @@ namespace LLamaStack.Core.Inference
         private TokenData[] _instructionSuffixTokens;
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstructInferenceHandler{T}"/> class.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="context">The context.</param>
+        /// <param name="instructionPrefix">The instruction prefix.</param>
+        /// <param name="instructionSuffix">The instruction suffix.</param>
         public InstructInferenceHandler(LLamaStackModel<T> model, LLamaStackContext context, string instructionPrefix = "\n\n### Instruction:\n\n", string instructionSuffix = "\n\n### Response:\n\n") : base(model, context)
         {
             _instructionPrefix = instructionPrefix;
@@ -22,15 +29,28 @@ namespace LLamaStack.Core.Inference
             _instructionSuffixTokens = _context.TokenizeTextToArray(_instructionSuffix, false);
         }
 
+
+        /// <summary>
+        /// Gets the InferenceType.
+        /// </summary>
         public override InferenceType Type => InferenceType.Instruct;
 
 
+        /// <summary>
+        /// Decide whether to continue the loop.
+        /// </summary>
+        /// <param name="args">The state args</param>
         protected override Task<bool> GetLoopCondition(InferStateArgs args)
         {
             return Task.FromResult(args.RemainedTokens != 0 || _isPromptRun);
         }
 
 
+        /// <summary>
+        /// Preprocess the inputs before the inference.
+        /// </summary>
+        /// <param name="text">The input text</param>
+        /// <param name="args">The state args</param>
         protected override Task PreprocessInputs(string text, InferStateArgs args)
         {
             args.Antiprompts ??= new List<string>();
@@ -60,6 +80,11 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// Do some post processing after the inference.
+        /// </summary>
+        /// <param name="inferenceParams">The inferenceParams</param>
+        /// <param name="args">The state args</param>
         protected override Task<bool> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_promptTokens.Count <= _consumedTokensCount)
@@ -103,6 +128,11 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// The core inference logic.
+        /// </summary>
+        /// <param name="inferenceParams">The inferenceParams</param>
+        /// <param name="args">The state args</param>
         protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_currentTokens.Count > 0)
@@ -145,6 +175,9 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// Gets the state.
+        /// </summary>
         public override async Task<InferenceHandlerState> GetStateAsync()
         {
             var state = await base.GetStateAsync();
@@ -156,6 +189,12 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// Sets the state.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public override Task SetStateAsync(InferenceHandlerState state)
         {
             ArgumentNullException.ThrowIfNull(state);

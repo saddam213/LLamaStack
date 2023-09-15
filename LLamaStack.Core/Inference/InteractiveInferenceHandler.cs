@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using LLamaStack.Core.Common;
+using LLamaStack.Core.Extensions;
 using System.Text;
 
 namespace LLamaStack.Core.Inference
@@ -9,11 +10,21 @@ namespace LLamaStack.Core.Inference
         private bool _isPromptRun = true;
         private readonly TokenData _tokenNewline;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InteractiveInferenceHandler{T}"/> class.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="context">The context.</param>
         public InteractiveInferenceHandler(LLamaStackModel<T> model, LLamaStackContext context) : base(model, context)
         {
             _tokenNewline = new TokenData(_context.TokenNL);
         }
 
+
+        /// <summary>
+        /// Gets the InferenceType.
+        /// </summary>
         public override InferenceType Type => InferenceType.Instruct;
 
 
@@ -27,6 +38,9 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// Preprocess the inputs before the inference.
+        /// </summary>
         protected override Task PreprocessInputs(string text, InferStateArgs args)
         {
             if (_isPromptRun)
@@ -48,11 +62,14 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// Do some post processing after the inference.
+        /// </summary>
         protected override Task<bool> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_promptTokens.Count <= _consumedTokensCount)
             {
-                if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
+                if (!args.Antiprompts.IsNullOrEmpty())
                 {
                     var last_output_builder = new StringBuilder();
                     foreach (var token in _lastTokens)
@@ -91,6 +108,9 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// The core inference logic.
+        /// </summary>
         protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_currentTokens.Count > 0)
@@ -117,7 +137,7 @@ namespace LLamaStack.Core.Inference
                 if (tokenData.Id == _context.TokenEOS)
                 {
                     tokenData = _tokenNewline;
-                    if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
+                    if (!args.Antiprompts.IsNullOrEmpty())
                     {
                         var first_antiprompt = _context.TokenizeTextToList(args.Antiprompts[0], false);
                         _promptTokens.AddRange(first_antiprompt);
@@ -144,6 +164,10 @@ namespace LLamaStack.Core.Inference
             }
         }
 
+
+        /// <summary>
+        /// Gets the state.
+        /// </summary>
         public override async Task<InferenceHandlerState> GetStateAsync()
         {
             var state = await base.GetStateAsync();
@@ -152,6 +176,12 @@ namespace LLamaStack.Core.Inference
             return state;
         }
 
+
+        /// <summary>
+        /// Sets the state.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public override Task SetStateAsync(InferenceHandlerState state)
         {
             ArgumentNullException.ThrowIfNull(state);

@@ -1,7 +1,7 @@
 ﻿using LLama;
 using LLama.Abstractions;
-using LLama.Common;
 using LLama.Native;
+using LLamaStack.Core.Extensions;
 using LLamaStack.Core.Inference;
 using System.Text;
 
@@ -30,18 +30,23 @@ namespace LLamaStack.Core
         /// </summary>
         public LLamaContext LLamaContext => _context;
 
-    
+
         /// <summary>
         /// Gets the size of the context.
         /// </summary>
         public int ContextSize => _context.ContextSize;
 
 
+        /// <summary>
+        /// Gets the native llama EOS tokenid.
+        /// </summary>
         public int TokenEOS => NativeApi.llama_token_eos(_context.NativeHandle);
 
+
+        /// <summary>
+        /// Gets the native llama NL tokenid.
+        /// </summary>
         public int TokenNL => NativeApi.llama_token_nl(_context.NativeHandle);
-
-
 
 
         /// <summary>
@@ -101,6 +106,12 @@ namespace LLamaStack.Core
         }
 
 
+        /// <summary>
+        /// Apply the penalty for the tokens.
+        /// </summary>
+        /// <param name="lastTokens">The last tokens.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <returns></returns>
         public LLamaTokenDataArray ApplyPenalty(IEnumerable<TokenData> lastTokens, IInferenceParams inferenceParams)
         {
             var repeatLastN = inferenceParams.RepeatLastTokensCount < 0
@@ -120,7 +131,13 @@ namespace LLamaStack.Core
         }
 
 
-
+        /// <summary>
+        /// Perform the sampling.
+        /// </summary>
+        /// <param name="tokenDataArray">The token data array.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="mirostatMu">The mirostat mu.</param>
+        /// <returns></returns>
         public int Sample(LLamaTokenDataArray tokenDataArray, IInferenceParams inferenceParams, ref float? mirostatMu)
         {
             return _context.Sample
@@ -140,29 +157,60 @@ namespace LLamaStack.Core
         }
 
 
+        /// <summary>
+        /// Tokenizes the text.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="addBos">if set to <c>true</c> [add bos].</param>
+        /// <returns></returns>
         private IEnumerable<TokenData> TokenizeText(string text, bool addBos)
         {
             return _context.Tokenize(text, addBos)
                 .Select(x => new TokenData(x) { Content = _context.TokenToString(x) });
         }
 
+
+        /// <summary>
+        /// Tokenizes the text to list.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="addBos">if set to <c>true</c> [add bos].</param>
+        /// <returns></returns>
         public List<TokenData> TokenizeTextToList(string text, bool addBos)
         {
             return TokenizeText(text, addBos).ToList();
         }
 
+
+        /// <summary>
+        /// Tokenizes the text to array.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="addBos">if set to <c>true</c> [add bos].</param>
+        /// <returns></returns>
         public TokenData[] TokenizeTextToArray(string text, bool addBos)
         {
             return TokenizeText(text, addBos).ToArray();
         }
 
 
+        /// <summary>
+        /// Run the llama inference to obtain the logits and probabilities for the next token.
+        /// </summary>
+        /// <param name="tokens">The tokens.</param>
+        /// <param name="pastTokensCount">The past tokens count.</param>
+        /// <returns></returns>
         public Task<int> EvalAsync(IEnumerable<TokenData> tokens, int pastTokensCount)
         {
             return Task.Run(() => _context.Eval(tokens.ToTokenIds(), pastTokensCount));
         }
 
- 
+
+        /// <summary>
+        /// Token to string.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <param name="stringBuilder">The string builder.</param>
         public void TokenToString(TokenData token, StringBuilder stringBuilder)
         {
             _context.NativeHandle.TokenToString(token.Id, _context.Encoding, stringBuilder);
@@ -179,11 +227,5 @@ namespace LLamaStack.Core
 
     }
 
-    public static class Ext
-    {
-        public static int[] ToTokenIds(this IEnumerable<TokenData> tokens)
-        {
-            return tokens.Select(x => x.Id).ToArray();
-        }
-    }
+
 }

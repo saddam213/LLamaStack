@@ -11,15 +11,30 @@ namespace LLamaStack.Core.Inference
     {
         private readonly LLamaStackModel<T> _model;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatelessInferenceHandler{T}"/> class.
+        /// </summary>
+        /// <param name="model">The model.</param>
         public StatelessInferenceHandler(LLamaStackModel<T> model)
         {
             _model = model;
         }
 
 
+        /// <summary>
+        /// Gets the InferenceType.
+        /// </summary>
         public InferenceType Type => InferenceType.Stateless;
 
 
+        /// <summary>
+        /// Execute the inference.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">inferenceParams - TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({context.ContextSize})</exception>
         public async IAsyncEnumerable<TokenData> InferAsync(string text, IInferenceParams inferenceParams = null, [EnumeratorCancellation]CancellationToken cancellationToken = default)
         {
             using (var context = await _model.CreateContext(default))
@@ -113,11 +128,21 @@ namespace LLamaStack.Core.Inference
         }
 
 
+        /// <summary>
+        /// Gets the handlers state.
+        /// </summary>
+        /// <returns></returns>
         public Task<InferenceHandlerState> GetStateAsync()
         {
             return Task.FromResult(default(InferenceHandlerState));
         }
 
+
+        /// <summary>
+        /// Sets the handlers state.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <returns></returns>
         public Task SetStateAsync(InferenceHandlerState state)
         {
             return Task.CompletedTask;

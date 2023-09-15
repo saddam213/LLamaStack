@@ -105,6 +105,9 @@ var questionText = "What is .NET Core?";
 IAsyncEnumerable<InferTokenModel> inferTokens = _modelSessionService.InferAsync(sessionId, questionText);
 await foreach (var token in inferTokens)
 {
+   Console.Write(token.Id);
+   Console.Write(token.Logit);
+   Console.Write(token.Probability);
    Console.Write(token.Content);
 }
 

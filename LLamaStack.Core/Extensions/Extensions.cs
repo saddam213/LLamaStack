@@ -3,6 +3,7 @@ using LLama.Common;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Helpers;
+using LLamaStack.Core.Inference;
 using System.Text;
 
 namespace LLamaStack.Core.Extensions
@@ -125,6 +126,18 @@ namespace LLamaStack.Core.Extensions
             return results
                 .Distinct()
                 .ToList();
+        }
+
+        public static int[] ToTokenIds(this IEnumerable<TokenData> tokens)
+        {
+            return tokens.Select(x => x.Id).ToArray();
+        }
+
+        public static bool IsNullOrEmpty<TResult>(this IEnumerable<TResult> items)
+        {
+            if (items == null)
+                return true;
+            return !items.Any();
         }
     }
 }

@@ -15,14 +15,22 @@
         public async IAsyncEnumerable<TokenData> TransformAsync(IAsyncEnumerable<TokenData> tokens)
         {
             var window = new Queue<TokenData>();
-
             await foreach (var s in tokens)
             {
                 window.Enqueue(s);
-                var current = string.Join("", window.Select(x => x.Content));
-                if (_keywords.Any(x => current.Contains(x)))
+                var current = JoinTokenContent(window);
+                if (_keywords.Any(current.Contains))
                 {
-                    var matchedKeyword = _keywords.First(x => current.Contains(x));
+                    var matchedKeyword = _keywords.First(current.Contains);
+                    while (matchedKeyword != current)
+                    {
+                        if (window.Count == 0)
+                            break;
+
+                        yield return window.Dequeue();
+                        current = JoinTokenContent(window);
+                    }
+
                     int total = window.Count;
                     for (int i = 0; i < total; i++)
                     {
@@ -31,11 +39,8 @@
                 }
                 if (current.Length >= _maxKeywordLength)
                 {
-                    int total = window.Count;
-                    for (int i = 0; i < total; i++)
-                    {
+                    if (window.Count > 0)
                         yield return window.Dequeue();
-                    }
                 }
             }
             int totalCount = window.Count;
@@ -43,6 +48,11 @@
             {
                 yield return window.Dequeue();
             }
+        }
+
+        private static string JoinTokenContent(Queue<TokenData> window)
+        {
+            return string.Join("", window.Select(x => x.Content)).Trim();
         }
     }
 }

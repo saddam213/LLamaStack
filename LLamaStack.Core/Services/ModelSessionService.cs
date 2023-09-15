@@ -137,13 +137,13 @@ namespace LLamaStack.Core.Services
                 var response = new StringBuilder();
                 var stopwatch = Stopwatch.GetTimestamp();
                 var promptHistory = new SessionHistoryModel(prompt);
-                yield return new InferTokenModel(default, default, default, InferTokenType.Begin, GetElapsed(stopwatch));
+                yield return new InferTokenModel(default, default, default, default, InferTokenType.Begin, GetElapsed(stopwatch));
 
                 // Send content of response
                 await foreach (var token in modelSession.InferAsync(prompt, inferenceConfig, cancellationToken).ConfigureAwait(false))
                 {
                     response.Append(token);
-                    yield return new InferTokenModel(default, default, token, InferTokenType.Content, GetElapsed(stopwatch));
+                    yield return new InferTokenModel(token.Id, token.Logit, token.Probability, token.Content, InferTokenType.Content, GetElapsed(stopwatch));
 
                     // TODO:Revisit: Help ensure that the IAsyncEnumerable is properly scheduled for asynchronous execution as nothing in the upstream loop is awaited
                     await Task.Yield();
@@ -155,7 +155,7 @@ namespace LLamaStack.Core.Services
                 var signature = endTokenType == InferTokenType.Cancel
                       ? $"Inference cancelled after {elapsedTime / 1000:F0} seconds"
                       : $"Inference completed in {elapsedTime / 1000:F0} seconds";
-                yield return new InferTokenModel(default, default, signature, endTokenType, elapsedTime);
+                yield return new InferTokenModel(default, default, default, signature, endTokenType, elapsedTime);
 
                 // Add History
                 await modelSession.AddHistory(promptHistory, new SessionHistoryModel(response.ToString(), signature));

@@ -3,8 +3,9 @@ using LLama.Abstractions;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Extensions;
+using LLamaStack.Core.Inference;
 using LLamaStack.Core.Models;
-using static LLama.StatefulExecutorBase;
+using static LLamaStack.Core.Inference.InferenceHandlerBase;
 
 namespace LLamaStack.Core
 {
@@ -13,7 +14,7 @@ namespace LLamaStack.Core
         private readonly T _sessionId;
         private readonly LLamaStackModel<T> _model;
         private readonly LLamaStackContext _context;
-        private readonly ILLamaExecutor _executor;
+        private readonly IInferenceHandler _inferHandler;
         private readonly ISessionConfig _sessionParams;
         private readonly ITextStreamTransform _outputTransform;
         private readonly List<SessionHistoryModel> _sessionHistory;
@@ -39,12 +40,12 @@ namespace LLamaStack.Core
             _defaultInferenceConfig = inferenceParams ?? new InferenceConfig();
             _sessionHistory = new List<SessionHistoryModel>();
 
-            // Executor
-            _executor = sessionConfig.ExecutorType switch
+            // Inference Handler
+            _inferHandler = sessionConfig.InferenceType switch
             {
-                ExecutorType.Interactive => new InteractiveExecutor(_context.LLamaContext),
-                ExecutorType.Instruct => new InstructExecutor(_context.LLamaContext, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
-                ExecutorType.Stateless => new StatelessExecutor(model.LLamaWeights, model.ModelParams),
+                InferenceType.Interactive => new InteractiveInferenceHandler(_context.LLamaContext),
+                InferenceType.Instruct => new InstructInferenceHandler(_context.LLamaContext, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
+                InferenceType.Stateless => new StatelessInferenceHandler(model.LLamaWeights, model.ModelParams),
                 _ => default
             };
 
@@ -63,9 +64,8 @@ namespace LLamaStack.Core
         public ModelSession(LLamaStackModel<T> model, LLamaStackContext context, ModelSessionState<T> sessionState)
              : this(model, context, sessionState.Id, sessionState.SessionConfig, sessionState.InferenceConfig)
         {
-            // Load Executor state
-            if (_executor is StatefulExecutorBase statefulExecutorBase)
-                statefulExecutorBase.LoadState(sessionState.ExecutorConfig);
+            // Load Inference state
+            _inferHandler.SetState(sessionState.InferenceState);
 
             StateName = sessionState.Name;
             _sessionHistory = new List<SessionHistoryModel>(sessionState.SessionHistory ?? Enumerable.Empty<SessionHistoryModel>());
@@ -112,19 +112,16 @@ namespace LLamaStack.Core
         /// Create a ModelSessionState.
         /// </summary>
         /// <returns></returns>
-        public ModelSessionState<T> CreateState(string name = null)
+        public async Task<ModelSessionState<T>> CreateState(string name = null)
         {
-            ExecutorBaseState executorState = default;
-            if (_executor is StatefulExecutorBase statefulExecutorBase)
-                executorState = statefulExecutorBase.GetStateData();
-
+            var inferenceState = await _inferHandler.GetState();
             return new ModelSessionState<T>
             {
                 Id = _sessionId,
                 Name = name ?? _sessionId.ToString(),
                 Created = DateTime.UtcNow,
                 ContextSize = _context.ContextSize,
-                ExecutorConfig = executorState,
+                InferenceState = inferenceState,
                 InferenceConfig = _defaultInferenceConfig,
                 SessionConfig = _sessionParams,
                 SessionHistory = _sessionHistory
@@ -138,7 +135,7 @@ namespace LLamaStack.Core
         /// <param name="cancellationToken">The cancellation token.</param>
         internal async Task InitializePrompt(IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
         {
-            if (_executor is StatelessExecutor)
+            if (_inferHandler is StatelessInferenceHandler)
                 return;
 
             if (string.IsNullOrEmpty(_sessionParams.Prompt))
@@ -147,7 +144,7 @@ namespace LLamaStack.Core
             // Run Initial prompt
             var inferenceParams = ConfigureInferenceParams(inferenceConfig);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            await foreach (var _ in _executor.InferAsync(_sessionParams.Prompt, inferenceParams, _cancellationTokenSource.Token))
+            await foreach (var _ in _inferHandler.InferAsync(_sessionParams.Prompt, inferenceParams, _cancellationTokenSource.Token))
             {
                 // We dont really need the response of the initial prompt, so exit on first token
                 break;
@@ -162,14 +159,14 @@ namespace LLamaStack.Core
         /// <param name="inferenceConfig">The inference configuration.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        internal IAsyncEnumerable<string> InferAsync(string message, IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
+        internal IAsyncEnumerable<TokenData> InferAsync(string message, IInferenceConfig inferenceConfig = null, CancellationToken cancellationToken = default)
         {
             var inferenceParams = ConfigureInferenceParams(inferenceConfig);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            if (_outputTransform is not null)
-                return _outputTransform.TransformAsync(_executor.InferAsync(message, inferenceParams, _cancellationTokenSource.Token));
+            //if (_outputTransform is not null)
+            //    return _outputTransform.TransformAsync(_inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token));
 
-            return _executor.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+            return _inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
         }
 
 

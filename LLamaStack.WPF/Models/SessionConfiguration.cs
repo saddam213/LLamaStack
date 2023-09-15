@@ -24,7 +24,7 @@ namespace LLamaStack.WPF
         private string _name = string.Empty;
         private string _antiPrompt = string.Empty;
         private string _outputFilter = string.Empty;
-        private ExecutorType _executorType;
+        private InferenceType _inferenceType;
         private string _inputPrefix = "\n\n### Instruction:\n\n";
         private string _inputSuffix = "\n\n### Response:\n\n";
 
@@ -50,10 +50,10 @@ namespace LLamaStack.WPF
             get { return _prompt; }
             set { _prompt = value; NotifyPropertyChanged(); }
         }
-        public ExecutorType ExecutorType
+        public InferenceType InferenceType
         {
-            get { return _executorType; }
-            set { _executorType = value; NotifyPropertyChanged(); SetDefaultPromptConfig(); }
+            get { return _inferenceType; }
+            set { _inferenceType = value; NotifyPropertyChanged(); SetDefaultPromptConfig(); }
         }
         public string AntiPrompt
         {
@@ -101,7 +101,7 @@ namespace LLamaStack.WPF
 
         private void SetDefaultPromptConfig()
         {
-            var defaults = Utils.DefaultPromptConfiguration[_executorType];
+            var defaults = Utils.DefaultPromptConfiguration[_inferenceType];
             AntiPrompt = defaults.AntiPrompt;
             OutputFilter = defaults.OutputFilter;
             Prompt = defaults.Prompt;

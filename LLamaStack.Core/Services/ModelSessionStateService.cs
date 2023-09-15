@@ -2,12 +2,13 @@
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Converters;
+using LLamaStack.Core.Inference;
 using LLamaStack.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Text.Json;
-using static LLama.InstructExecutor;
-using static LLama.InteractiveExecutor;
+using static LLamaStack.Core.Inference.InstructInferenceHandler;
+using static LLamaStack.Core.Inference.InteractiveInferenceHandler;
 
 namespace LLamaStack.Core.Services
 {
@@ -21,7 +22,7 @@ namespace LLamaStack.Core.Services
     {
         private const string FilenameContextState = "ContextState.bin";
         private const string FilenameSessionState = "SessionState.json";
-        private const string FilenameExecutorState = "ExecutorState.json";
+        private const string FilenameInferenceState = "InferenceState.json";
 
         private readonly AsyncLock _asyncLock;
         private readonly LLamaStackConfig _configuration;
@@ -104,7 +105,8 @@ namespace LLamaStack.Core.Services
         {
             //Save session state
             var sessionStateDirectory = GetSessionPath(sessionId);
-            var modelSessionState = await SaveToDirectory(modelSession.CreateState(), sessionStateDirectory);
+            var sessionState = await modelSession.CreateState();
+            var modelSessionState = await SaveToDirectory(sessionState, sessionStateDirectory);
 
             // Add to cache
             AddOrUpdateSavedModelSession(modelSessionState);
@@ -163,13 +165,13 @@ namespace LLamaStack.Core.Services
         {
             var contextStateFile = Path.Combine(sessionStateDirectory, FilenameContextState);
             var sessionStateFile = Path.Combine(sessionStateDirectory, FilenameSessionState);
-            var executorStateFile = Path.Combine(sessionStateDirectory, FilenameExecutorState);
+            var inferenceStateFile = Path.Combine(sessionStateDirectory, FilenameInferenceState);
             if (!File.Exists(contextStateFile))
                 throw new Exception($"{FilenameContextState} not found");
             if (!File.Exists(sessionStateFile))
                 throw new Exception($"{FilenameSessionState} not found");
             if (!File.Exists(sessionStateFile))
-                throw new Exception($"{FilenameExecutorState} not found");
+                throw new Exception($"{FilenameInferenceState} not found");
 
             // Session state file
             using var sessionStateStream = File.OpenRead(sessionStateFile);
@@ -177,12 +179,9 @@ namespace LLamaStack.Core.Services
             if (modelSessionState is null)
                 throw new Exception($"Session file is corrupt or out of date");
 
-            // Executor state file
-            using var executorStateStream = File.OpenRead(executorStateFile);
-            if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Instruct)
-                modelSessionState.ExecutorConfig = await JsonSerializer.DeserializeAsync<InstructExecutorState>(executorStateStream, _jsonDeserializerOptions);
-            else if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Interactive)
-                modelSessionState.ExecutorConfig = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(executorStateStream, _jsonDeserializerOptions);
+            // Inference state file
+            using var inferenceStateStream = File.OpenRead(inferenceStateFile);
+            modelSessionState.InferenceState = await JsonSerializer.DeserializeAsync<InferenceHandlerState>(inferenceStateStream, _jsonDeserializerOptions);
 
             // Get model config for this session
             var modelConfig = _configuration.Models.FirstOrDefault(x => x.Name == modelSessionState.SessionConfig.Model);
@@ -208,19 +207,16 @@ namespace LLamaStack.Core.Services
         {
             var contextStateFile = Path.Combine(sessionStateDirectory, FilenameContextState);
             var sessionStateFile = Path.Combine(sessionStateDirectory, FilenameSessionState);
-            var executorStateFile = Path.Combine(sessionStateDirectory, FilenameExecutorState);
+            var inferenceStateFile = Path.Combine(sessionStateDirectory, FilenameInferenceState);
             Directory.CreateDirectory(sessionStateDirectory);
 
             // Save Session state
             using var modelSessionStream = File.Open(sessionStateFile, FileMode.Create);
             await JsonSerializer.SerializeAsync(modelSessionStream, modelSessionState, _jsonSerializerOptions);
 
-            // Save Executor state
-            using var executorStateStream = File.Open(executorStateFile, FileMode.Create);
-            if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Instruct)
-                await JsonSerializer.SerializeAsync(executorStateStream, modelSessionState.ExecutorConfig as InstructExecutorState, _jsonSerializerOptions);
-            else if (modelSessionState.SessionConfig.ExecutorType == ExecutorType.Interactive)
-                await JsonSerializer.SerializeAsync(executorStateStream, modelSessionState.ExecutorConfig as InteractiveExecutorState, _jsonSerializerOptions);
+            // Save Inference state
+            using var inferenceStateStream = File.Open(inferenceStateFile, FileMode.Create);
+            await JsonSerializer.SerializeAsync(inferenceStateStream, modelSessionState.InferenceState, _jsonSerializerOptions);
 
             modelSessionState.ContextFile = contextStateFile;
             return modelSessionState;

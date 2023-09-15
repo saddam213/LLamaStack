@@ -23,6 +23,7 @@
     <Product>$(AssemblyName)</Product>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

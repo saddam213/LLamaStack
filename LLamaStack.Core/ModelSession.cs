@@ -1,5 +1,4 @@
-﻿using LLama;
-using LLama.Abstractions;
+﻿using LLama.Abstractions;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Extensions;
@@ -15,7 +14,7 @@ namespace LLamaStack.Core
         private readonly LLamaStackContext _context;
         private readonly IInferenceHandler _inferHandler;
         private readonly ISessionConfig _sessionParams;
-        private readonly ITextStreamTransform _outputTransform;
+        private readonly ITokenStreamTransform _outputTransform;
         private readonly List<SessionHistoryModel> _sessionHistory;
         private readonly IInferenceConfig _defaultInferenceConfig;
 
@@ -38,20 +37,8 @@ namespace LLamaStack.Core
             _sessionParams = sessionConfig;
             _defaultInferenceConfig = inferenceParams ?? new InferenceConfig();
             _sessionHistory = new List<SessionHistoryModel>();
-
-            // Inference Handler
-            _inferHandler = sessionConfig.InferenceType switch
-            {
-                InferenceType.Interactive => new InteractiveInferenceHandler<T>(_model, _context),
-                InferenceType.Instruct => new InstructInferenceHandler<T>(_model, _context, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
-                InferenceType.Stateless => new StatelessInferenceHandler<T>(_model),
-                _ => default
-            };
-
-            //Output Filter
-            var outputFilters = sessionConfig.GetOutputFilters();
-            if (outputFilters.Count > 0)
-                _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(outputFilters, redundancyLength: 8);
+            _outputTransform = CreateOutputFilter(_sessionParams);
+            _inferHandler = CreateInferHandler(_model, _context, _sessionParams);
         }
 
 
@@ -162,10 +149,12 @@ namespace LLamaStack.Core
         {
             var inferenceParams = ConfigureInferenceParams(inferenceConfig);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            //if (_outputTransform is not null)
-            //    return _outputTransform.TransformAsync(_inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token));
 
-            return _inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+            var inferenceStream = _inferHandler.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+            if (_outputTransform is not null)
+                return _outputTransform.TransformAsync(inferenceStream);
+
+            return inferenceStream;
         }
 
 
@@ -214,6 +203,26 @@ namespace LLamaStack.Core
             var inferenceParams = (inferenceConfig ?? _defaultInferenceConfig).ToInferenceParams();
             inferenceParams.AntiPrompts = _sessionParams.GetAntiPrompts();
             return inferenceParams;
+        }
+
+        private ITokenStreamTransform CreateOutputFilter(ISessionConfig sessionConfig)
+        {
+            var outputFilters = sessionConfig.GetOutputFilters();
+            if (outputFilters.Count > 0)
+                return new TokenContentKeywordTransform(outputFilters);
+
+            return null;
+        }
+
+        private IInferenceHandler CreateInferHandler(LLamaStackModel<T> model, LLamaStackContext context, ISessionConfig sessionConfig)
+        {
+            return sessionConfig.InferenceType switch
+            {
+                InferenceType.Interactive => new InteractiveInferenceHandler<T>(_model, _context),
+                InferenceType.Instruct => new InstructInferenceHandler<T>(_model, _context, sessionConfig.InputPrefix, sessionConfig.InputSuffix),
+                InferenceType.Stateless => new StatelessInferenceHandler<T>(_model),
+                _ => default
+            };
         }
 
     }

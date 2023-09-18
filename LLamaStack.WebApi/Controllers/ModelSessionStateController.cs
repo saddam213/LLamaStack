@@ -17,7 +17,7 @@ namespace LLamaStack.WebApi.Controllers
 
 
         [HttpGet("Get")]
-        public async Task<IActionResult> Get(GetRequest request)
+        public async Task<IActionResult> Get([FromQuery] GetRequest request)
         {
             var response = await _sessionStateService.Get(request);
             return response.Resolve<IActionResult>(Ok, BadRequest);

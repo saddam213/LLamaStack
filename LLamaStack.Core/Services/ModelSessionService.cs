@@ -142,7 +142,7 @@ namespace LLamaStack.Core.Services
                 // Send content of response
                 await foreach (var token in modelSession.InferAsync(prompt, inferenceConfig, cancellationToken).ConfigureAwait(false))
                 {
-                    response.Append(token);
+                    response.Append(token.Content);
                     yield return new InferTokenModel(token.Id, token.Logit, token.Probability, token.Content, InferTokenType.Content, GetElapsed(stopwatch));
                 }
 

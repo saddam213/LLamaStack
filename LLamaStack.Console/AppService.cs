@@ -21,7 +21,7 @@ namespace LLamaStack.Console
             OutputHelpers.WriteConsole("Please enter an example number below and press enter:\n", ConsoleColor.Cyan);
             foreach (var exampleRunner in _exampleRunners)
             {
-                OutputHelpers.WriteConsole($"{index}. {exampleRunner.Name} - {exampleRunner.Description}", ConsoleColor.Gray);
+                OutputHelpers.WriteConsole($"{index++}. {exampleRunner.Name} - {exampleRunner.Description}", ConsoleColor.Gray);
             }
 
             while (true)

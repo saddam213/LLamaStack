@@ -1,4 +1,5 @@
 ﻿using LLamaStack.Core;
+using LLamaStack.StableDiffusion.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,7 @@ namespace LLamaStack.Console
 
             // Add LLamaStack
             builder.Services.AddLLamaStack<string>();
+            builder.Services.AddLLamaCustomConfig<StableDiffusionConfig>();
 
             // Add AppService
             builder.Services.AddHostedService<AppService>();

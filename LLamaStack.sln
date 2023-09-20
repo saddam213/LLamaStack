@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaStack.WPF", "LLamaStac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaStack.WebApi", "LLamaStack.WebApi\LLamaStack.WebApi.csproj", "{9C13557D-1E29-4CD3-80FB-F9BA5BD84534}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaStack.Web", "LLamaStack.Web\LLamaStack.Web.csproj", "{558374E6-2F42-4785-9838-A474EAE8760F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaStack.Web", "LLamaStack.Web\LLamaStack.Web.csproj", "{558374E6-2F42-4785-9838-A474EAE8760F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaStack.StableDiffusion", "LLamaStack.StableDiffusion\LLamaStack.StableDiffusion.csproj", "{206366FC-20E1-4837-8860-CB6766A58AC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaStack.Common", "LLamaStack.Common\LLamaStack.Common.csproj", "{A3FA00D6-1DE9-4CA9-8011-9F569B8DC975}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{558374E6-2F42-4785-9838-A474EAE8760F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{558374E6-2F42-4785-9838-A474EAE8760F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{558374E6-2F42-4785-9838-A474EAE8760F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206366FC-20E1-4837-8860-CB6766A58AC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206366FC-20E1-4837-8860-CB6766A58AC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206366FC-20E1-4837-8860-CB6766A58AC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206366FC-20E1-4837-8860-CB6766A58AC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3FA00D6-1DE9-4CA9-8011-9F569B8DC975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3FA00D6-1DE9-4CA9-8011-9F569B8DC975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3FA00D6-1DE9-4CA9-8011-9F569B8DC975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3FA00D6-1DE9-4CA9-8011-9F569B8DC975}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

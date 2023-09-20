@@ -32,10 +32,12 @@ LLamaStack is a comprehensive library with several projects tailored for differe
 
 4. **[LLamaStack.WebAPI](LLamaStack.WebApi/README.md)**: This is an implementation of an ASP.NET Core WebAPI with all the essential features of llama.cpp & LLamaSharp.
 
-### In Development
-5. **LLamaStack.Signalr**: `SignalR` websocket server and client implementations designed for use in web and .NET environments.
+5. **[LLamaStack.StableDiffusion](LLamaStack.StableDiffusion/README.md)**: Text to Image Stable Diffusion with .NET and ONNX Runtime
 
-6. **LLamaStack.SemanticKernel**: Support for `Microsoft.SemanticKernel` using local models and the `LLamaStack.WebAPI` and `LLamaStack.Signalr` implementations
+### In Development
+6. **LLamaStack.Signalr**: `SignalR` websocket server and client implementations designed for use in web and .NET environments.
+
+7. **LLamaStack.SemanticKernel**: Support for `Microsoft.SemanticKernel` using local models and the `LLamaStack.WebAPI` and `LLamaStack.Signalr` implementations
 
 
 ## Installation

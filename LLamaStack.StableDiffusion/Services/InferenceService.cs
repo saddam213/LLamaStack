@@ -4,6 +4,7 @@ using LLamaStack.StableDiffusion.Common;
 using LLamaStack.StableDiffusion.Config;
 using LLamaStack.StableDiffusion.Diffusers;
 using LLamaStack.StableDiffusion.Helpers;
+using System.Linq;
 
 namespace LLamaStack.StableDiffusion.Services
 {
@@ -13,6 +14,7 @@ namespace LLamaStack.StableDiffusion.Services
         private const int EmbeddingsLength = 768;
         private const int BlankTokenValue = 49407;
 
+        private readonly int[] _emptyUncondInput;
         private readonly SessionOptions _sessionOptions;
         private readonly StableDiffusionConfig _configuration;
         private readonly InferenceSession _onnxUnetInferenceSession;
@@ -25,6 +27,7 @@ namespace LLamaStack.StableDiffusion.Services
             _configuration = configuration;
             _sessionOptions = _configuration.GetSessionOptions();
             _sessionOptions.RegisterOrtExtensions();
+            _emptyUncondInput = Enumerable.Repeat(BlankTokenValue, ModelMaxLength).ToArray();
             _onnxUnetInferenceSession = new InferenceSession(_configuration.OnnxUnetPath, _sessionOptions);
             _onnxTokenizerInferenceSession = new InferenceSession(_configuration.OnnxTokenizerPath, _sessionOptions);
             _onnxVaeDecoderInferenceSession = new InferenceSession(_configuration.OnnxVaeDecoderPath, _sessionOptions);
@@ -48,24 +51,24 @@ namespace LLamaStack.StableDiffusion.Services
             var textEmbeddings = PreprocessText(prompt, negativePrompt);
 
             // create latent tensor
-            var latents = GenerateLatentSample(diffuser);
+            var latents = GenerateLatentSample(_configuration.Seed, diffuser.GetInitNoiseSigma());
 
 
-            for (int t = 0; t < timesteps.Length; t++)
+            foreach (var timestep in timesteps)
             {
                 // torch.cat([latents] * 2)
                 var latentModelInput = TensorHelper.Duplicate(latents, new[] { 2, 4, _configuration.Height / 8, _configuration.Width / 8 });
 
                 // latent_model_input = scheduler.scale_model_input(latent_model_input, timestep = t)
-                latentModelInput = diffuser.ScaleInput(latentModelInput, timesteps[t]);
+                latentModelInput = diffuser.ScaleInput(latentModelInput, timestep);
 
-                Console.WriteLine($"scaled model input {latentModelInput[0]} at step {t}. Max {latentModelInput.Max()} Min {latentModelInput.Min()}");
-                var input = CreateUnetModelInput(textEmbeddings, latentModelInput, timesteps[t]);
+               // Console.WriteLine($"scaled model input {latentModelInput[0]} at step {timestep}. Max {latentModelInput.Max()} Min {latentModelInput.Min()}");
+                var input = CreateUnetModelInput(textEmbeddings, latentModelInput, timestep);
 
                 // Run Inference
                 using (var output = _onnxUnetInferenceSession.Run(input))
                 {
-                    var outputTensor = output.ToList().First().Value as DenseTensor<float>;
+                    var outputTensor = output.FirstElementAs<DenseTensor<float>>();
 
                     // Split tensors from 2,4,64,64 to 1,4,64,64
                     var splitTensors = TensorHelper.SplitTensor(outputTensor, new[] { 1, 4, _configuration.Height / 8, _configuration.Width / 8 });
@@ -76,14 +79,14 @@ namespace LLamaStack.StableDiffusion.Services
                     noisePred = PerformGuidance(noisePred, noisePredText, _configuration.GuidanceScale);
 
                     // LMS Scheduler Step
-                    latents = diffuser.Step(noisePred, timesteps[t], latents);
-                    Console.WriteLine($"latents result after step {t} min {latents.Min()} max {latents.Max()}");
+                    latents = diffuser.Step(noisePred, timestep, latents);
+                    //Console.WriteLine($"latents result after step {timestep} min {latents.Min()} max {latents.Max()}");
                 }
             }
 
             // Scale and decode the image latents with vae.
             // latents = 1 / 0.18215 * latents
-            latents = TensorHelper.MultipleTensorByFloat(latents, 1.0f / 0.18215f, latents.Dimensions);
+            latents = TensorHelper.MultipleTensorByFloat(latents, 1.0f / 0.18215f);
             var decoderInput = new List<NamedOnnxValue>
             {
                 NamedOnnxValue.CreateFromTensor("latent_sample", latents)
@@ -103,7 +106,7 @@ namespace LLamaStack.StableDiffusion.Services
 
             // Create uncond_input of blank tokens
             var uncondInputTokens = string.IsNullOrEmpty(negativePrompt)
-                ? CreateUncondInput()
+                ? _emptyUncondInput
                 : TokenizeText(negativePrompt);
             var uncondEmbedding = TextEncoder(uncondInputTokens);
 
@@ -129,27 +132,20 @@ namespace LLamaStack.StableDiffusion.Services
             // Run session and send the input data in to get inference output. 
             using (var tokens = _onnxTokenizerInferenceSession.Run(inputString))
             {
-                var inputIds = tokens.FirstElementAs<IEnumerable<long>>();
-                Console.WriteLine(string.Join(" ", inputIds));
+                var resultTensor = tokens.FirstElementAs<Tensor<long>>();
+                Console.WriteLine(string.Join(" ", resultTensor));
 
                 // Cast inputIds to Int32
-                var InputIdsInt = inputIds.Select(x => (int)x).ToList();
-
-                // Pad array with 49407 until length is modelMaxLength
-                if (InputIdsInt.Count < ModelMaxLength)
+                var inputTokenIds = resultTensor.Select(x => (int)x);
+                if (resultTensor.Length < ModelMaxLength)
                 {
-                    InputIdsInt.AddRange(Enumerable.Repeat(BlankTokenValue, ModelMaxLength - InputIdsInt.Count));
+                    // Pad array with 49407 until length is modelMaxLength
+                    inputTokenIds = inputTokenIds.Concat(_emptyUncondInput.Take(ModelMaxLength - (int)resultTensor.Length));
                 }
-
-                return InputIdsInt.ToArray();
+                return inputTokenIds.ToArray();
             }
         }
 
-
-        private Tensor<float> GenerateLatentSample(DiffuserBase diffuser)
-        {
-            return GenerateLatentSample(_configuration.Height, _configuration.Width, _configuration.Seed, diffuser.GetInitNoiseSigma());
-        }
 
         private List<NamedOnnxValue> CreateUnetModelInput(Tensor<float> encoderHiddenStates, Tensor<float> sample, long timeStep)
         {
@@ -162,15 +158,11 @@ namespace LLamaStack.StableDiffusion.Services
         }
 
 
-        private Tensor<float> GenerateLatentSample(int height, int width, int seed, float initNoiseSigma)
+        private Tensor<float> GenerateLatentSample(int seed, float initNoiseSigma)
         {
             var random = new Random(seed);
-            var batchSize = 1;
-            var channels = 4;
-            var latents = new DenseTensor<float>(new[] { batchSize, channels, height / 8, width / 8 });
-            var latentsArray = latents.ToArray();
-
-            for (int i = 0; i < latentsArray.Length; i++)
+            var latents = new DenseTensor<float>(new[] { 1, 4, _configuration.Height / 8, _configuration.Width / 8 });
+            for (int i = 0; i < latents.Length; i++)
             {
                 // Generate a random number from a normal distribution with mean 0 and variance 1
                 var u1 = random.NextDouble(); // Uniform(0,1) random number
@@ -181,11 +173,8 @@ namespace LLamaStack.StableDiffusion.Services
 
                 // add noise to latents with * scheduler.init_noise_sigma
                 // generate randoms that are negative and positive
-                latentsArray[i] = (float)standardNormalRand * initNoiseSigma;
+                latents.SetValue(i, (float)standardNormalRand * initNoiseSigma);
             }
-
-            latents = TensorHelper.CreateTensor(latentsArray, latents.Dimensions);
-
             return latents;
         }
 
@@ -207,7 +196,7 @@ namespace LLamaStack.StableDiffusion.Services
             return noisePred;
         }
 
-        private DenseTensor<float> TextEncoder(int[] tokenizedInput)
+        private Tensor<float> TextEncoder(int[] tokenizedInput)
         {
             // Create input tensor.
             var input_ids = TensorHelper.CreateTensor(tokenizedInput, new[] { 1, tokenizedInput.Length });
@@ -216,17 +205,11 @@ namespace LLamaStack.StableDiffusion.Services
             // Run inference.
             using (var encoded = _onnxTextEncoderInferenceSession.Run(input))
             {
-                var lastHiddenState = encoded.FirstElementAs<IEnumerable<float>>();
-                var lastHiddenStateTensor = TensorHelper.CreateTensor(lastHiddenState.ToArray(), new[] { 1, ModelMaxLength, EmbeddingsLength });
-                return lastHiddenStateTensor;
+                return encoded.FirstElementAs<DenseTensor<float>>().Clone();
             }
         }
 
-        private static int[] CreateUncondInput()
-        {
-            // Create an array of empty tokens for the unconditional input.
-            return Enumerable.Repeat(BlankTokenValue, ModelMaxLength).ToArray();
-        }
+
 
         private DiffuserBase GetDiffuser(DiffuserConfig diffuserConfig)
         {

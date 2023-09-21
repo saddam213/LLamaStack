@@ -5,7 +5,7 @@ namespace LLamaStack.StableDiffusion.Services
 {
     public class ImageService : IImageService
     {
-        public Image<Rgba32> TensorToImage(Tensor<float> imageTensor, int width = 512, int height = 512)
+        public Image<Rgba32> TensorToImage(Tensor<float> imageTensor, int width, int height)
         {
             var result = new Image<Rgba32>(width, height);
             for (var y = 0; y < height; y++)

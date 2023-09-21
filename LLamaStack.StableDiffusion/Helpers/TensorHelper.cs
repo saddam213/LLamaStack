@@ -19,9 +19,9 @@ namespace LLamaStack.StableDiffusion.Helpers
             return divTensor;
         }
 
-        public static DenseTensor<float> MultipleTensorByFloat(Tensor<float> data, float value, ReadOnlySpan<int> dimensions)
+        public static DenseTensor<float> MultipleTensorByFloat(Tensor<float> data, float value)
         {
-            var mullTensor = new DenseTensor<float>(dimensions);
+            var mullTensor = new DenseTensor<float>(data.Dimensions);
             for (int i = 0; i < data.Length; i++)
             {
                 mullTensor.SetValue(i, data.GetValue(i) * value);
@@ -29,14 +29,9 @@ namespace LLamaStack.StableDiffusion.Helpers
             return mullTensor;
         }
 
-        public static DenseTensor<float> MultipleTensorByFloat(Tensor<float> data, float value)
+        public static DenseTensor<float> AddTensors(Tensor<float> sample, Tensor<float> sumTensor)
         {
-            return MultipleTensorByFloat(data, value, data.Dimensions);
-        }
-
-        public static DenseTensor<float> AddTensors(Tensor<float> sample, Tensor<float> sumTensor, ReadOnlySpan<int> dimensions)
-        {
-            var addTensor = new DenseTensor<float>(dimensions);
+            var addTensor = new DenseTensor<float>(sample.Dimensions);
             for (var i = 0; i < sample.Length; i++)
             {
                 addTensor.SetValue(i, sample.GetValue(i) + sumTensor.GetValue(i));
@@ -44,16 +39,10 @@ namespace LLamaStack.StableDiffusion.Helpers
             return addTensor;
         }
 
-        public static DenseTensor<float> AddTensors(Tensor<float> sample, Tensor<float> sumTensor)
-        {
-            return AddTensors(sample, sumTensor, sample.Dimensions);
-        }
-
         public static Tuple<Tensor<float>, Tensor<float>> SplitTensor(Tensor<float> tensorToSplit, ReadOnlySpan<int> dimensions)
         {
             var tensor1 = new DenseTensor<float>(dimensions);
             var tensor2 = new DenseTensor<float>(dimensions);
-
             for (int i = 0; i < 1; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -69,7 +58,6 @@ namespace LLamaStack.StableDiffusion.Helpers
                 }
             }
             return new Tuple<Tensor<float>, Tensor<float>>(tensor1, tensor2);
-
         }
 
         public static DenseTensor<float> SumTensors(Tensor<float>[] tensorArray, ReadOnlySpan<int> dimensions)

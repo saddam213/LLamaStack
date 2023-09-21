@@ -5,8 +5,9 @@ namespace LLamaStack.StableDiffusion.Common
 {
     public interface IInferenceService : IDisposable
     {
-        DenseTensor<float> PreprocessText(string prompt);
-        Tensor<float> RunInference(string prompt, DiffuserConfig diffuserConfig);
         int[] TokenizeText(string text);
+        DenseTensor<float> PreprocessText(string prompt, string negativePrompt);
+        Tensor<float> RunInference(string prompt, DiffuserConfig diffuserConfig);
+        Tensor<float> RunInference(string prompt, string negativePrompt, DiffuserConfig diffuserConfig);
     }
 }

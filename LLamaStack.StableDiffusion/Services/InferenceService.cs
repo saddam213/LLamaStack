@@ -12,7 +12,7 @@ namespace LLamaStack.StableDiffusion.Services
         private const int ModelMaxLength = 77;
         private const int EmbeddingsLength = 768;
         private const int BlankTokenValue = 49407;
-      
+
         private readonly SessionOptions _sessionOptions;
         private readonly StableDiffusionConfig _configuration;
         private readonly InferenceSession _onnxUnetInferenceSession;
@@ -33,6 +33,11 @@ namespace LLamaStack.StableDiffusion.Services
 
         public Tensor<float> RunInference(string prompt, DiffuserConfig diffuserConfig)
         {
+            return RunInference(prompt, null, diffuserConfig);
+        }
+
+        public Tensor<float> RunInference(string prompt, string negativePrompt, DiffuserConfig diffuserConfig)
+        {
             // Get Diffuser
             var diffuser = GetDiffuser(diffuserConfig);
 
@@ -40,12 +45,12 @@ namespace LLamaStack.StableDiffusion.Services
             var timesteps = diffuser.SetTimesteps(_configuration.NumInferenceSteps);
 
             // Preprocess text
-            var textEmbeddings = PreprocessText(prompt);
+            var textEmbeddings = PreprocessText(prompt, negativePrompt);
 
             // create latent tensor
             var latents = GenerateLatentSample(diffuser);
 
-           
+
             for (int t = 0; t < timesteps.Length; t++)
             {
                 // torch.cat([latents] * 2)
@@ -90,14 +95,16 @@ namespace LLamaStack.StableDiffusion.Services
             }
         }
 
-        public DenseTensor<float> PreprocessText(string prompt)
+        public DenseTensor<float> PreprocessText(string prompt, string negativePrompt)
         {
             // Load the tokenizer and text encoder to tokenize and encode the text.
             var textTokenized = TokenizeText(prompt);
             var textPromptEmbeddings = TextEncoder(textTokenized);
 
             // Create uncond_input of blank tokens
-            var uncondInputTokens = CreateUncondInput();
+            var uncondInputTokens = string.IsNullOrEmpty(negativePrompt)
+                ? CreateUncondInput()
+                : TokenizeText(negativePrompt);
             var uncondEmbedding = TextEncoder(uncondInputTokens);
 
             // Concat textEmeddings and uncondEmbedding
@@ -113,9 +120,9 @@ namespace LLamaStack.StableDiffusion.Services
         public int[] TokenizeText(string text)
         {
             var inputTensor = new DenseTensor<string>(new string[] { text }, new int[] { 1 });
-            var inputString = new List<NamedOnnxValue> 
-            { 
-                NamedOnnxValue.CreateFromTensor("string_input", inputTensor) 
+            var inputString = new List<NamedOnnxValue>
+            {
+                NamedOnnxValue.CreateFromTensor("string_input", inputTensor)
             };
 
             // Create an InferenceSession from the onnx clip tokenizer.

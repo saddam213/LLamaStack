@@ -18,41 +18,59 @@ namespace LLamaStack.StableDiffusion.Services
 
         public Task<Image<Rgba32>> TextToImage(string prompt)
         {
-            return TextToImageInternal(prompt,  new DiffuserConfig());
+            return TextToImageInternal(prompt, null, new DiffuserConfig());
         }
 
+        public Task<Image<Rgba32>> TextToImage(string prompt, string negativePrompt)
+        {
+            return TextToImageInternal(prompt, negativePrompt, new DiffuserConfig());
+        }
 
         public Task<Image<Rgba32>> TextToImage(string prompt, DiffuserConfig diffuserConfig)
         {
-            return TextToImageInternal(prompt,  diffuserConfig);
+            return TextToImageInternal(prompt, null, diffuserConfig);
+        }
+
+        public Task<Image<Rgba32>> TextToImage(string prompt, string negativePrompt, DiffuserConfig diffuserConfig)
+        {
+            return TextToImageInternal(prompt, negativePrompt, diffuserConfig);
         }
 
 
         public Task<bool> TextToImageFile(string prompt, string filename)
         {
-            return TextToImageFileInternal(prompt, filename,  new DiffuserConfig());
+            return TextToImageFileInternal(prompt, null, filename, new DiffuserConfig());
         }
 
+        public Task<bool> TextToImageFile(string prompt, string negativePrompt, string filename)
+        {
+            return TextToImageFileInternal(prompt, negativePrompt, filename, new DiffuserConfig());
+        }
 
         public Task<bool> TextToImageFile(string prompt, string filename, DiffuserConfig diffuserConfig)
         {
-            return TextToImageFileInternal(prompt, filename,  diffuserConfig);
+            return TextToImageFileInternal(prompt, null, filename, diffuserConfig);
+        }
+
+        public Task<bool> TextToImageFile(string prompt, string negativePrompt, string filename, DiffuserConfig diffuserConfig)
+        {
+            return TextToImageFileInternal(prompt, negativePrompt, filename, diffuserConfig);
         }
 
 
 
-        private async Task<Image<Rgba32>> TextToImageInternal(string prompt, DiffuserConfig diffuserConfig)
+        private async Task<Image<Rgba32>> TextToImageInternal(string prompt, string negativePrompt, DiffuserConfig diffuserConfig)
         {
             return await Task.Run(() =>
             {
-                var imageTensorData = _inferenceService.RunInference(prompt, diffuserConfig);
+                var imageTensorData = _inferenceService.RunInference(prompt, negativePrompt, diffuserConfig);
                 return _imageService.TensorToImage(imageTensorData, _configuration.Width, _configuration.Height);
             }).ConfigureAwait(false);
         }
 
-        private async Task<bool> TextToImageFileInternal(string prompt, string filename,  DiffuserConfig diffuserConfig)
+        private async Task<bool> TextToImageFileInternal(string prompt, string negativePrompt, string filename, DiffuserConfig diffuserConfig)
         {
-            var image = await TextToImageInternal(prompt, diffuserConfig);
+            var image = await TextToImageInternal(prompt, negativePrompt, diffuserConfig);
             if (image is null)
                 return false;
 
@@ -64,5 +82,7 @@ namespace LLamaStack.StableDiffusion.Services
         {
             _inferenceService.Dispose();
         }
+
+
     }
 }

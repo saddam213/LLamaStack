@@ -26,25 +26,28 @@ namespace LLamaStack.Console.Runner
             {
                 OutputHelpers.WriteConsole("Please type a prompt and press ENTER", ConsoleColor.Yellow);
                 var prompt = OutputHelpers.ReadConsole(ConsoleColor.Cyan);
+
+                OutputHelpers.WriteConsole("Please type a negative prompt and press ENTER (optional)", ConsoleColor.Yellow);
+                var negativePrompt = OutputHelpers.ReadConsole(ConsoleColor.Cyan);
                 using (var stableDiffusionService = new StableDiffusionService(_configuration))
                 {
                     // Generate image using LMSDiffuser
-                    await GenerateImage(stableDiffusionService, prompt, DiffuserType.LMSDiffuser);
+                    await GenerateImage(stableDiffusionService, prompt, negativePrompt, DiffuserType.LMSDiffuser);
 
                     // Generate image using EulerAncestralDiffuser
-                    await GenerateImage(stableDiffusionService, prompt, DiffuserType.EulerAncestralDiffuser);
+                    await GenerateImage(stableDiffusionService, prompt, negativePrompt, DiffuserType.EulerAncestralDiffuser);
                 }
             }
         }
 
-        private async Task<bool> GenerateImage(IStableDiffusionService stableDiffusionService, string prompt, DiffuserType diffuserType)
+        private async Task<bool> GenerateImage(IStableDiffusionService stableDiffusionService, string prompt, string negativePrompt, DiffuserType diffuserType)
         {
             var outputPath = Path.Combine(Directory.GetCurrentDirectory(), $"{diffuserType}_{DateTime.Now.ToString("yyyyMMddHHmmSS")}.png");
             var diffuserConfig = new DiffuserConfig
             {
                 DiffuserType = diffuserType
             };
-            if (await stableDiffusionService.TextToImageFile(prompt, outputPath, diffuserConfig))
+            if (await stableDiffusionService.TextToImageFile(prompt, negativePrompt, outputPath, diffuserConfig))
             {
                 OutputHelpers.WriteConsole($"{diffuserType} Image Created, FilePath: {outputPath}", ConsoleColor.Green);
                 return true;

@@ -45,10 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLamaStack.Common\LLamaStack.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="LLamaSharp" Condition=" '$(Configuration)' == 'Debug' ">
       <HintPath>..\..\LLamaSharp\LLama\bin\Debug\net7.0\LLamaSharp.dll</HintPath>
     </Reference>

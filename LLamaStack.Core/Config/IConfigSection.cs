@@ -1,4 +1,4 @@
-﻿namespace LLamaStack.Common.Config
+﻿namespace LLamaStack.Core.Config
 {
     /// <summary>
     /// Interface for implementing custom appsettings.json sections

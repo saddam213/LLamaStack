@@ -12,24 +12,21 @@ namespace LLamaStack.Core.Extensions
     {
 
         /// <summary>
-        /// Converts an IModelConfig to IModelParams.
+        /// Converts an IModelConfig to ILLamaParams.
         /// </summary>
         /// <param name="modelConfig">The model configuration.</param>
-        public static IModelParams ToModelParams(this IModelConfig modelConfig)
+        public static ILLamaParams ToLLamaParams(this IModelConfig modelConfig)
         {
             return new ModelParams(modelConfig.ModelPath)
             {
                 BatchSize = modelConfig.BatchSize,
                 ContextSize = modelConfig.ContextSize,
-                ConvertEosToNewLine = modelConfig.ConvertEosToNewLine,
                 EmbeddingMode = modelConfig.EmbeddingMode,
                 Encoding = Encoding.GetEncoding(modelConfig.Encoding),
                 GpuLayerCount = modelConfig.GpuLayerCount,
-                LoraAdapter = modelConfig.LoraAdapter,
+                // LoraAdapter = modelConfig.LoraAdapter, TODO:
                 LoraBase = modelConfig.LoraBase,
-                LowVram = modelConfig.LowVram,
                 MainGpu = modelConfig.MainGpu,
-                ModelAlias = modelConfig.ModelAlias,
                 MulMatQ = modelConfig.MulMatQ,
                 Perplexity = modelConfig.Perplexity,
                 RopeFrequencyBase = modelConfig.RopeFrequencyBase,
@@ -39,11 +36,12 @@ namespace LLamaStack.Core.Extensions
                 UseFp16Memory = modelConfig.UseFp16Memory,
                 UseMemoryLock = modelConfig.UseMemoryLock,
                 UseMemorymap = modelConfig.UseMemorymap,
-                Threads = modelConfig.Threads > 0
-                    ? modelConfig.Threads
-                    : Math.Max(Environment.ProcessorCount / 2, 1)
+                Threads = modelConfig.Threads > 0 ? modelConfig.Threads : null,
+                BatchThreads = modelConfig.BatchThreads > 0 ? modelConfig.BatchThreads : null,
+                VocabOnly = modelConfig.VocabOnly
             };
         }
+
 
         /// <summary>
         /// Converts IInferenceConfig to InferenceParams.

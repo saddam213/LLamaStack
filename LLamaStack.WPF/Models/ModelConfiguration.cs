@@ -14,23 +14,20 @@ namespace LLamaStack.WPF.Models
         private float _ropeFrequencyBase;
         private float[] _tensorSplits;
         private bool _embeddingMode;
-        private bool _convertEosToNewLine;
-        private int _batchSize;
-        private int _threads;
+        private uint _batchSize;
+        private uint _threads;
         private string _loraBase;
-        private string _loraAdapter;
-        private string _modelAlias;
         private string _modelPath;
         private bool _perplexity;
         private bool _useMemoryLock;
         private bool _useMemorymap;
         private bool _useFp16Memory;
-        private int _seed;
+        private uint _seed;
         private int _gpuLayerCount;
-        private bool _lowVram;
         private int _mainGpu;
-        private int _contextSize;
-
+        private uint _contextSize;
+        public bool _vocabOnly;
+        private uint _batchThreads;
 
         public string Name
         {
@@ -43,7 +40,7 @@ namespace LLamaStack.WPF.Models
             set { _maxInstances = value; NotifyPropertyChanged(); }
         }
 
-        public int ContextSize
+        public uint ContextSize
         {
             get { return _contextSize; }
             set { _contextSize = value; NotifyPropertyChanged(); }
@@ -53,17 +50,13 @@ namespace LLamaStack.WPF.Models
             get { return _mainGpu; }
             set { _mainGpu = value; NotifyPropertyChanged(); }
         }
-        public bool LowVram
-        {
-            get { return _lowVram; }
-            set { _lowVram = value; NotifyPropertyChanged(); }
-        }
+
         public int GpuLayerCount
         {
             get { return _gpuLayerCount; }
             set { _gpuLayerCount = value; NotifyPropertyChanged(); }
         }
-        public int Seed
+        public uint Seed
         {
             get { return _seed; }
             set { _seed = value; NotifyPropertyChanged(); }
@@ -93,35 +86,20 @@ namespace LLamaStack.WPF.Models
             get { return _modelPath; }
             set { _modelPath = value; NotifyPropertyChanged(); }
         }
-        public string ModelAlias
-        {
-            get { return _modelAlias; }
-            set { _modelAlias = value; NotifyPropertyChanged(); }
-        }
-        public string LoraAdapter
-        {
-            get { return _loraAdapter; }
-            set { _loraAdapter = value; NotifyPropertyChanged(); }
-        }
         public string LoraBase
         {
             get { return _loraBase; }
             set { _loraBase = value; NotifyPropertyChanged(); }
         }
-        public int Threads
+        public uint Threads
         {
             get { return _threads; }
             set { _threads = value; NotifyPropertyChanged(); }
         }
-        public int BatchSize
+        public uint BatchSize
         {
             get { return _batchSize; }
             set { _batchSize = value; NotifyPropertyChanged(); }
-        }
-        public bool ConvertEosToNewLine
-        {
-            get { return _convertEosToNewLine; }
-            set { _convertEosToNewLine = value; NotifyPropertyChanged(); }
         }
         public bool EmbeddingMode
         {
@@ -155,22 +133,30 @@ namespace LLamaStack.WPF.Models
             set { _encoding = value; NotifyPropertyChanged(); }
         }
 
+        public uint BatchThreads
+        {
+            get { return _batchThreads; }
+            set { _batchThreads = value; NotifyPropertyChanged(); }
+        }
+
+        public bool VocabOnly
+        {
+            get { return _vocabOnly; }
+            set { _vocabOnly = value; NotifyPropertyChanged(); }
+        }
+
         public static ModelConfiguration From(ModelConfig config)
         {
             return new ModelConfiguration
             {
                 BatchSize = config.BatchSize,
                 ContextSize = config.ContextSize,
-                ConvertEosToNewLine = config.ConvertEosToNewLine,
                 EmbeddingMode = config.EmbeddingMode,
                 Encoding = config.Encoding,
                 GpuLayerCount = config.GpuLayerCount,
-                LoraAdapter = config.LoraAdapter,
                 LoraBase = config.LoraBase,
-                LowVram = config.LowVram,
                 MainGpu = config.MainGpu,
                 MaxInstances = config.MaxInstances,
-                ModelAlias = config.ModelAlias,
                 ModelPath = config.ModelPath,
                 MulMatQ = config.MulMatQ,
                 Name = config.Name,
@@ -192,16 +178,12 @@ namespace LLamaStack.WPF.Models
             {
                 BatchSize = config.BatchSize,
                 ContextSize = config.ContextSize,
-                ConvertEosToNewLine = config.ConvertEosToNewLine,
                 EmbeddingMode = config.EmbeddingMode,
                 Encoding = config.Encoding,
                 GpuLayerCount = config.GpuLayerCount,
-                LoraAdapter = config.LoraAdapter,
                 LoraBase = config.LoraBase,
-                LowVram = config.LowVram,
                 MainGpu = config.MainGpu,
                 MaxInstances = config.MaxInstances,
-                ModelAlias = config.ModelAlias,
                 ModelPath = config.ModelPath,
                 MulMatQ = config.MulMatQ,
                 Name = config.Name,

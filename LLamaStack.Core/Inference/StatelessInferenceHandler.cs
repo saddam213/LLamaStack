@@ -10,16 +10,19 @@ namespace LLamaStack.Core.Inference
     public sealed class StatelessInferenceHandler<T> : IInferenceHandler
     {
         private readonly LLamaStackModel<T> _model;
+        private readonly IContextParams _params;
 
-        /// <summary>
+        public StatelessInferenceHandler(LLamaWeights weights, IContextParams @params)
         /// Initializes a new instance of the <see cref="StatelessInferenceHandler{T}"/> class.
         /// </summary>
         /// <param name="model">The model.</param>
         public StatelessInferenceHandler(LLamaStackModel<T> model)
         {
-            _model = model;
+            _weights = weights;
+            _params = @params;
         }
 
+        public LLamaContext Context { get; private set; }
 
         /// <summary>
         /// Gets the InferenceType.

@@ -24,14 +24,14 @@ namespace LLamaStack.Core
         public LLamaStackModel(ModelConfig modelParams)
         {
             _config = modelParams;
-            _weights = LLamaWeights.LoadFromFile(modelParams.ToModelParams());
+            _weights = LLamaWeights.LoadFromFile(modelParams.ToLLamaParams());
             _contexts = new ConcurrentDictionary<T, LLamaStackContext>();
         }
 
         /// <summary>
         /// Gets the model configuration.
         /// </summary>
-        public IModelParams ModelParams => _config.ToModelParams();
+        public ILLamaParams LLamaParams => _config.ToLLamaParams();
 
         /// <summary>
         /// Gets the LLamaWeights
@@ -59,7 +59,7 @@ namespace LLamaStack.Core
             if (_config.MaxInstances > -1 && ContextCount >= _config.MaxInstances)
                 throw new Exception($"Maximum model instances reached");
 
-            context = new LLamaStackContext(_weights.CreateContext(_config.ToModelParams()));
+            context = new LLamaStackContext(_weights.CreateContext(LLamaParams));
             if (_contexts.TryAdd(contextId, context))
                 return Task.FromResult(context);
 

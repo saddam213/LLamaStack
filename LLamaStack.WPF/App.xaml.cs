@@ -80,7 +80,7 @@ namespace LLamaStack.WPF
             _logger = ServiceProvider.GetService<ILogger<App>>();
 
             // Setup Extra Logging
-            LLama.Native.NativeApi.llama_log_set(LLamaNativeLogCallback);
+            //LLama.Native.NativeApi.llama_log_set(LLamaNativeLogCallback);
 
             // Try catch any deeper exceptions
             AppDomain.CurrentDomain.UnhandledException += (s, e) => _logger.LogError($"UnhandledException: {e.ExceptionObject}");
@@ -89,30 +89,5 @@ namespace LLamaStack.WPF
             TaskScheduler.UnobservedTaskException += (s, e) => _logger.LogError($"UnobservedTaskException: {e.Exception?.Message}");
         }
 
-
-        /// <summary>
-        /// LLama.cpp Native log callback.
-        /// </summary>
-        /// <param name="llamalevel">The llamalevel.</param>
-        /// <param name="message">The message.</param>
-        private static void LLamaNativeLogCallback(ILLamaLogger.LogLevel llamalevel, string message)
-        {
-            if (string.IsNullOrEmpty(message) || message.Equals(".") || message.Equals("\n"))
-                return;
-
-            var level = llamalevel switch
-            {
-                ILLamaLogger.LogLevel.Info => LogLevel.Information,
-                ILLamaLogger.LogLevel.Debug => LogLevel.Debug,
-                ILLamaLogger.LogLevel.Warning => LogLevel.Warning,
-                ILLamaLogger.LogLevel.Error => LogLevel.Error,
-                _ => LogLevel.None
-            };
-
-            // Redirecting to ILogger is retardedly slow and grinds the UI to a halt on model load
-            // So just call the static log function directly
-            // _logger.Log(level, _logLLamaCppEvent, $"{message}".TrimEnd('\n'));
-            Utils.LogToWindow($"[{DateTime.Now}] [{level}] [LLama.cpp] - {message}");
-        }
     }
 }

@@ -22,17 +22,13 @@ namespace LLamaStack.Core.Config
         /// <summary>
         /// Model context size (n_ctx)
         /// </summary>
-        public int ContextSize { get; set; } = 512;
+        public uint ContextSize { get; set; } = 512;
 
         /// <summary>
         /// the GPU that is used for scratch and small tensors
         /// </summary>
         public int MainGpu { get; set; } = 0;
 
-        /// <summary>
-        /// if true, reduce VRAM usage at the cost of performance
-        /// </summary>
-        public bool LowVram { get; set; } = false;
 
         /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
@@ -42,7 +38,7 @@ namespace LLamaStack.Core.Config
         /// <summary>
         /// Seed for the random number generator (seed)
         /// </summary>
-        public int Seed { get; set; } = 1686349486;
+        public uint Seed { get; set; } = 1686349486;
 
         /// <summary>
         /// Use f16 instead of f32 for memory kv (memory_f16)
@@ -70,11 +66,6 @@ namespace LLamaStack.Core.Config
         public string ModelPath { get; set; }
 
         /// <summary>
-        /// lora adapter path (lora_adapter)
-        /// </summary>
-        public string LoraAdapter { get; set; } = string.Empty;
-
-        /// <summary>
         /// base model path for the lora adapter (lora_base)
         /// </summary>
         public string LoraBase { get; set; } = string.Empty;
@@ -82,17 +73,12 @@ namespace LLamaStack.Core.Config
         /// <summary>
         /// Number of threads (-1 = autodetect) (n_threads)
         /// </summary>
-        public int Threads { get; set; } = Math.Max(Environment.ProcessorCount / 2, 1);
+        public uint Threads { get; set; } = 0;
 
         /// <summary>
         /// batch size for prompt processing (must be &gt;=32 to use BLAS) (n_batch)
         /// </summary>
-        public int BatchSize { get; set; } = 512;
-
-        /// <summary>
-        /// Whether to convert eos to newline during the inference.
-        /// </summary>
-        public bool ConvertEosToNewLine { get; set; } = false;
+        public uint BatchSize { get; set; } = 512;
 
         /// <summary>
         /// Whether to use embedding mode. (embedding) Note that if this is set to true,
@@ -108,17 +94,12 @@ namespace LLamaStack.Core.Config
         /// <summary>
         /// RoPE base frequency
         /// </summary>
-        public float RopeFrequencyBase { get; set; } = 10000.0f;
+        public float RopeFrequencyBase { get; set; } = 0f;
 
         /// <summary>
         /// RoPE frequency scaling factor
         /// </summary>
-        public float RopeFrequencyScale { get; set; } = 1.0f;
-
-        /// <summary>
-        /// model alias
-        /// </summary>
-        public string ModelAlias { get; set; }
+        public float RopeFrequencyScale { get; set; } = 0f;
 
         /// <summary>
         /// Use experimental mul_mat_q kernels
@@ -129,5 +110,17 @@ namespace LLamaStack.Core.Config
         /// The encoding to use for models
         /// </summary>
         public string Encoding { get; set; } = "UTF-8";
+
+
+        /// <summary>
+        /// Gets or sets the batch threads.
+        /// </summary>
+        public uint BatchThreads { get; set; } = 0;
+
+
+        /// <summary>
+        /// Gets a value indicating whether vocab only.
+        /// </summary>
+        public bool VocabOnly { get; set; } = false;
     }
 }

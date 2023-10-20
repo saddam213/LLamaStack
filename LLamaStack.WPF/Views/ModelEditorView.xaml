@@ -90,11 +90,6 @@
                         </UniformGrid>
 
                         <StackPanel Margin="0,0,0,5">
-                            <TextBlock Text="LoraAdapter"/>
-                            <userControls:FilePickerTextBox x:Name="LoraAdapter" FileName="{Binding SelectedModel.LoraAdapter}" IsRequired="False"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,0,0,5">
                             <TextBlock Text="LoraBase"/>
                             <userControls:FilePickerTextBox FileName="{Binding SelectedModel.LoraBase}" IsRequired="False"/>
                         </StackPanel>
@@ -114,7 +109,7 @@
                         <StackPanel>
                             <CheckBox Content="MulMatQ" IsChecked="{Binding SelectedModel.MulMatQ}"  Margin="0,0,0,5"/>
                             <CheckBox Content="Perplexity" IsChecked="{Binding SelectedModel.Perplexity}"  Margin="0,0,0,5"/>
-                            <CheckBox Content="ConvertEosToNewLine" IsChecked="{Binding SelectedModel.ConvertEosToNewLine}"  Margin="0,0,0,5"/>
+                            <CheckBox Content="VocabOnly" IsChecked="{Binding SelectedModel.VocabOnly}"  Margin="0,0,0,5"/>
                             <CheckBox Content="EmbeddingMode" IsChecked="{Binding SelectedModel.EmbeddingMode}"  Margin="0,0,0,5"/>
                         </StackPanel>
                     </StackPanel>
@@ -128,6 +123,10 @@
                             <StackPanel Margin="0,0,5,0">
                                 <TextBlock Text="Threads"/>
                                 <TextBox Text="{Binding SelectedModel.Threads}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,5,0">
+                                <TextBlock Text="Batch Threads"/>
+                                <TextBox Text="{Binding SelectedModel.BatchThreads}" />
                             </StackPanel>
                             <StackPanel Margin="5,0,0,0">
                                 <TextBlock Text="MaxInstances"/>
@@ -157,9 +156,6 @@
                             <TextBox Text="{Binding SelectedModel.TensorSplits}" />
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,5">
-                            <CheckBox Content="LowVram" IsChecked="{Binding SelectedModel.LowVram}" />
-                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
 

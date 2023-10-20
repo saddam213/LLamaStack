@@ -156,7 +156,7 @@ namespace LLamaStack.Core.Inference
                     _currentTokens.Add(_promptTokens[_consumedTokensCount]);
                     _lastTokens.Enqueue(_promptTokens[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_currentTokens.Count >= _model.ModelParams.BatchSize)
+                    if (_currentTokens.Count >= _model.LLamaParams.BatchSize)
                     {
                         break;
                     }

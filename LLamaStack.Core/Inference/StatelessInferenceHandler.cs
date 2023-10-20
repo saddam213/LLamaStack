@@ -1,4 +1,5 @@
-﻿using LLama.Abstractions;
+﻿using LLama;
+using LLama.Abstractions;
 using LLama.Common;
 using LLamaStack.Core.Common;
 using LLamaStack.Core.Services;
@@ -12,14 +13,13 @@ namespace LLamaStack.Core.Inference
         private readonly LLamaStackModel<T> _model;
         private readonly IContextParams _params;
 
-        public StatelessInferenceHandler(LLamaWeights weights, IContextParams @params)
         /// Initializes a new instance of the <see cref="StatelessInferenceHandler{T}"/> class.
         /// </summary>
         /// <param name="model">The model.</param>
         public StatelessInferenceHandler(LLamaStackModel<T> model)
         {
-            _weights = weights;
-            _params = @params;
+            _model = model;
+            _params = model.LLamaParams;
         }
 
         public LLamaContext Context { get; private set; }

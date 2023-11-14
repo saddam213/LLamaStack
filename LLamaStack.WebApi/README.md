@@ -190,6 +190,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 0,
             "probability": 0,
             "content": null,
+            "isChild": false,
             "type": "Begin",
             "elapsed": 0
         },
@@ -198,6 +199,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 27.43893,
             "probability": 0.5839324,
             "content": " An",
+            "isChild": false,
             "type": "Content",
             "elapsed": 1292
         },
@@ -206,6 +208,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 31.901243,
             "probability": 0.9997987,
             "content": " apple",
+            "isChild": false,
             "type": "Content",
             "elapsed": 1414
         },
@@ -214,6 +217,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 32.91171,
             "probability": 0.99989986,
             "content": " is",
+            "isChild": false,
             "type": "Content",
             "elapsed": 1672
         },
@@ -259,6 +263,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 0,
             "probability": 0,
             "content": null,
+            "isChild": false,
             "type": "Begin",
             "elapsed": 0
         },
@@ -267,6 +272,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 27.43893,
             "probability": 0.5839324,
             "content": " An",
+            "isChild": false,
             "type": "Content",
             "elapsed": 1292
         },
@@ -275,6 +281,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 31.901243,
             "probability": 0.9997987,
             "content": " apple",
+            "isChild": false,
             "type": "Content",
             "elapsed": 1414
         },
@@ -283,6 +290,7 @@ The `ModelSessionController` is a controller designed to handle various `ModelSe
             "logit": 32.91171,
             "probability": 0.99989986,
             "content": " is",
+            "isChild": false,
             "type": "Content",
             "elapsed": 1672
         },

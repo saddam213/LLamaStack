@@ -109,7 +109,10 @@ await foreach (var token in inferTokens)
    Console.Write(token.Logit);
    Console.Write(token.Probability);
    Console.Write(token.Content);
+   Console.Write(token.IsChild);
 }
+//Note: If a character has more than one token the first will contain the entire content
+//the others are marked as IsChild and will only contain the Id, Logit and Probability
 
 
 // InferTextAsync, returns IAsyncEnumerable<string> for streaming output of tokens

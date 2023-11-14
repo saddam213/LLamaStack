@@ -34,10 +34,9 @@ namespace LLamaStack.WPF
             }
         };
 
-
         public static void LogToWindow(string message)
         {
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
             {
                 (System.Windows.Application.Current.MainWindow as MainWindow).UpdateOutputLog(message);
             }));

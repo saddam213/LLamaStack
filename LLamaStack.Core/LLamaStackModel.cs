@@ -1,5 +1,6 @@
 ﻿using LLama;
 using LLama.Abstractions;
+using LLama.Native;
 using LLamaStack.Core.Config;
 using LLamaStack.Core.Extensions;
 using System.Collections.Concurrent;
@@ -43,6 +44,19 @@ namespace LLamaStack.Core
         /// Gets the context count.
         /// </summary>
         public int ContextCount => _contexts.Count;
+
+
+
+        /// <summary>
+        /// Gets the native llama EOS tokenid.
+        /// </summary>
+        public int TokenEOS => NativeApi.llama_token_eos(_weights.NativeHandle);
+
+
+        /// <summary>
+        /// Gets the native llama NL tokenid.
+        /// </summary>
+        public int TokenNL => NativeApi.llama_token_nl(_weights.NativeHandle);
 
 
         /// <summary>

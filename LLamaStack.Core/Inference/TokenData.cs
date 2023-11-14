@@ -5,5 +5,6 @@
         public float Logit { get; set; }
         public float Probability { get; set; }
         public string Content { get; set; }
+        public bool IsChild { get; set; }
     }
 }

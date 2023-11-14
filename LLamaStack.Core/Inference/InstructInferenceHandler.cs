@@ -89,32 +89,13 @@ namespace LLamaStack.Core.Inference
         {
             if (_promptTokens.Count <= _consumedTokensCount)
             {
-                if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
-                {
-                    var last_output_builder = new StringBuilder();
-                    foreach (var token in _lastTokens)
-                    {
-                        _context.TokenToString(token, last_output_builder);
-                    }
-
-                    var last_output = last_output_builder.ToString();
-                    foreach (var antiprompt in args.Antiprompts)
-                    {
-                        if (last_output.EndsWith(antiprompt))
-                        {
-                            args.WaitForInput = true;
-                            return Task.FromResult(true);
-                        }
-                    }
-                }
-
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
                     return Task.FromResult(true);
                 }
             }
 
-            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == _context.TokenEOS)
+            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == _model.TokenEOS)
             {
                 args.WaitForInput = true;
             }

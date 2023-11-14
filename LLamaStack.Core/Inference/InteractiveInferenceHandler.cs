@@ -18,7 +18,7 @@ namespace LLamaStack.Core.Inference
         /// <param name="context">The context.</param>
         public InteractiveInferenceHandler(LLamaStackModel<T> model, LLamaStackContext context) : base(model, context)
         {
-            _tokenNewline = new TokenData(_context.TokenNL);
+            _tokenNewline = new TokenData(model.TokenNL);
         }
 
 
@@ -69,32 +69,13 @@ namespace LLamaStack.Core.Inference
         {
             if (_promptTokens.Count <= _consumedTokensCount)
             {
-                if (!args.Antiprompts.IsNullOrEmpty())
-                {
-                    var last_output_builder = new StringBuilder();
-                    foreach (var token in _lastTokens)
-                    {
-                        _context.TokenToString(token, last_output_builder);
-                    }
-
-                    var last_output = last_output_builder.ToString();
-                    foreach (var antiprompt in args.Antiprompts)
-                    {
-                        if (last_output.EndsWith(antiprompt))
-                        {
-                            args.WaitForInput = true;
-                            break;
-                        }
-                    }
-                }
-
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
                     return Task.FromResult(true);
                 }
             }
 
-            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == _context.TokenEOS)
+            if (_currentTokens.Count > 0 && _currentTokens.Last()?.Id == _model.TokenEOS)
             {
                 return Task.FromResult(true);
             }
@@ -133,15 +114,9 @@ namespace LLamaStack.Core.Inference
 
                 _lastTokens.Enqueue(tokenData);
 
-
-                if (tokenData.Id == _context.TokenEOS)
+                if (tokenData.Id == _model.TokenEOS)
                 {
                     tokenData = _tokenNewline;
-                    if (!args.Antiprompts.IsNullOrEmpty())
-                    {
-                        var first_antiprompt = _context.TokenizeTextToList(args.Antiprompts[0], false);
-                        _promptTokens.AddRange(first_antiprompt);
-                    }
                 }
 
                 _currentTokens.Add(tokenData);

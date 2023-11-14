@@ -38,18 +38,6 @@ namespace LLamaStack.Core
 
 
         /// <summary>
-        /// Gets the native llama EOS tokenid.
-        /// </summary>
-        public int TokenEOS => NativeApi.llama_token_eos(_context.NativeHandle);
-
-
-        /// <summary>
-        /// Gets the native llama NL tokenid.
-        /// </summary>
-        public int TokenNL => NativeApi.llama_token_nl(_context.NativeHandle);
-
-
-        /// <summary>
         /// Loads the state.
         /// </summary>
         /// <param name="filename">The filename.</param>
@@ -100,8 +88,7 @@ namespace LLamaStack.Core
             return new TokenData(tokenData.id)
             {
                 Logit = tokenData.logit,
-                Probability = tokenData.p,
-                Content = _context.TokenToString(tokenData.id)
+                Probability = tokenData.p
             };
         }
 
@@ -152,7 +139,8 @@ namespace LLamaStack.Core
                 inferenceParams.TopP,
                 inferenceParams.TfsZ,
                 inferenceParams.TypicalP,
-                inferenceParams.Grammar
+                inferenceParams.Grammar,
+                inferenceParams.MinP
             );
         }
 
@@ -166,7 +154,7 @@ namespace LLamaStack.Core
         private IEnumerable<TokenData> TokenizeText(string text, bool addBos)
         {
             return _context.Tokenize(text, addBos)
-                .Select(x => new TokenData(x) { Content = _context.TokenToString(x) });
+                .Select(x => new TokenData(x));
         }
 
 
@@ -205,17 +193,6 @@ namespace LLamaStack.Core
             return Task.Run(() => _context.Eval(tokens.ToTokenIds(), pastTokensCount));
         }
 
-
-        /// <summary>
-        /// Token to string.
-        /// </summary>
-        /// <param name="token">The token.</param>
-        /// <param name="stringBuilder">The string builder.</param>
-        public void TokenToString(TokenData token, StringBuilder stringBuilder)
-        {
-            _context.NativeHandle.TokenToString(token.Id, _context.Encoding, stringBuilder);
-        }
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -223,9 +200,5 @@ namespace LLamaStack.Core
         {
             _context?.Dispose();
         }
-
-
     }
-
-
 }

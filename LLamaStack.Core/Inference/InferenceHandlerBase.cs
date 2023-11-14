@@ -1,8 +1,12 @@
-﻿using LLama.Abstractions;
+﻿using LLama;
+using LLama.Abstractions;
 using LLama.Common;
 using LLamaStack.Core.Common;
+using LLamaStack.Core.Extensions;
+using LLamaStack.Core.Models;
 using LLamaStack.Core.Services;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace LLamaStack.Core.Inference
 {
@@ -48,6 +52,11 @@ namespace LLamaStack.Core.Inference
         /// </summary>
         protected ISampleService _sampleService;
 
+        /// <summary>
+        /// The token decoder
+        /// </summary>
+        protected StreamingTokenDecoder _tokenDecoder;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InferenceHandlerBase{T}"/> class.
@@ -61,6 +70,7 @@ namespace LLamaStack.Core.Inference
             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _sampleService = new SampleService(_context);
+            _tokenDecoder = new StreamingTokenDecoder(_context.LLamaContext);
             _lastTokens = new FixedSizeQueue<TokenData>(_context.ContextSize).FillWith(new(0));
         }
 
@@ -136,6 +146,7 @@ namespace LLamaStack.Core.Inference
         {
             cancellationToken.ThrowIfCancellationRequested();
             inferenceParams ??= new InferenceParams();
+            var antipromptProcessor = new AntipromptProcessor(inferenceParams.AntiPrompts);
 
             InferStateArgs args = new InferStateArgs()
             {
@@ -158,8 +169,14 @@ namespace LLamaStack.Core.Inference
 
                 if (args.ReturnValue)
                 {
-                    foreach (var embed in _currentTokens)
-                        yield return embed;
+                    foreach (var tokenData in ProcessTokens(_currentTokens))
+                    {
+                        // Check if any of the antiprompts have been generated
+                        if (!tokenData.IsChild && antipromptProcessor.Add(tokenData.Content))
+                            args.WaitForInput = true;
+
+                        yield return tokenData;
+                    }
                 }
 
                 var breakGeneration = await PostProcess(inferenceParams, args);
@@ -170,6 +187,18 @@ namespace LLamaStack.Core.Inference
             }
         }
 
+        protected List<TokenData> ProcessTokens(List<TokenData> tokens)
+        {
+            _tokenDecoder.AddRange(tokens.ToTokenIds());
+
+            // First token is parent, contains full Content,
+            // Others are Child, no Content, Data only
+            tokens[0].Content = _tokenDecoder.Read();
+            foreach (var token in tokens.Skip(1))
+                token.IsChild = true;
+
+            return tokens;
+        }
 
         /// <summary>
         /// Gets the state.

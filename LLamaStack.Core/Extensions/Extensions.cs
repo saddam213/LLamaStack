@@ -32,7 +32,7 @@ namespace LLamaStack.Core.Extensions
                 RopeFrequencyBase = modelConfig.RopeFrequencyBase,
                 RopeFrequencyScale = modelConfig.RopeFrequencyScale,
                 Seed = modelConfig.Seed,
-                TensorSplits = modelConfig.TensorSplits,
+                TensorSplits = modelConfig.TensorSplits == null ? new() :  new (modelConfig.TensorSplits),
                 UseFp16Memory = modelConfig.UseFp16Memory,
                 UseMemoryLock = modelConfig.UseMemoryLock,
                 UseMemorymap = modelConfig.UseMemorymap,

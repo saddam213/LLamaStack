@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Native;
 using LLamaStack.Core;
 using LLamaStack.WPF.Services;
 using LLamaStack.WPF.Views;
@@ -8,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace LLamaStack.WPF
 {
@@ -80,7 +83,7 @@ namespace LLamaStack.WPF
             _logger = ServiceProvider.GetService<ILogger<App>>();
 
             // Setup Extra Logging
-            //LLama.Native.NativeApi.llama_log_set(LLamaNativeLogCallback);
+            NativeApi.llama_log_set(LLamaNativeLogCallback);
 
             // Try catch any deeper exceptions
             AppDomain.CurrentDomain.UnhandledException += (s, e) => _logger.LogError($"UnhandledException: {e.ExceptionObject}");
@@ -89,5 +92,22 @@ namespace LLamaStack.WPF
             TaskScheduler.UnobservedTaskException += (s, e) => _logger.LogError($"UnobservedTaskException: {e.Exception?.Message}");
         }
 
+        private static void LLamaNativeLogCallback(LLamaLogLevel llamaLogLevel, string message)
+        {
+            var level = llamaLogLevel switch
+            {
+                LLamaLogLevel.Warning => LogLevel.Warning,
+                LLamaLogLevel.Info => LogLevel.Information,
+                LLamaLogLevel.Error => LogLevel.Error,
+                LLamaLogLevel.Debug => LogLevel.Debug,
+                _ => LogLevel.Debug,
+            };
+
+            var filtered = message.TrimEnd(new[] { '\n', '.' });
+            if (string.IsNullOrEmpty(filtered) || filtered.StartsWith("llama_model_loader:")) // To much for the poor window logger
+                return;
+
+            _logger.Log(level, filtered);
+        }
     }
 }
